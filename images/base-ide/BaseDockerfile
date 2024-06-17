@@ -31,15 +31,15 @@ COPY images/base-ide/ .
 RUN yarn --pure-lockfile && \
     yarn build:extensions && \
     yarn download:plugins && \
-    yarn browser build
-#    yarn && \
-#    yarn autoclean --init && \
-#    echo *.ts >> .yarnclean && \
-#    echo *.ts.map >> .yarnclean && \
-#    echo *.spec.* >> .yarnclean && \
-#    yarn autoclean --force && \
-#    yarn cache clean && \
-#    rm -r .git applications/electron theia-extensions/launcher theia-extensions/updater node_modules
+    yarn browser build && \
+    yarn && \
+    yarn autoclean --init && \
+    echo *.ts >> .yarnclean && \
+    echo *.ts.map >> .yarnclean && \
+    echo *.spec.* >> .yarnclean && \
+    yarn autoclean --force && \
+    yarn cache clean && \
+    rm -r applications/electron theia-extensions/launcher theia-extensions/updater node_modules
 
 # Base-IDE Stage generating a image for others to copy from. It´s also startable for debug reasons.
 FROM node:18-bullseye-slim as base-ide

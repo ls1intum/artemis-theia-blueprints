@@ -1,6 +1,9 @@
 # Load the base-ide image, only copy from here
 FROM ghcr.io/ls1intum/theia/base as base-ide
 
+# Load the plugin image, only copy from here
+FROM ghcr.io/ls1intum/theia/java-17-plugins as plugin-image
+
 # Builder stage to 
 FROM node:18-bullseye-slim as final-ide
 
@@ -12,6 +15,7 @@ COPY --from=base-ide /home/theia/applications/browser/ /home/theia/applications/
 
 # Copy plugins
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
+COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
 
 # Create theia user and directories
 # Application will be copied to /home/theia

@@ -59,7 +59,6 @@
     },
     "theiaPluginsDir": "plugins",
     "theiaPlugins": {
-      "test": "https://open-vsx.org/api/vscode/json/1.88.1/file/vscode.json-1.88.1.vsix"
     },
     "theiaPluginsExcludeIds": [
       "ms-vscode.js-debug-companion",

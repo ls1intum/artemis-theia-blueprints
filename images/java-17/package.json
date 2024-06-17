@@ -15,14 +15,18 @@
       "yarn": ">=1.7.0 <2",
       "node": ">=12.14.1"
     },
+    "devDependencies": {
+      "@theia/cli": "1.50.1"
+    },
     "scripts": {
       "clean": "lerna run clean && rimraf node_modules",
       "build:extensions": "lerna run --scope=\"theia-ide*ext\" build",
-      "download:plugins": "theia download:plugins --rate-limit=15 --parallel=false --ignore-errors",
+      "download:plugins": "theia download:plugins --rate-limit=15 --parallel=false --ignore-errors"
     },
     "theiaPluginsDir": "plugins",
     "theiaPlugins": {
-      "test": "https://open-vsx.org/api/vscode/json/1.88.1/file/vscode.json-1.88.1.vsix"
+      "vscjava.vscode-java-pack": "https://open-vsx.org/api/vscjava/vscode-java-pack/0.25.11/file/vscjava.vscode-java-pack-0.25.11.vsix",
+      "vscjava.vscode-java-dependency": "https://open-vsx.org/api/vscjava/vscode-java-dependency/0.21.2/file/vscjava.vscode-java-dependency-0.21.2.vsix"
     },
     "theiaPluginsExcludeIds": [
       "ms-vscode.js-debug-companion",
