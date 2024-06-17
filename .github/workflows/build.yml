@@ -7,13 +7,20 @@ on:
       - master
   
 jobs:
+  build-and-push-base:
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@main
+    with:
+      docker-file: images/base-ide/BaseDockerfile
+      image-name: ghcr.io/ls1intum/theia/base
+      docker-context: .
+    secrets: inherit
+
   build-and-push:
+    needs: build-and-push-base
     strategy:
       matrix:
         docker-context: ['.']
         include:
-          - docker-file: images/base-ide/BaseDockerfile
-            image-name: ghcr.io/ls1intum/theia/base
           - docker-file: images/java-17/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/java-17
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@main
