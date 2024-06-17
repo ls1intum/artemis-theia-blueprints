@@ -1,0 +1,61 @@
+# Builder stage
+FROM node:18-bullseye as base-ide
+
+# install required tools to build the application
+RUN apt-get update && apt-get install -y libxkbfile-dev libsecret-1-dev
+
+WORKDIR /home/theia
+
+# Copy required configuration files
+COPY yarn.lock yarn.lock
+COPY package.json package.json
+COPY tsconfig.json tsconfig.json
+COPY lerna.json lerna.json
+COPY configs configs
+
+# Copy Browser Application (do not copy electron application)
+COPY applications applications
+
+# Copy Theia Extensions (launcher, product, updater)
+COPY theia-extensions theia-extensions
+
+# Copy repository files
+#COPY . .
+
+# Copy image specific files - this should overwrite the default files from the repository
+COPY images/base-ide/ .
+
+# Remove unnecesarry files for the browser application
+# Download plugins and build application production mode
+# Use yarn autoclean to remove unnecessary files from package dependencies
+RUN yarn --pure-lockfile && \
+    yarn build:extensions && \
+    yarn download:plugins && \
+    yarn browser build
+#    yarn && \
+#    yarn autoclean --init && \
+#    echo *.ts >> .yarnclean && \
+#    echo *.ts.map >> .yarnclean && \
+#    echo *.spec.* >> .yarnclean && \
+#    yarn autoclean --force && \
+#    yarn cache clean && \
+#    rm -r .git applications/electron theia-extensions/launcher theia-extensions/updater node_modules
+
+# Fix Debian Bullseye Signatures
+RUN apt-get update && apt-get install -y wget apt-transport-https && \
+    wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /usr/share/keyrings/adoptium.asc && \
+    echo "deb [signed-by=/usr/share/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
+
+ENV HOME /home/theia
+
+# Specify default shell for Theia and the Built-In plugins directory
+ENV SHELL=/bin/bash \
+    THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
+
+EXPOSE 3000
+
+# Launch the backend application via node
+ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
+
+# Arguments passed to the application
+CMD [ "/home/project", "--hostname=0.0.0.0" ]
