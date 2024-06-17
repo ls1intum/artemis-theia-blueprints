@@ -12,8 +12,10 @@ jobs:
       matrix:
         docker-context: ['.']
         include:
-          - docker-file: BaseDockerfile
+          - docker-file: images/base-ide/BaseDockerfile
             image-name: ghcr.io/ls1intum/theia/base
+          - docker-file: images/java-17/ToolDockerfile
+            image-name: ghcr.io/ls1intum/theia/java-17
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@main
     with:
       docker-file: ${{ matrix.docker-file }}

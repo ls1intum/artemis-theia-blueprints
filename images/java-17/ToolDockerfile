@@ -1,5 +1,5 @@
 # Load the base-ide image, only copy from here
-FROM theia-base-ide as base-ide
+FROM ghcr.io/ls1intum/theia/base as base-ide
 
 # Builder stage to 
 FROM node:18-bullseye-slim as final-ide
