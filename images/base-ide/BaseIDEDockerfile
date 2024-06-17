@@ -1,5 +1,5 @@
 # Builder stage
-FROM node:18-bullseye as base-ide
+FROM node:18-bullseye as build-stage
 
 # install required tools to build the application
 RUN apt-get update && apt-get install -y libxkbfile-dev libsecret-1-dev
@@ -41,11 +41,12 @@ RUN yarn --pure-lockfile && \
 #    yarn cache clean && \
 #    rm -r .git applications/electron theia-extensions/launcher theia-extensions/updater node_modules
 
-# Fix Debian Bullseye Signatures
-RUN apt-get update && apt-get install -y wget apt-transport-https && \
-    wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /usr/share/keyrings/adoptium.asc && \
-    echo "deb [signed-by=/usr/share/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
+# Base-IDE Stage generating a image for others to copy from. It´s also startable for debug reasons.
+FROM node:18-bullseye-slim as base-ide
 
+COPY --from=build-stage /home/theia /home/theia
+
+WORKDIR /home/theia
 ENV HOME /home/theia
 
 # Specify default shell for Theia and the Built-In plugins directory

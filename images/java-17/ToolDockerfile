@@ -1,0 +1,56 @@
+# Load the base-ide image, only copy from here
+FROM theia-base-ide as base-ide
+
+# Builder stage to 
+FROM node:18-bullseye-slim as final-ide
+
+WORKDIR /home/theia
+
+# Copy IDE files
+COPY --from=base-ide /home/theia/applications/browser/lib/backend /home/theia/applications/browser/lib/backend
+COPY --from=base-ide /home/theia/applications/browser/ /home/theia/applications/browser/
+
+# Copy plugins
+COPY --from=base-ide /home/theia/plugins /home/theia/plugins
+
+# Create theia user and directories
+# Application will be copied to /home/theia
+# Default workspace is located at /home/project
+RUN adduser --system --group theia
+RUN chmod g+rw /home && \
+    mkdir -p /home/project && \
+    chown -R theia:theia /home/theia && \
+    chown -R theia:theia /home/project
+
+# Install required tools for image: wget, apt-transport-https, update & upgrade packages, bash
+RUN apt-get update && \
+    apt-get install -y wget apt-transport-https bash && \
+    apt-get upgrade -y
+
+# Install required tools for application: Temurin JDK, JDK, Maven
+RUN wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /usr/share/keyrings/adoptium.asc && \
+    echo "deb [signed-by=/usr/share/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list && \
+    apt-get update && apt-get install -y libsecret-1-0 temurin-17-jdk maven && \
+    apt-get purge -y wget && \
+    apt-get clean
+
+# Specify default shell for Theia and the Built-In plugins directory
+ENV SHELL=/bin/bash \
+    THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
+
+# Use installed git instead of dugite
+ENV USE_LOCAL_GIT true
+
+
+ENV HOME /home/theia
+EXPOSE 3000
+
+# Switch to Theia user
+USER theia
+WORKDIR /home/theia/applications/browser
+
+# Launch the backend application via node
+ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
+
+# Arguments passed to the application
+CMD [ "/home/project", "--hostname=0.0.0.0" ]
