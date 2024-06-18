@@ -1,3 +1,4 @@
+# ghcr.io/ls1intum/theia/java-17-plugins
 # Builder stage
 FROM node:18-bullseye as plugin-image
 
@@ -5,10 +6,6 @@ WORKDIR /home/theia
 
 # Copy required configuration files
 COPY yarn.lock yarn.lock
-COPY package.json package.json
-COPY tsconfig.json tsconfig.json
-COPY lerna.json lerna.json
-COPY configs configs
 
 # Copy image specific files - this should overwrite the default files from the repository
 COPY images/java-17/package.json .

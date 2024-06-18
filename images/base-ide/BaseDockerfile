@@ -1,3 +1,4 @@
+# ghcr.io/ls1intum/theia/base
 # Builder stage
 FROM node:18-bullseye as build-stage
 
@@ -6,6 +7,9 @@ RUN apt-get update && apt-get install -y libxkbfile-dev libsecret-1-dev
 
 WORKDIR /home/theia
 
+# Configure to skip download of puppeteer
+ENV PUPPETEER_SKIP_DOWNLOAD true
+
 # Copy required configuration files
 COPY yarn.lock yarn.lock
 COPY package.json package.json
@@ -13,14 +17,11 @@ COPY tsconfig.json tsconfig.json
 COPY lerna.json lerna.json
 COPY configs configs
 
-# Copy Browser Application (do not copy electron application)
+# Copy Browser Application (and electron but it will be removed later)
 COPY applications applications
 
 # Copy Theia Extensions (launcher, product, updater)
 COPY theia-extensions theia-extensions
-
-# Copy repository files
-#COPY . .
 
 # Copy image specific files - this should overwrite the default files from the repository
 COPY images/base-ide/ .
@@ -32,7 +33,7 @@ RUN yarn --pure-lockfile --network-timeout 1000000
 RUN yarn build:extensions
 RUN yarn download:plugins
 RUN yarn browser build
-RUN yarn --network-timeout 1000000
+#RUN yarn --network-timeout 1000000
 RUN yarn autoclean --init
 RUN echo *.ts >> .yarnclean
 RUN echo *.ts.map >> .yarnclean
