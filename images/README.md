@@ -15,7 +15,7 @@ Our used Theia IDE Images are built in 3 steps
 3. Copy the downloaded plugins from the `plugin-image`
 
 ## Creating Images
-For overwriting default Theia configuration files, a simple directory can be created inside the image`s location. Using a `COPY` instruction in the Dockerfile, all contents will overwrite existing files in the image.
+For overwriting default Theia configuration files, a simple directory can be created inside the image's location. Using a `COPY` instruction in the Dockerfile, all contents will overwrite existing files in the image.
 
-For example, for the image `images/base-ide/`, there is a `package.json`. Using `COPY images/base-ide/ .` in the Dockerfile, it will replace the default `package.json` of Theia. Creating more files in sub-directories (`images/base-ide/test/test.json`) will also overwrite existing files recursively.
+For example, for the image `images/base-ide/`, there is a `package.json`. Using `COPY images/base-ide/ .` in the Dockerfile will replace the default `package.json` of Theia. Creating more files in sub-directories (`images/base-ide/test/test.json`) will also overwrite existing files recursively.
 
