@@ -28,11 +28,11 @@ COPY images/base-ide/ .
 # Remove unnecesarry files for the browser application
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
-RUN yarn --pure-lockfile
+RUN yarn --pure-lockfile --network-timeout 1000000
 RUN yarn build:extensions
 RUN yarn download:plugins
 RUN yarn browser build
-RUN yarn
+RUN yarn --network-timeout 1000000
 RUN yarn autoclean --init
 RUN echo *.ts >> .yarnclean
 RUN echo *.ts.map >> .yarnclean
