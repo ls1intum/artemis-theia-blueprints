@@ -8,7 +8,7 @@ on:
   
 jobs:
   test-original-dockerfile:
-    uses: ls1intum/.github/.github/workflows/test-original-dockerfile.yml@main
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@main
     with:
       docker-file: browser.Dockerfile
       image-name: ghcr.io/ls1intum/theia/original_theia
