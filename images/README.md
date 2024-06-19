@@ -2,6 +2,17 @@
 
 We use Theia to provide students with programming environments tailored to their course`s needs. Instructors can choose a fitting Theia Blueprint (=Theia IDE Image) in Artemis. This repository contains the build tooling for creating those images.
 
+Matching Artemis' programming environments, the following images are available:
+- [ ] Java 17-21
+- [ ] Kotlin
+- [ ] Python
+- [ ] C
+- [ ] Haskell
+- [ ] VHDL
+- [ ] Assembler
+- [x] Swift
+- [ ] Ocaml
+
 ## Structure of Images
 Our used Theia IDE Images are built in 3 steps
 

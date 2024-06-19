@@ -1,0 +1,43 @@
+{
+    "private": true,
+    "version": "1.50.100",
+    "license": "MIT",
+    "author": "Rob Moran <github@thegecko.org>",
+    "homepage": "https://github.com/eclipse-theia/theia-blueprint#readme",
+    "bugs": {
+      "url": "https://github.com/eclipse-theia/theia/issues"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/eclipse-theia/theia-blueprint.git"
+    },
+    "engines": {
+      "yarn": ">=1.7.0 <2",
+      "node": ">=12.14.1"
+    },
+    "devDependencies": {
+      "@theia/cli": "1.50.1",
+      "node-pty": "1.0.0"
+    },
+    "scripts": {
+      "clean": "lerna run clean && rimraf node_modules",
+      "build:extensions": "lerna run --scope=\"theia-ide*ext\" build",
+      "download:plugins": "theia download:plugins --rate-limit=15 --parallel=false --ignore-errors"
+    },
+    "theiaPluginsDir": "plugins",
+    "theiaPlugins": {
+      "swift-language-basics": "https://open-vsx.org/api/vscode/swift/1.88.1/file/vscode.swift-1.88.1.vsix",
+      "swift": "https://open-vsx.org/api/sswg/swift-lang/1.10.2/file/sswg.swift-lang-1.10.2.vsix",
+      "swiftlint-vsc": "https://open-vsx.org/api/vknabel/vscode-swiftlint/1.8.4/file/vknabel.vscode-swiftlint-1.8.4.vsix"
+    },
+    "theiaPluginsExcludeIds": [
+      "ms-vscode.js-debug-companion",
+      "VisualStudioExptTeam.vscodeintellicode",
+      "vscode.builtin-notebook-renderers",
+      "vscode.extension-editing",
+      "vscode.github",
+      "vscode.github-authentication",
+      "vscode.ipynb",
+      "vscode.microsoft-authentication"
+    ]
+  }

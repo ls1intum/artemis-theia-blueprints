@@ -21,7 +21,7 @@ COPY images/java-17/package.json .
 RUN yarn --pure-lockfile && \
     yarn download:plugins
 
-# Builder stage to 
+# Assemble the application
 FROM node:18-bullseye-slim as final-ide
 
 WORKDIR /home/theia
