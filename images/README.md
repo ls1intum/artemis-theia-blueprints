@@ -12,7 +12,7 @@ Our used Theia IDE Images are built in 3 steps
 ## Building Dockerfiles for Images
 1. Start with the `tool-image`
 2. Copy the built Theia Application with plugins from the `ide-image`
-3. Copy the downloaded plugins from the `plugin-image`
+3. Copy the downloaded plugins from the `plugin-image` (implemented in the ToolDockerfile)
 
 ## Creating Images
 For overwriting default Theia configuration files, a simple directory can be created inside the image's location. Using a `COPY` instruction in the Dockerfile, all contents will overwrite existing files in the image.

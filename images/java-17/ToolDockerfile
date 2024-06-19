@@ -60,8 +60,7 @@ ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
-ENV USE_LOCAL_GIT true
-
+ENV USE_LOCAL_GIT true 
 
 ENV HOME /home/theia
 EXPOSE 3000
