@@ -1,0 +1,41 @@
+{
+    "private": true,
+    "version": "1.50.100",
+    "license": "MIT",
+    "author": "Rob Moran <github@thegecko.org>",
+    "homepage": "https://github.com/eclipse-theia/theia-blueprint#readme",
+    "bugs": {
+      "url": "https://github.com/eclipse-theia/theia/issues"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/eclipse-theia/theia-blueprint.git"
+    },
+    "engines": {
+      "yarn": ">=1.7.0 <2",
+      "node": ">=12.14.1"
+    },
+    "devDependencies": {
+      "@theia/cli": "1.50.1"
+    },
+    "scripts": {
+      "clean": "lerna run clean && rimraf node_modules",
+      "build:extensions": "lerna run --scope=\"theia-ide*ext\" build",
+      "download:plugins": "theia download:plugins --rate-limit=15 --parallel=false --ignore-errors"
+    },
+    "theiaPluginsDir": "plugins",
+    "theiaPlugins": {
+      "cc++-language-built-ins": "https://open-vsx.org/api/vscode/cpp/1.88.1/file/vscode.cpp-1.88.1.vsix",
+      "MakefileTools": "https://open-vsx.org/api/ms-vscode/makefile-tools/0.9.10/file/ms-vscode.makefile-tools-0.9.10.vsix"
+    },
+    "theiaPluginsExcludeIds": [
+      "ms-vscode.js-debug-companion",
+      "VisualStudioExptTeam.vscodeintellicode",
+      "vscode.builtin-notebook-renderers",
+      "vscode.extension-editing",
+      "vscode.github",
+      "vscode.github-authentication",
+      "vscode.ipynb",
+      "vscode.microsoft-authentication"
+    ]
+  }

@@ -29,6 +29,8 @@ jobs:
               "BUILDER_IMAGE"=swift:5.9.2-focal"
               "RUNTIME_IMAGE=swift:5.9.2-focal"
               "SWIFTLINT_VERSION=0.54.0"
+          - docker-file: images/c/ToolDockerfile
+            image-name: ghcr.io/ls1intum/theia/c
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@main
     with:
       docker-file: ${{ matrix.docker-file }}
