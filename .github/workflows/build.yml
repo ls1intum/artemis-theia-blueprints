@@ -23,21 +23,30 @@ jobs:
         include:
           - docker-file: images/java-17/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/java-17
+            tags: "2024-06-21"
+            labels: | 
+              "TestLabel"
+              "TestLabel2"
           - docker-file: images/swift/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/swift
             build-args: |
               "BUILDER_IMAGE"=swift:5.9.2-focal"
               "RUNTIME_IMAGE=swift:5.9.2-focal"
               "SWIFTLINT_VERSION=0.54.0"
+            tags: "2024-06-21"
           - docker-file: images/c/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/c
+            tags: "2024-06-21"
           - docker-file: images/ocaml/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/ocaml
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@main
+            tags: "2024-06-21"
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feat/include-label-for-docker-images
     with:
       docker-file: ${{ matrix.docker-file }}
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
+      tags: ${{ matrix.tags }}
+      labels: ${{ matrix.labels }}
     secrets: inherit
   
   
