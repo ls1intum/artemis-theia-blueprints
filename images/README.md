@@ -6,12 +6,12 @@ Matching Artemis' programming environments, the following images are available:
 - [ ] Java 17-21
 - [ ] Kotlin
 - [ ] Python
-- [ ] C
+- [x] C
 - [ ] Haskell
 - [ ] VHDL
 - [ ] Assembler
 - [x] Swift
-- [ ] Ocaml
+- [x] Ocaml
 
 ## Structure of Images
 Our used Theia IDE Images are built in 3 steps
@@ -30,3 +30,8 @@ For overwriting default Theia configuration files, a simple directory can be cre
 
 For example, for the image `images/base-ide/`, there is a `package.json`. Using `COPY images/base-ide/ .` in the Dockerfile will replace the default `package.json` of Theia. Creating more files in sub-directories (`images/base-ide/test/test.json`) will also overwrite existing files recursively.
 
+## Choosing the correct plugins
+Plugins are an easy way to add functionality to the basic features of VSC or the minimal `base-ide` image. To configure the download step of the `plugin-image` (currently incorporated in the `ToolDockerfile`), you may change the `theiaPlugins` array of the `package.json` inside of your image's folder (`/images/<name>/package.json`). Why don´t you start finding appropriate plugins [here](https://open-vsx.org/)?
+
+### Configuring Theia's VSC built-ins
+Theia offers a large built-in plugin bundling all those (82) functions and languages that VSC offers out of the box (https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix). As your image most likely will not require all those features, you can remove sub-plugins by adding their `id` to the list of `theiaPluginsExcludeIds` of the `package.json`. You can find the list of all excluded plugins in the `/images/base-ide/package.json`.

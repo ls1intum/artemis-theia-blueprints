@@ -21,8 +21,8 @@ jobs:
       matrix:
         docker-context: ['.']
         include:
-          - docker-file: images/java17-21/ToolDockerfile
-            image-name: ghcr.io/ls1intum/theia/java17-21
+          - docker-file: images/java-17/ToolDockerfile
+            image-name: ghcr.io/ls1intum/theia/java-17
           - docker-file: images/swift/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/swift
             build-args: |
@@ -31,6 +31,8 @@ jobs:
               "SWIFTLINT_VERSION=0.54.0"
           - docker-file: images/c/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/c
+          - docker-file: images/ocaml/ToolDockerfile
+            image-name: ghcr.io/ls1intum/theia/ocaml
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@main
     with:
       docker-file: ${{ matrix.docker-file }}
