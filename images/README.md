@@ -5,7 +5,7 @@ We use Theia to provide students with programming environments tailored to their
 Matching Artemis' programming environments, the following images are available:
 - [x] Java 17
 - [ ] Kotlin
-- [ ] Python
+- [x] Python
 - [x] C
 - [ ] Haskell
 - [ ] VHDL
