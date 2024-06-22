@@ -8,7 +8,7 @@ on:
   
 jobs:
   build-and-push-base:
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@main
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feat/include-label-for-docker-images
     with:
       docker-file: images/base-ide/BaseDockerfile
       image-name: ghcr.io/ls1intum/theia/base
@@ -17,6 +17,8 @@ jobs:
 
   build-and-push:
     needs: build-and-push-base
+    runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       matrix:
         docker-context: ['.']
@@ -24,9 +26,6 @@ jobs:
           - docker-file: images/java-17/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/java-17
             tags: "2024-06-21"
-            labels: | 
-              "TestLabel"
-              "TestLabel2"
           - docker-file: images/swift/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/swift
             build-args: |
@@ -40,6 +39,12 @@ jobs:
           - docker-file: images/ocaml/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/ocaml
             tags: "2024-06-21"
+          - docker-file: images/python/ToolDockerfile
+            image-name: ghcr.io/ls1intum/theia/python
+            tags: "2024-06-21"
+          - docker-file: images/haskell/ToolDockerfile
+            image-name: ghcr.io/ls1intum/theia/haskell
+            tags: "2024-06-21"
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feat/include-label-for-docker-images
     with:
       docker-file: ${{ matrix.docker-file }}
@@ -48,5 +53,6 @@ jobs:
       tags: ${{ matrix.tags }}
       labels: ${{ matrix.labels }}
     secrets: inherit
+    continue-on-error: true
   
   

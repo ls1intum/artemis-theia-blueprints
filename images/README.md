@@ -7,7 +7,7 @@ Matching Artemis' programming environments, the following images are available:
 - [x] Kotlin (use Java 17 image and install Kotlin via Maven dependency)
 - [x] Python
 - [x] C
-- [ ] Haskell
+- [x] Haskell (some plugins require GHCup which is not yet installed)
 - [ ] VHDL
 - [ ] Assembler
 - [x] Swift
