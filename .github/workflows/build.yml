@@ -17,9 +17,8 @@ jobs:
 
   build-and-push:
     needs: build-and-push-base
-    runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         docker-context: ['.']
         include:
@@ -29,7 +28,7 @@ jobs:
           - docker-file: images/swift/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/swift
             build-args: |
-              "BUILDER_IMAGE"=swift:5.9.2-focal"
+              "BUILDER_IMAGE=swift:5.9.2-focal"
               "RUNTIME_IMAGE=swift:5.9.2-focal"
               "SWIFTLINT_VERSION=0.54.0"
             tags: "2024-06-21"
@@ -53,6 +52,5 @@ jobs:
       tags: ${{ matrix.tags }}
       labels: ${{ matrix.labels }}
     secrets: inherit
-    continue-on-error: true
   
   
