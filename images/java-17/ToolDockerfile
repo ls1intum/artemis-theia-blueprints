@@ -37,7 +37,7 @@ COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
 # Create theia user and directories
 # Application will be copied to /home/theia
 # Default workspace is located at /home/project
-RUN adduser --system --group theia
+RUN adduser --system --group theia --uid 101
 RUN chmod g+rw /home && \
     mkdir -p /home/project && \
     chown -R theia:theia /home/theia && \
