@@ -13,6 +13,7 @@ jobs:
       docker-file: images/base-ide/BaseDockerfile
       image-name: ghcr.io/ls1intum/theia/base
       docker-context: .
+      tags: "2024-06-21"
     secrets: inherit
 
   build-and-push:
@@ -50,7 +51,6 @@ jobs:
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
       tags: ${{ matrix.tags }}
-      labels: ${{ matrix.labels }}
     secrets: inherit
   
   
