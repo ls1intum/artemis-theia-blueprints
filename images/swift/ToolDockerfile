@@ -33,7 +33,7 @@ FROM ${BUILDER_IMAGE} as builder
 RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     libxml2-dev \
- && rm -r /var/lib/apt/lists/*
+    && rm -r /var/lib/apt/lists/*
 
 RUN git clone https://github.com/realm/SwiftLint.git
 WORKDIR /SwiftLint
@@ -55,7 +55,7 @@ FROM ${RUNTIME_IMAGE} as final-ide
 RUN apt-get update && apt-get install -y \
     libcurl4 \
     libxml2 \
- && rm -r /var/lib/apt/lists/*
+    && rm -r /var/lib/apt/lists/*
 
 WORKDIR /home/theia
 
@@ -75,6 +75,9 @@ RUN chmod g+rw /home && \
     mkdir -p /home/project && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
+
+# Copy the project configuration files
+COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
 
 # Copy dependencies from builder image
 COPY --from=builder /usr/lib/libsourcekitdInProc.so /usr/lib

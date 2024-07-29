@@ -43,9 +43,12 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
+# Copy the project configuration files
+COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
+
 # Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
 RUN apt-get update && \
-    apt-get install -y wget apt-transport-https bash && \
+    apt-get install -y wget apt-transport-https bash git && \
     apt-get upgrade -y
 
 # Install dependencies for this application: Temurin JDK, JDK, Maven

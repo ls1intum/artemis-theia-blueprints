@@ -52,6 +52,9 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/project
 ENV HOME /home/theia
 
+# Copy the project configuration files
+COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
+
 # Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
 RUN apt-get update && \
     apt-get install -y wget apt-transport-https bash && \

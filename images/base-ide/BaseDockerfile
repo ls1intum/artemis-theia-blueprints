@@ -23,7 +23,7 @@ COPY applications applications
 # Copy Theia Extensions (launcher, product, updater)
 COPY theia-extensions theia-extensions
 
-# Copy image specific files - this should overwrite the default files from the repository
+# Copy base image files for installing and building Theia as well as configuring the IDE
 COPY images/base-ide/ .
 
 # Remove unnecesarry files for the browser application

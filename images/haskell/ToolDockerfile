@@ -44,6 +44,9 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
+# Copy the project configuration files
+COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
+
 # Copy node from plugin-image as it is required for Theia 
 COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
 COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
@@ -72,16 +75,16 @@ RUN apt-get update \
 # It bundles the creation of new projects (`stack new`), building (`stack build`) and finally running (`stack exec`) Haskell projects.
 RUN stack setup && \
     stack ghc \
-        --package QuickCheck \
-        --package quickcheck-assertions \
-        --package smallcheck \
-        --package tasty \
-        --package tasty-ant-xml \
-        --package tasty-hunit \
-        --package tasty-quickcheck \
-        --package tasty-smallcheck \
-        --package unordered-containers \
-        -- --version \
+    --package QuickCheck \
+    --package quickcheck-assertions \
+    --package smallcheck \
+    --package tasty \
+    --package tasty-ant-xml \
+    --package tasty-hunit \
+    --package tasty-quickcheck \
+    --package tasty-smallcheck \
+    --package unordered-containers \
+    -- --version \
     && chmod -R a+rw $STACK_ROOT
 
 # Specify default shell for Theia and the Built-In plugins directory

@@ -1,0 +1,6 @@
+{
+    "extensions.ignoreRecommendations": true,
+    "files.exclude": {
+        "**/.theia": true
+    }
+}

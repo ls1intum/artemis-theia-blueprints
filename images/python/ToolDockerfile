@@ -50,6 +50,9 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
+# Copy the project configuration files
+COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
+
 # Copy node from plugin-image as it is required for Theia 
 COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
 COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
