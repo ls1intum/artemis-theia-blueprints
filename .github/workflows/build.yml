@@ -8,12 +8,13 @@ on:
   
 jobs:
   build-and-push-base:
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feat/include-label-for-docker-images
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feat/docker-run-network
     with:
       docker-file: images/base-ide/BaseDockerfile
       image-name: ghcr.io/ls1intum/theia/base
       docker-context: .
       tags: "2024-06-21"
+      network: "host"
     secrets: inherit
 
   build-and-push:
@@ -45,12 +46,13 @@ jobs:
           - docker-file: images/haskell/ToolDockerfile
             image-name: ghcr.io/ls1intum/theia/haskell
             tags: "2024-06-21"
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feat/include-label-for-docker-images
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feat/docker-run-network
     with:
       docker-file: ${{ matrix.docker-file }}
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
       tags: ${{ matrix.tags }}
+      network: "host"
     secrets: inherit
   
   
