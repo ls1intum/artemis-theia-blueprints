@@ -2,8 +2,6 @@ on:
   push:
     branches:
       - master
-  repository_dispatch:
-    types: [release_event]
   
 jobs:
   build-and-push-base:
