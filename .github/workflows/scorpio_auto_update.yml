@@ -21,34 +21,15 @@ jobs:
           FILE_PATH="images/base-ide/package.json"
           OLD_VERSION=$(grep -oP '(?<=https://open-vsx.org/api/tum-aet/artemis-scorpio/)[0-9]+\.[0-9]+\.[0-9]+' $FILE_PATH)
           sed -i "s|https://open-vsx.org/api/tum-aet/artemis-scorpio/${OLD_VERSION}/file/tum-aet.artemis-scorpio-${OLD_VERSION}.vsix|https://open-vsx.org/api/tum-aet/artemis-scorpio/${{ env.RELEASE_VERSION }}/file/tum-aet.artemis-scorpio-${{ env.RELEASE_VERSION }}.vsix|g" $FILE_PATH
-
           
           cat $FILE_PATH
-      
-      - name: Create a new branch
-        run: |
-          BRANCH_NAME="update-scorpio-release-version-${{ env.RELEASE_VERSION }}"
-          git checkout -b $BRANCH_NAME
-  
-      - name: Commit changes
-        run: |
-          git config --local user.name "github-actions"
-          git config --local user.email "github-actions@github.com"
-          git add images/base-ide/package.json
-          git commit -m "Update file with release version ${{ env.RELEASE_VERSION }}"
-
-      - name: Push changes to new branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          BRANCH_NAME="update-scorpio-release-version-${{ env.RELEASE_VERSION }}"
-          git push origin $BRANCH_NAME
       
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: update-scorpio-release-version-${{ env.RELEASE_VERSION }}
+          delete-branch: true
+          commit-message: "Update scorpio with release version ${{ env.RELEASE_VERSION }}"
           title: "Update scorpio with release version ${{ env.RELEASE_VERSION }}"
           body: "This PR updates the verion of the scorpio plugin to the new release version ${{ env.RELEASE_VERSION }}."
-          base: master  # Change this if your target branch is different
