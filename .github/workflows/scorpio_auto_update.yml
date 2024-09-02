@@ -3,41 +3,8 @@ on:
     types: [release_event]
 
 jobs:
-  validate-webhook-signature:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      - name: Install dependencies
-        run: npm install @octokit/webhooks
-
-      - name: Validate Webhook Signature
-        id: validate_signature
-        env:
-          WEBHOOK_SECRET: ${{ secrets.SCORPIO_WEBHOOOK_RELEASE_KEY }}  # Your secret key for webhook
-        run: |
-          echo "const { Webhooks } = require('@octokit/webhooks');" > verify-webhook.js
-          echo "const webhooks = new Webhooks({ secret: process.env.WEBHOOK_SECRET });" >> verify-webhook.js
-          echo "const signature = process.env.GITHUB_SIGNATURE;" >> verify-webhook.js
-          echo "const body = process.env.GITHUB_EVENT_PAYLOAD;" >> verify-webhook.js
-          echo "webhooks.verify(body, signature).then(isValid => {" >> verify-webhook.js
-          echo "  if (!isValid) { console.error('Webhook validation failed'); process.exit(1); }" >> verify-webhook.js
-          echo "  else { console.log('Webhook validation successful'); }" >> verify-webhook.js
-          echo "}).catch(err => { console.error('Error in webhook validation', err); process.exit(1); });" >> verify-webhook.js
-          
-          # Export necessary environment variables for the Node.js script
-          echo "GITHUB_SIGNATURE=${{ github.event.client_payload.headers['x-hub-signature-256'] }}" >> $GITHUB_ENV
-          echo "GITHUB_EVENT_PAYLOAD=$(cat $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
-          
-          # Run the validation script
-          node verify-webhook.js
-  
   update-scorpio-version-with-pr:
     runs-on: ubuntu-latest
-    needs: validate-webhook-signature  # Ensure this job only runs if validation passes
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
