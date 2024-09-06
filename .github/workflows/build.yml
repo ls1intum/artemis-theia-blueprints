@@ -21,11 +21,11 @@ jobs:
       matrix:
         include:
           - docker-file: images/java-17/ToolDockerfile
-            docker-context: ['.']
+            docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/java-17
             tags: "2024-06-21"
           - docker-file: images/swift/ToolDockerfile
-            docker-context: ['.']
+            docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/swift
             build-args: |
               "BUILDER_IMAGE=swift:5.9.2-focal"
@@ -33,19 +33,19 @@ jobs:
               "SWIFTLINT_VERSION=0.54.0"
             tags: "2024-06-21"
           - docker-file: images/c/ToolDockerfile
-            docker-context: ['.']
+            docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/c
             tags: "2024-06-21"
           - docker-file: images/ocaml/ToolDockerfile
-            docker-context: ['.']
+            docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/ocaml
             tags: "2024-06-21"
           - docker-file: images/python/ToolDockerfile
-            docker-context: ['.']
+            docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/python
             tags: "2024-06-21"
           - docker-file: images/haskell/ToolDockerfile
-            docker-context: ['.']
+            docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/haskell
             tags: "2024-06-21"
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feat/docker-run-network
