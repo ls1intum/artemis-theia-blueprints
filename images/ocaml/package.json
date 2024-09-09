@@ -29,6 +29,11 @@
     },
     "theiaPluginsExcludeIds": [],
     "dependencies": {
-        "@eclipse-theiacloud/monitor-theia": "^0.11.1"
+        "@eclipse-theiacloud/monitor-theia": "next",
+        "@theia/core": "^1.53.2",
+        "@theia/editor": "^1.53.2",
+        "@theia/editor-preview": "^1.53.2",
+        "@theia/electron": "^1.53.2",
+        "@theia/filesystem": "^1.53.2"
     }
 }

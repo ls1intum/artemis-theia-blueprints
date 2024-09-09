@@ -26,7 +26,8 @@
     "theiaPluginsDir": "plugins",
     "theiaPlugins": {
         "eclipse-theia.builtin-extension-pack": "https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix",
-        "MakefileTools": "https://open-vsx.org/api/ms-vscode/makefile-tools/0.9.10/file/ms-vscode.makefile-tools-0.9.10.vsix"
+        "MakefileTools": "https://open-vsx.org/api/ms-vscode/makefile-tools/0.9.10/file/ms-vscode.makefile-tools-0.9.10.vsix",
+        "clangd": "https://open-vsx.org/api/llvm-vs-code-extensions/vscode-clangd/0.1.29/file/llvm-vs-code-extensions.vscode-clangd-0.1.29.vsix"
     },
     "theiaPluginsExcludeIds": [
         "ms-vscode.js-debug-companion",
@@ -106,6 +107,11 @@
         "vscode.yaml"
     ],
     "dependencies": {
-        "@eclipse-theiacloud/monitor-theia": "^0.11.1"
+        "@eclipse-theiacloud/monitor-theia": "next",
+        "@theia/core": "^1.53.2",
+        "@theia/editor": "^1.53.2",
+        "@theia/editor-preview": "^1.53.2",
+        "@theia/electron": "^1.53.2",
+        "@theia/filesystem": "^1.53.2"
     }
 }
