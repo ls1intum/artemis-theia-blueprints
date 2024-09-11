@@ -975,11 +975,6 @@
   resolved "https://registry.yarnpkg.com/@eclipse-dash/nodejs-wrapper/-/nodejs-wrapper-0.0.1.tgz#f2629671cf090a84c4d69a8fec42f198e583d103"
   integrity sha512-Rkk8O8hEVi/+LC/co7ly1zGLVwCNJG3yPbalsz1FHAqk6WZyEaWNf29EX6jz4vTfR5wpv2xAfF2yokKuStiOdA==
 
-"@eclipse-theiacloud/monitor-theia@next":
-  version "0.12.0-next.39be9e4"
-  resolved "https://registry.yarnpkg.com/@eclipse-theiacloud/monitor-theia/-/monitor-theia-0.12.0-next.39be9e4.tgz#14650ba0ae56166dcee59ea963013be609bcaa23"
-  integrity sha512-x73EehI3AKvNVBvrYviRCwAukC26Qps3lnEzartaH3RSZ9J9hmQLl5dZIBJAFdZwz3ZPKjHb4Y6thzx7X7pLqg==
-
 "@electron/get@^2.0.0":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@electron/get/-/get-2.0.3.tgz#fba552683d387aebd9f3fcadbcafc8e12ee4f960"

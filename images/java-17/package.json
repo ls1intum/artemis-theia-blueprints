@@ -37,8 +37,5 @@
         "vscode.github-authentication",
         "vscode.ipynb",
         "vscode.microsoft-authentication"
-    ],
-    "dependencies": {
-        "@eclipse-theiacloud/monitor-theia": "next"
-    }
+    ]
 }

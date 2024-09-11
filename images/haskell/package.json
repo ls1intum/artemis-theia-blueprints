@@ -107,8 +107,5 @@
         "vscode.vscode-theme-seti",
         "vscode.xml",
         "vscode.yaml"
-    ],
-    "dependencies": {
-        "@eclipse-theiacloud/monitor-theia": "next"
-    }
+    ]
 }

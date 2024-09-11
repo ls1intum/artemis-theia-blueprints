@@ -86,7 +86,8 @@
     "@theia/vsx-registry": "1.52.0",
     "@theia/workspace": "1.52.0",
     "fs-extra": "^9.0.1",
-    "theia-ide-product-ext": "1.52.0"
+    "theia-ide-product-ext": "1.52.0",
+    "@eclipse-theiacloud/monitor-theia": "0.11.1"
   },
   "devDependencies": {
     "@theia/cli": "1.52.0"
