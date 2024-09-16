@@ -70,7 +70,7 @@ COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
 # Create theia user and directories
 # Application will be copied to /home/theia
 # Default workspace is located at /home/project
-RUN adduser --system --group theia --uid 101
+RUN adduser --system --group theia --uid 1001
 RUN chmod g+rw /home && \
     mkdir -p /home/project && \
     chown -R theia:theia /home/theia && \
@@ -78,6 +78,7 @@ RUN chmod g+rw /home && \
 
 # Copy the project configuration files
 COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
+COPY images/swift/project /home/project
 
 # Copy dependencies from builder image
 COPY --from=builder /usr/lib/libsourcekitdInProc.so /usr/lib

@@ -4,15 +4,20 @@ We use Theia to provide students with programming environments tailored to their
 
 Matching Artemis' programming environments, the following images are available:
 
-- [x] Java 17
-- [x] Kotlin (use Java 17 image and install Kotlin via Maven dependency)
-- [x] Python
-- [x] C
-- [x] Haskell (some plugins require GHCup which is not yet installed)
-- [ ] VHDL
-- [ ] Assembler
-- [x] Swift
-- [x] Ocaml
+| Name      | Available | Language & Auto-Complete |
+|-----------|:---------:|:----------------:|
+| Java 17   | ✔️         |         ✔️        |
+| Kotlin    | ✔️         |         ✔️        |
+| Python    | ✔️         |         ✔️        |
+| C         | ✔️         |         ✔️        |
+| Haskell   | ✔️         |        ❌        |
+| VHDL      | ❌        |        ❌        |
+| Assembler | ❌        |        ❌        |
+| Swift     | ✔️         |        ✔️         |
+| Ocaml     | ✔️         |        ❌        |
+| Javascript| ✔️         |        ✔️         |
+| Rust      | ❌        |        ❌        |
+
 
 ## Structure of Images
 

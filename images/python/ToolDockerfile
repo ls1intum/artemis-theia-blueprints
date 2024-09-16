@@ -61,7 +61,7 @@ COPY --from=plugin-image /home/theia/node_modules/ /home/theia/node_modules/
 
 # Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
 RUN apt-get update && \
-    apt-get install -y wget apt-transport-https bash && \
+    apt-get install -y wget apt-transport-https bash git python-is-python3 && \
     apt-get upgrade -y
 
 # Install Python Tools
