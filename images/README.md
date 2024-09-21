@@ -16,7 +16,7 @@ Matching Artemis' programming environments, the following images are available:
 | Swift     | ✔️         |        ✔️         |
 | Ocaml     | ✔️         |        ❌        |
 | Javascript| ✔️         |        ✔️         |
-| Rust      | ❌        |        ❌        |
+| Rust      | ✔️         |        ✔️         |
 
 
 ## Structure of Images
