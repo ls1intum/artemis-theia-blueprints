@@ -14,7 +14,7 @@ Matching Artemis' programming environments, the following images are available:
 | VHDL      | ❌        |        ❌        |
 | Assembler | ❌        |        ❌        |
 | Swift     | ✔️         |        ✔️         |
-| Ocaml     | ✔️         |        ❌        |
+| Ocaml     | ✔️         |        ✔️         |
 | Javascript| ✔️         |        ✔️         |
 | Rust      | ✔️         |        ✔️         |
 

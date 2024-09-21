@@ -57,24 +57,26 @@ COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
 
 # Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
 RUN apt-get update && \
-    apt-get install -y wget apt-transport-https bash && \
-    apt-get upgrade -y
+    apt-get install -y wget apt-transport-https bash curl m4 tzdata
 
-# Install Ocaml dependencies
-RUN apt-get install opam -y && \
-    apt-get install -y m4 && \
-    apt-get install -y tzdata && \
-    opam init --disable-sandboxing -y && \
-    opam install qcheck ocaml-lsp-server odoc ocamlformat utop -y
+# Install opam and ocaml dependencies
+RUN apt-get install -y opam
+
+# Set up non-root user early to avoid root permission issues with opam
+USER theia
+ENV HOME /home/theia
+
+# Initialize opam environment for the non-root user (theia)
+RUN opam init --disable-sandboxing -y && \
+    eval $(opam env) && \
+    opam install dune.3.15.3 -y && \
+    opam install qcheck ocaml-lsp-server odoc ocamlformat utop user-setup -y
+
+# Ensure the OPAM environment is loaded for future shell sessions
+RUN echo "eval \$(opam env)" >> /home/theia/.bashrc
 
 # Create .ocamlformat file inside project's root directory for ocamlformat to work
 RUN touch /home/project/.ocamlformat
-
-# Make user theia own the .opam directory
-# RUN chown -R theia:theia /home/theia/.opam
-
-# Opam needs to be initailized for theia user in every terminal session
-# RUN echo "eval $(opam env)" >> /home/node/.bashrc
 
 # Specify default shell for Theia and the Built-In plugins directory
 ENV SHELL=/bin/bash \
@@ -85,8 +87,6 @@ ENV USE_LOCAL_GIT true
 
 EXPOSE 3000
 
-# Switch to Theia user
-USER theia
 WORKDIR /home/theia/applications/browser
 
 # Launch the backend application via node
