@@ -33,3 +33,5 @@ jobs:
           commit-message: "Update scorpio with release version ${{ env.RELEASE_VERSION }}"
           title: "Update scorpio with release version ${{ env.RELEASE_VERSION }}"
           body: "This PR updates the verion of the scorpio plugin to the new release version ${{ env.RELEASE_VERSION }}."
+          reviewers: Mtze
+          team-reviewers: artemis-maintainers

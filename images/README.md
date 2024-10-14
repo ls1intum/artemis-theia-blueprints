@@ -54,7 +54,7 @@ Theia offers a large built-in plugin bundling all those (82) functions and langu
 To test images locally, they need to be pulled from ghcr.io. You can also built them yourself by starting with the BaseImage and follow with the respective ToolImage afterwards.
 
 ```
-docker build -t ghcr.io/ls1intum/theia/base-ide -f images/base-ide/BaseDockerfile .
+docker build -t ghcr.io/ls1intum/theia/base -f images/base-ide/BaseDockerfile .
 
 docker build -t ghcr.io/ls1intum/theia/java-17 -f images/java-17/ToolDockerfile .
 ```
