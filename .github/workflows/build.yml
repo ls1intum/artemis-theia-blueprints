@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - master
+      - fix_inversify_in_1_52
   
 jobs:
   build-and-push-base:
