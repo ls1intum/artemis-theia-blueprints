@@ -145,6 +145,7 @@
         "theia-extensions/*"
     ],
     "resolutions": {
+        "inversify": "6.0.3",
         "@types/puppeteer": "^5.4.0",
         "@yarnpkg/parsers": "3.0.0-rc.44",
         "**/multer": "1.4.4-lts.1",
