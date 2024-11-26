@@ -1,7 +1,8 @@
 {
     "extensions.ignoreRecommendations": true,
     "files.exclude": {
-        "**/.theia": true
+        "**/.theia": true,
+        "lost+found": true
     },
     "lldb.library": "/usr/lib/liblldb.so",
     "lldb.launch.expressions": "native"

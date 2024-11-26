@@ -1,6 +1,7 @@
 {
     "extensions.ignoreRecommendations": true,
     "files.exclude": {
-        "**/.theia": true
+        "**/.theia": true,
+        "lost+found": true
     }
 }
