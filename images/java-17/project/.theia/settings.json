@@ -8,5 +8,6 @@
     "java.help.collectErrorLog": false,
     "java.help.firstView": "none",
     "java.help.showReleaseNotes": false,
-    "java.silentNotification": true
+    "java.silentNotification": true,
+    "telemetry.telemetryLevel": false
 }
