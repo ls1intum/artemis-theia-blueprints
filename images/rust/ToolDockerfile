@@ -22,7 +22,7 @@ RUN yarn --pure-lockfile --network-timeout 1000000 && \
     yarn download:plugins
 
 # Assemble the application
-FROM ubuntu:23.04 as final-ide
+FROM ubuntu:24.04 as final-ide
 
 # Make sure all sources are up to date
 RUN apt update && \
