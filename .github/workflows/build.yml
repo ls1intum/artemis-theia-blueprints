@@ -14,7 +14,7 @@ jobs:
       docker-file: images/base-ide/BaseDockerfile
       image-name: ghcr.io/ls1intum/theia/base
       docker-context: .
-      tags: "2024-11-11"
+      tags: "2025-01-24"
       network: "host"
     secrets: inherit
 
@@ -27,31 +27,24 @@ jobs:
           - docker-file: images/c/ToolDockerfile
             docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/c
-            tags: "2024-11-11"
           - docker-file: images/haskell/ToolDockerfile
             docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/haskell
-            tags: "2024-11-11"
           - docker-file: images/java-17/ToolDockerfile
             docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/java-17
-            tags: "2024-11-11"
           - docker-file: images/javascript/ToolDockerfile
             docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/javascript
-            tags: "2024-11-11"
           - docker-file: images/ocaml/ToolDockerfile
             docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/ocaml
-            tags: "2024-11-11"
           - docker-file: images/python/ToolDockerfile
             docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/python
-            tags: "2024-11-11"
           - docker-file: images/rust/ToolDockerfile
             docker-context: '.'
             image-name: ghcr.io/ls1intum/theia/rust
-            tags: "2024-11-11"
           # - docker-file: images/swift/ToolDockerfile
           #   docker-context: '.'
           #   image-name: ghcr.io/ls1intum/theia/swift
@@ -59,14 +52,12 @@ jobs:
           #     "BUILDER_IMAGE=swift:5.9.2-focal"
           #     "RUNTIME_IMAGE=swift:5.9.2-focal"
           #     "SWIFTLINT_VERSION=0.54.0"
-          #   tags: "2024-11-11"
           
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
     with:
       docker-file: ${{ matrix.docker-file }}
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
-      tags: ${{ matrix.tags }}
       network: "host"
     secrets: inherit
   
