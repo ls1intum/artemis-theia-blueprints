@@ -24,7 +24,7 @@ RUN yarn --pure-lockfile --network-timeout 1000000 && \
 # Assemble the application
 # Adapted from https://github.com/ls1intum/artemis-c-docker/blob/main/Dockerfile
 # Changed: Use theia user instead of artemis user, do not install python
-FROM ubuntu:23.04 as final-ide
+FROM ubuntu:24.04 as final-ide
 
 # Make sure all sources are up to date
 RUN apt update && \
