@@ -9,7 +9,7 @@ on:
   
 jobs:
   build-and-push-base:
-    uses: ls1intum/.github/.github/workflows/native-build-and-push-docker-image.yml@feat/native-runner
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
     with:
       docker-file: images/base-ide/BaseDockerfile
       image-name: ghcr.io/ls1intum/theia/base
@@ -61,7 +61,7 @@ jobs:
               "SWIFTLINT_VERSION=0.54.0"
             tags: "2024-11-11"
           
-    uses: ls1intum/.github/.github/workflows/native-build-and-push-docker-image.yml@feat/native-runner
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
     with:
       docker-file: ${{ matrix.docker-file }}
       image-name: ${{ matrix.image-name }}
