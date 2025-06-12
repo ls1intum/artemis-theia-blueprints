@@ -48,6 +48,7 @@
     "test": "lerna run test",
     "electron": "yarn --cwd applications/electron",
     "browser": "yarn --cwd applications/browser",
+    "browser-only": "yarn --cwd applications/browser-only",
     "update:theia": "ts-node scripts/update-theia-version.ts",
     "update:theia:children": "lerna run update:theia -- ",
     "update:next": "ts-node scripts/update-theia-version.ts next && lerna run update:next",

@@ -1,6 +1,6 @@
 # ghcr.io/ls1intum/theia/base
 # Builder stage
-FROM node:18-bullseye as build-stage
+FROM node:18-bullseye AS build-stage
 
 # install required tools to build the application
 RUN apt-get update && apt-get install -y libxkbfile-dev libsecret-1-dev
@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y libxkbfile-dev libsecret-1-dev
 WORKDIR /home/theia
 
 # Configure to skip download of puppeteer
-ENV PUPPETEER_SKIP_DOWNLOAD true
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Copy required configuration files
 COPY yarn.lock yarn.lock
