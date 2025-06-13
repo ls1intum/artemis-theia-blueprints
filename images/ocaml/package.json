@@ -1,39 +1,39 @@
 {
-    "private": true,
-    "version": "1.55.0",
-    "license": "MIT",
-    "author": "Rob Moran <github@thegecko.org>",
-    "homepage": "https://github.com/eclipse-theia/theia-blueprint#readme",
-    "bugs": {
-        "url": "https://github.com/eclipse-theia/theia/issues"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/eclipse-theia/theia-blueprint.git"
-    },
-    "engines": {
-        "yarn": ">=1.7.0 <2",
-        "node": ">=12.14.1"
-    },
-    "devDependencies": {
-        "@theia/cli": "1.55.0"
-    },
-    "scripts": {
-        "clean": "lerna run clean && rimraf node_modules",
-        "build:extensions": "lerna run --scope=\"theia-ide*ext\" build",
-        "download:plugins": "theia download:plugins --rate-limit=15 --parallel=false --ignore-errors"
-    },
-    "theiaPluginsDir": "plugins",
-    "theiaPlugins": {
-        "ocaml-platform": "https://open-vsx.org/api/ocamllabs/ocaml-platform/1.18.1/file/ocamllabs.ocaml-platform-1.18.1.vsix"
-    },
-    "theiaPluginsExcludeIds": [],
-    "resolutions": {
-        "inversify": "6.0.3",
-        "@types/puppeteer": "^5.4.0",
-        "@yarnpkg/parsers": "3.0.0-rc.44",
-        "**/multer": "1.4.4-lts.1",
-        "**/nan": "2.18.0",
-        "**/cpu-features": "0.0.9"
-    }
+	"private": true,
+	"version": "1.62.2",
+	"license": "MIT",
+	"author": "Rob Moran <github@thegecko.org>",
+	"homepage": "https://github.com/eclipse-theia/theia-blueprint#readme",
+	"bugs": {
+		"url": "https://github.com/eclipse-theia/theia/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/eclipse-theia/theia-blueprint.git"
+	},
+	"engines": {
+		"yarn": ">=1.7.0 <2",
+		"node": ">=12.14.1"
+	},
+	"devDependencies": {
+		"@theia/cli": "1.62.2"
+	},
+	"scripts": {
+		"clean": "lerna run clean && rimraf node_modules",
+		"build:extensions": "lerna run --scope=\"theia-ide*ext\" build",
+		"download:plugins": "theia download:plugins --rate-limit=15 --parallel=false --ignore-errors"
+	},
+	"theiaPluginsDir": "plugins",
+	"theiaPlugins": {
+		"ocaml-platform": "https://open-vsx.org/api/ocamllabs/ocaml-platform/1.18.1/file/ocamllabs.ocaml-platform-1.18.1.vsix"
+	},
+	"theiaPluginsExcludeIds": [],
+	"resolutions": {
+		"inversify": "6.0.3",
+		"@types/puppeteer": "^5.4.0",
+		"@yarnpkg/parsers": "3.0.0-rc.44",
+		"**/multer": "1.4.4-lts.1",
+		"**/nan": "2.18.0",
+		"**/cpu-features": "0.0.9"
+	}
 }
