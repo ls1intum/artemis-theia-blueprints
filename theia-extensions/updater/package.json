@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "theia-ide-updater-ext",
-  "version": "1.62.2",
+  "version": "1.62.200",
   "description": "Eclipse Theia IDE Updater",
   "dependencies": {
     "@theia/core": "1.62.2",
