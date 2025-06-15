@@ -15,7 +15,7 @@ jobs:
       docker-file: images/base-ide/BaseDockerfile
       image-name: ghcr.io/ls1intum/theia/base
       docker-context: .
-      tags: "2025-01-24"
+      tags: "2025-06-15"
       network: "host"
     secrets: inherit
 
