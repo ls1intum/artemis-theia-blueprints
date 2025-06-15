@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y wget apt-transport-https && \
     apt-get purge -y wget && \
     apt-get clean
 
-ENV HOME /home/theia
+ENV HOME=/home/theia
 WORKDIR /home/theia
 
 # Copy application from builder-stage
@@ -58,7 +58,7 @@ ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
-ENV USE_LOCAL_GIT true
+ENV USE_LOCAL_GIT=true
 
 # Swtich to Theia user
 USER theia

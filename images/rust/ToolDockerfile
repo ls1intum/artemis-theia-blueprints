@@ -1,13 +1,13 @@
 # Load the base-ide image, only copy from here
-FROM ghcr.io/ls1intum/theia/base as base-ide
+FROM ghcr.io/ls1intum/theia/base AS base-ide
 
 # Load the plugin image, only copy from here
-FROM node:18-bullseye as plugin-image
+FROM node:20-bullseye AS plugin-image
 
 WORKDIR /home/theia
 
 # Configure to skip download of puppeteer
-ENV PUPPETEER_SKIP_DOWNLOAD true
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Copy required configuration files
 COPY yarn.lock yarn.lock
@@ -22,7 +22,7 @@ RUN yarn --pure-lockfile --network-timeout 1000000 && \
     yarn download:plugins
 
 # Assemble the application
-FROM ubuntu:24.04 as final-ide
+FROM ubuntu:24.04 AS final-ide
 
 # Make sure all sources are up to date
 RUN apt update && \
@@ -69,9 +69,9 @@ ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
-ENV USE_LOCAL_GIT true 
+ENV USE_LOCAL_GIT=true 
 
-ENV HOME /home/theia
+ENV HOME=/home/theia
 EXPOSE 3000
 
 # Switch to Theia user
