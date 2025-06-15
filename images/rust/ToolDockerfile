@@ -83,7 +83,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs --output rust.sh \
     && ./rust.sh -y \
     && rm rust.sh \
     && . "$HOME/.cargo/env" \
-    && /home/theia/.cargo/bin/rustup component add rust-analysis rust-src rls rust-analyzer \
+    && /home/theia/.cargo/bin/rustup component add rust-analysis rust-src rust-analyzer \
     && export PATH="$HOME/.cargo/bin:$PATH"
 
 # Add Rust to the global PATH for all users
