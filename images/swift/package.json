@@ -1,6 +1,6 @@
 {
     "private": true,
-    "version": "1.55.0",
+    "version": "1.62.2",
     "license": "MIT",
     "author": "Rob Moran <github@thegecko.org>",
     "homepage": "https://github.com/eclipse-theia/theia-blueprint#readme",
@@ -16,7 +16,7 @@
         "node": ">=12.14.1"
     },
     "devDependencies": {
-        "@theia/cli": "1.55.0",
+        "@theia/cli": "1.62.2",
         "node-pty": "1.0.0"
     },
     "scripts": {
