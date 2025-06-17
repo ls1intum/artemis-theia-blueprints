@@ -1,5 +1,5 @@
 # Load the plugin image, only copy from here
-FROM node:18-bullseye AS base-theia-lite
+FROM node:20-bullseye AS base-theia-lite
 
 # install required tools to build the application
 RUN apt-get update && apt-get install -y libxkbfile-dev libsecret-1-dev
@@ -39,19 +39,19 @@ RUN yarn autoclean --force && \
     rm -r theia-extensions/launcher theia-extensions/updater node_modules
 
 # Load the plugin image, only copy from here
-FROM node:18-bullseye AS plugin-image
+FROM node:20-bullseye AS plugin-image
 
 # Copy required configuration files
 COPY yarn.lock yarn.lock
 
 # Copy image specific files - this should overwrite the default files from the repository
 COPY images/theia-lite/package.json .
-COPY scripts/prepare-plugins.js .
 
 RUN yarn --pure-lockfile --network-timeout 1000000 && \
     yarn download:plugins
 
-RUN node prepare-plugins.js
+# COPY scripts/prepare-plugins.js .
+# RUN node prepare-plugins.js
 
 # Assemble the application
 FROM nginx:alpine AS final-ide
