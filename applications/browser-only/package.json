@@ -76,7 +76,7 @@
     "@theia/userstorage": "1.62.2",
     "@theia/variable-resolver": "1.62.2",
     "@theia/workspace": "1.62.2",
-    "theia-ide-opfs-ext": "1.62.200"
+    "theia-ide-lite-ext": "1.62.200"
   },
   "devDependencies": {
     "@theia/cli": "1.62.2",

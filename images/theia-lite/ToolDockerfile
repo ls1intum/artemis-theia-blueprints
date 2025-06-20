@@ -50,8 +50,8 @@ COPY images/theia-lite/package.json .
 RUN yarn --pure-lockfile --network-timeout 1000000 && \
     yarn download:plugins
 
-# COPY scripts/prepare-plugins.js .
-# RUN node prepare-plugins.js
+COPY scripts/prepare-plugins.js .
+RUN node prepare-plugins.js
 
 # Assemble the application
 FROM nginx:alpine AS final-ide
@@ -59,8 +59,8 @@ FROM nginx:alpine AS final-ide
 # Copy IDE files
 COPY --from=base-theia-lite /home/theia/applications/browser-only/lib/frontend /usr/share/nginx/html
 
-# # Copy plugins
-# COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
+# Copy plugins
+COPY --from=plugin-image /hostedPlugin /usr/share/nginx/html/hostedPlugin
 
 # # Create theia user and directories
 # # Application will be copied to /home/theia

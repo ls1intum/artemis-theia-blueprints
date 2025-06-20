@@ -1,10 +1,9 @@
 {
-  "name": "theia-ide-opfs-ext",
+  "name": "theia-ide-lite-ext",
   "version": "1.62.200",
   "description": "OPFS init for Theia",
   "dependencies": {
     "@theia/core": "1.62.2",
-    "@theia/file-search": "1.62.2",
     "@theia/filesystem": "1.62.2",
     "@theia/plugin-ext": "1.62.2"
   },

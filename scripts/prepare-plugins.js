@@ -25,15 +25,17 @@ async function run() {
     const pck = JSON.parse(await fsp.readFile(path.resolve('package.json'), 'utf8'));
 
     // Resolve the directory for which to download the plugins.
-    const pluginsDir = pck.theiaPluginsDir || 'extension';
+    const pluginsDir = pck.theiaPluginsDir || 'plugins';
 
     // Find all `plugin/extension/*` directories.
     const plugins = await glob(`${pluginsDir}/*/extension`);
 
+    await fsp.mkdir('hostedPlugin', { recursive: true });
+
     for (const pluginExtensionPath of plugins) {
         // Extract the plugin name from the parent folder of the extension.
         const pluginName = path.basename(path.dirname(pluginExtensionPath)).replace(/[.\-]/g, '_');
-        const targetDir = path.join('lib', 'frontend', 'hostedPlugin', pluginName);
+        const targetDir = path.join('hostedPlugin', pluginName);
 
         // When the directory exists, skip it
         if (fs.existsSync(targetDir)) {
