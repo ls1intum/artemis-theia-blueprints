@@ -9,8 +9,12 @@
 
 import { ContainerModule, interfaces } from '@theia/core/shared/inversify';
 import { bindOPFSInitialization } from './filesystem/example-filesystem-initialization';
-import { HostedPluginServer } from '@theia/plugin-ext';
+import { HostedPluginServer, PluginServer } from '@theia/plugin-ext';
+import { PluginPathsService } from '@theia/plugin-ext/lib/main/common/plugin-paths-protocol';
+
 import { FrontendHostedPluginServer } from './plugin/frontend-hosted-plugin-server';
+import { FrontendPluginServer } from './plugin/frontend-plugin-server';
+import { FrontendPluginPathService } from './plugin/frontend-plugin-path-service';
 
 export default new ContainerModule((
     bind: interfaces.Bind,
@@ -20,4 +24,7 @@ export default new ContainerModule((
 ) => {
     bindOPFSInitialization(bind, rebind);
     rebind(HostedPluginServer).to(FrontendHostedPluginServer).inSingletonScope();
+    rebind(HostedPluginServer).to(FrontendHostedPluginServer).inSingletonScope();
+    rebind(PluginServer).to(FrontendPluginServer).inSingletonScope();
+    rebind(PluginPathsService).to(FrontendPluginPathService).inSingletonScope();
 });
