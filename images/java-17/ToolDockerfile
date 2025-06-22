@@ -15,6 +15,8 @@ COPY yarn.lock yarn.lock
 # Copy image specific files - this should overwrite the default files from the repository
 COPY images/java-17/package.json .
 
+COPY --from=base-ide /home/theia/plugins /home/theia/plugins
+
 # Remove unnecesarry files for the browser application
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
@@ -26,14 +28,6 @@ FROM node:20-bullseye-slim AS final-ide
 
 WORKDIR /home/theia
 
-# Copy IDE files
-COPY --from=base-ide /home/theia/applications/browser/lib/backend /home/theia/applications/browser/lib/backend
-COPY --from=base-ide /home/theia/applications/browser/ /home/theia/applications/browser/
-
-# Copy plugins
-COPY --from=base-ide /home/theia/plugins /home/theia/plugins
-COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
-
 # Create theia user and directories
 # Application will be copied to /home/theia
 # Default workspace is located at /home/project
@@ -43,32 +37,35 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
+# Install required tools for application: Temurin JDK, JDK, SSH, Bash, Maven
+# Node is already available in base image
+RUN apt-get update && apt-get install -y wget apt-transport-https && \
+    apt-get update && apt-get install -y git openssh-client openssh-server bash libsecret-1-0 openjdk-17-jdk maven && \
+    apt-get purge -y wget && \
+    apt-get clean
+
+ENV HOME=/home/theia
+WORKDIR /home/theia
+
+# Copy application from builder-stage
+COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
+
+# Copy additional plugins
+COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
+
 # Copy the project configuration files
 COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
 
-# Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
-RUN apt-get update && \
-    apt-get install -y wget apt-transport-https bash git && \
-    apt-get upgrade -y
-
-# Install dependencies for this application: Temurin JDK, JDK, Maven
-RUN wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /usr/share/keyrings/adoptium.asc && \
-    echo "deb [signed-by=/usr/share/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list && \
-    apt-get update && apt-get install -y libsecret-1-0 temurin-17-jdk maven && \
-    apt-get purge -y wget && \
-    apt-get clean
+EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
 ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
-ENV USE_LOCAL_GIT=true 
+ENV USE_LOCAL_GIT=true
 
-ENV HOME=/home/theia
-EXPOSE 3000
-
-# Switch to Theia user
+# Swtich to Theia user
 USER theia
 WORKDIR /home/theia/applications/browser
 
@@ -77,3 +74,4 @@ ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
 
 # Arguments passed to the application
 CMD [ "/home/project", "--hostname=0.0.0.0" ]
+

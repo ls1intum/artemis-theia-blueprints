@@ -15,6 +15,8 @@ COPY yarn.lock yarn.lock
 # Copy image specific files - this should overwrite the default files from the repository
 COPY images/rust/package.json .
 
+COPY --from=base-ide /home/theia/plugins /home/theia/plugins
+
 # Remove unnecesarry files for the browser application
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
@@ -24,22 +26,20 @@ RUN yarn --pure-lockfile --network-timeout 1000000 && \
 # Assemble the application
 FROM ubuntu:24.04 AS final-ide
 
+WORKDIR /home/theia
+
+# Copy node from plugin-image as it is required for Theia 
+COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
+COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
+COPY --from=plugin-image /usr/local/lib/node_modules/ /home/theia/node_modules/
+COPY --from=plugin-image /home/theia/node_modules/ /home/theia/node_modules/
+
 # Make sure all sources are up to date
 RUN apt update && \
     apt upgrade -y --autoremove && \
     apt install -y --no-install-recommends \
     curl adduser build-essential && \
     apt clean && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /home/theia
-
-# Copy IDE files
-COPY --from=base-ide /home/theia/applications/browser/lib/backend /home/theia/applications/browser/lib/backend
-COPY --from=base-ide /home/theia/applications/browser/ /home/theia/applications/browser/
-
-# Copy plugins
-COPY --from=base-ide /home/theia/plugins /home/theia/plugins
-COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
 
 # Create theia user and directories
 # Application will be copied to /home/theia
@@ -50,31 +50,33 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
-# Copy the project configuration files
-COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
-
-# Copy node from plugin-image as it is required for Theia 
-COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
-COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
-COPY --from=plugin-image /usr/local/lib/node_modules/ /home/theia/node_modules/
-COPY --from=plugin-image /home/theia/node_modules/ /home/theia/node_modules/
-
 # Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
 RUN apt-get update && \
     apt-get install -y wget apt-transport-https bash git && \
     apt-get upgrade -y
+
+ENV HOME=/home/theia
+WORKDIR /home/theia
+
+# Copy application from builder-stage
+COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
+
+# Copy additional plugins
+COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
+
+# Copy the project configuration files
+COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
+
+EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
 ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
-ENV USE_LOCAL_GIT=true 
+ENV USE_LOCAL_GIT=true
 
-ENV HOME=/home/theia
-EXPOSE 3000
-
-# Switch to Theia user
+# Swtich to Theia user
 USER theia
 
 # Install dependencies for this application: Rustup

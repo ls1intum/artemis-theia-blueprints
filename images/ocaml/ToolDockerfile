@@ -23,6 +23,8 @@ COPY yarn.lock yarn.lock
 # Copy image specific files - this should overwrite the default files from the repository
 COPY images/ocaml/package.json .
 
+COPY --from=base-ide /home/theia/plugins /home/theia/plugins
+
 # Remove unnecesarry files for the browser application
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
@@ -34,14 +36,6 @@ FROM node:20-bullseye-slim AS final-ide
 
 WORKDIR /home/theia
 
-# Copy IDE files
-COPY --from=base-ide /home/theia/applications/browser/lib/backend /home/theia/applications/browser/lib/backend
-COPY --from=base-ide /home/theia/applications/browser/ /home/theia/applications/browser/
-
-# Copy plugins
-COPY --from=base-ide /home/theia/plugins /home/theia/plugins
-COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
-
 # Create theia user and directories
 # Application will be copied to /home/theia
 # Default workspace is located at /home/project
@@ -52,19 +46,14 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/project
 ENV HOME=/home/theia
 
-# Copy the project configuration files
-COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
-
 # Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
 RUN apt-get update && \
-    apt-get install -y wget apt-transport-https bash curl m4 tzdata
-
-# Install opam and ocaml dependencies
-RUN apt-get install -y opam
+    apt-get install -y wget apt-transport-https bash curl m4 tzdata opam
 
 # Set up non-root user early to avoid root permission issues with opam
 USER theia
 ENV HOME=/home/theia
+WORKDIR /home/theia
 
 # Initialize opam environment for the non-root user (theia)
 RUN opam init --disable-sandboxing -y && \
@@ -78,15 +67,26 @@ RUN echo "eval \$(opam env)" >> /home/theia/.bashrc
 # Create .ocamlformat file inside project's root directory for ocamlformat to work
 RUN touch /home/project/.ocamlformat
 
+# Copy application from builder-stage
+COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
+
+# Copy additional plugins
+COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
+
+# Copy the project configuration files
+COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
+
+EXPOSE 3000
+
 # Specify default shell for Theia and the Built-In plugins directory
 ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
-ENV USE_LOCAL_GIT=true 
+ENV USE_LOCAL_GIT=true
 
-EXPOSE 3000
-
+# Swtich to Theia user
+USER theia
 WORKDIR /home/theia/applications/browser
 
 # Launch the backend application via node
@@ -94,3 +94,4 @@ ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
 
 # Arguments passed to the application
 CMD [ "/home/project", "--hostname=0.0.0.0" ]
+
