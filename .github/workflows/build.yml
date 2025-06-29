@@ -77,6 +77,7 @@ jobs:
       docker-file: ${{ matrix.docker-file }}
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
-      build-args: BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
+      build-args: |
+        BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
       network: "host"
     secrets: inherit
