@@ -23,11 +23,11 @@ RUN yarn config set network-timeout 600000 -g && \
     yarn build:extensions && \
     yarn download:plugins && \
     yarn browser build && \
-    yarn && \
+    yarn --pure-lockfile && \
     yarn autoclean --init && \
     echo *.ts >> .yarnclean && \
     echo *.ts.map >> .yarnclean && \
     echo *.spec.* >> .yarnclean && \
     yarn autoclean --force && \
     yarn cache clean && \
-    rm -rf .git applications/electron theia-extensions/launcher theia-extensions/updater node_modules
+    rm -rf .git applications/electron theia-extensions/launcher theia-extensions/updater

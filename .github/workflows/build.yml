@@ -1,3 +1,5 @@
+name: Build and Push Theia Images
+
 on:
   pull_request:
     branches:
@@ -7,9 +9,25 @@ on:
       - master
   release:
   workflow_dispatch:
-  
+
 jobs:
+  # Determine base tag (pr-<nr> or latest)
+  determine-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      base_tag: ${{ steps.set-tag.outputs.base_tag }}
+    steps:
+      - name: Set BASE_IDE_TAG
+        id: set-tag
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "base_tag=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "base_tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+
   build-and-push-base:
+    needs: determine-tag
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
     with:
       docker-file: images/base-ide/BaseDockerfile
@@ -26,25 +44,25 @@ jobs:
       matrix:
         include:
           - docker-file: images/c/ToolDockerfile
-            docker-context: '.'
+            docker-context: "."
             image-name: ghcr.io/ls1intum/theia/c
           - docker-file: images/haskell/ToolDockerfile
-            docker-context: '.'
+            docker-context: "."
             image-name: ghcr.io/ls1intum/theia/haskell
           - docker-file: images/java-17/ToolDockerfile
-            docker-context: '.'
+            docker-context: "."
             image-name: ghcr.io/ls1intum/theia/java-17
           - docker-file: images/javascript/ToolDockerfile
-            docker-context: '.'
+            docker-context: "."
             image-name: ghcr.io/ls1intum/theia/javascript
           - docker-file: images/ocaml/ToolDockerfile
-            docker-context: '.'
+            docker-context: "."
             image-name: ghcr.io/ls1intum/theia/ocaml
           - docker-file: images/python/ToolDockerfile
-            docker-context: '.'
+            docker-context: "."
             image-name: ghcr.io/ls1intum/theia/python
           - docker-file: images/rust/ToolDockerfile
-            docker-context: '.'
+            docker-context: "."
             image-name: ghcr.io/ls1intum/theia/rust
           # - docker-file: images/swift/ToolDockerfile
           #   docker-context: '.'
@@ -53,13 +71,12 @@ jobs:
           #     "BUILDER_IMAGE=swift:5.9.2-focal"
           #     "RUNTIME_IMAGE=swift:5.9.2-focal"
           #     "SWIFTLINT_VERSION=0.54.0"
-          
+
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
     with:
       docker-file: ${{ matrix.docker-file }}
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
+      build-args: BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
       network: "host"
     secrets: inherit
-  
-  
