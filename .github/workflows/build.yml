@@ -38,7 +38,9 @@ jobs:
     secrets: inherit
 
   build-and-push:
-    needs: build-and-push-base
+    needs:
+      - determine-tag
+      - build-and-push-base
     strategy:
       fail-fast: false
       matrix:
