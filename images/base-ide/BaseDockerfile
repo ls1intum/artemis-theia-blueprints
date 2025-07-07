@@ -1,4 +1,3 @@
-# ghcr.io/ls1intum/theia/base
 # Builder stage
 FROM node:20-bullseye AS build-stage
 
@@ -10,18 +9,8 @@ WORKDIR /home/theia
 # Configure to skip download of puppeteer
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
-# Copy required configuration files
-COPY yarn.lock yarn.lock
-COPY package.json package.json
-COPY tsconfig.json tsconfig.json
-COPY lerna.json lerna.json
-COPY configs configs
-
-# Copy Browser Application (and electron but it will be removed later)
-COPY applications applications
-
-# Copy Theia Extensions (launcher, product, updater)
-COPY theia-extensions theia-extensions
+# Copy repository files
+COPY . .
 
 # Copy base image files for installing and building Theia as well as configuring the IDE
 COPY images/base-ide/ .
@@ -29,34 +18,16 @@ COPY images/base-ide/ .
 # Remove unnecesarry files for the browser application
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
-RUN yarn --pure-lockfile --network-timeout 1000000 && \
+RUN yarn config set network-timeout 600000 -g && \
+    yarn --pure-lockfile && \
     yarn build:extensions && \
     yarn download:plugins && \
     yarn browser build && \
+    yarn --pure-lockfile && \
     yarn autoclean --init && \
     echo *.ts >> .yarnclean && \
     echo *.ts.map >> .yarnclean && \
     echo *.spec.* >> .yarnclean && \
     yarn autoclean --force && \
     yarn cache clean && \
-    rm -r applications/electron theia-extensions/launcher theia-extensions/updater node_modules
-
-# Base-IDE Stage generating a image for others to copy from. It´s also startable for debug reasons.
-# FROM node:20-bullseye-slim as base-ide
-
-# COPY --from=build-stage /home/theia /home/theia
-
-# WORKDIR /home/theia
-# ENV HOME /home/theia
-
-# Specify default shell for Theia and the Built-In plugins directory
-# ENV SHELL=/bin/bash \
-#    THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
-
-# EXPOSE 3000
-
-# Launch the backend application via node
-# ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
-
-# Arguments passed to the application
-# CMD [ "/home/project", "--hostname=0.0.0.0" ]
+    rm -rf .git applications/electron theia-extensions/launcher theia-extensions/updater

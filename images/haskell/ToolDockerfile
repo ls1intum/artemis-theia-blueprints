@@ -1,5 +1,6 @@
 # Load the base-ide image, only copy from here
-FROM ghcr.io/ls1intum/theia/base AS base-ide
+ARG BASE_IDE_TAG=latest
+FROM ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG} AS base-ide
 
 # Load the plugin image, only copy from here
 FROM node:20-bullseye AS plugin-image
@@ -15,6 +16,8 @@ COPY yarn.lock yarn.lock
 # Copy image specific files - this should overwrite the default files from the repository
 COPY images/haskell/package.json .
 
+COPY --from=base-ide /home/theia/plugins /home/theia/plugins
+
 # Remove unnecesarry files for the browser application
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
@@ -22,18 +25,17 @@ RUN yarn --pure-lockfile --network-timeout 1000000 && \
     yarn download:plugins
 
 # Assemble the application
-# Adapted from https://github.com/uni-passau-artemis/artemis-haskell/blob/main/Dockerfile
+# Adapted from https://github.com/ls1intum/artemis-c-docker/blob/main/Dockerfile
+# Changed: Use theia user instead of artemis user, do not install python
 FROM docker.io/library/debian:stable AS final-ide
 
 WORKDIR /home/theia
 
-# Copy IDE files
-COPY --from=base-ide /home/theia/applications/browser/lib/backend /home/theia/applications/browser/lib/backend
-COPY --from=base-ide /home/theia/applications/browser/ /home/theia/applications/browser/
-
-# Copy plugins
-COPY --from=base-ide /home/theia/plugins /home/theia/plugins
-COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
+# Copy node from plugin-image as it is required for Theia 
+COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
+COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
+COPY --from=plugin-image /usr/local/lib/node_modules/ /home/theia/node_modules/
+COPY --from=plugin-image /home/theia/node_modules/ /home/theia/node_modules/
 
 # Create theia user and directories
 # Application will be copied to /home/theia
@@ -43,20 +45,23 @@ RUN chmod g+rw /home && \
     mkdir -p /home/project && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
-
-# Copy the project configuration files
-COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
-
-# Copy node from plugin-image as it is required for Theia 
-COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
-COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
-COPY --from=plugin-image /usr/local/lib/node_modules/ /home/theia/node_modules/
-COPY --from=plugin-image /home/theia/node_modules/ /home/theia/node_modules/
-
+    
 # Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
 RUN apt-get update && \
     apt-get install -y wget apt-transport-https bash && \
     apt-get upgrade -y
+
+ENV HOME=/home/theia
+WORKDIR /home/theia
+
+# Copy application from builder-stage
+COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
+
+# Copy additional plugins
+COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
+
+# Copy the project configuration files
+COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
 
 # Install and copy Haskell dependencies
 ENV STACK_ROOT=/stack_cache
@@ -70,10 +75,7 @@ RUN apt-get update \
     && apt-get -y install curl libffi-dev libgmp-dev libgmp10 libncurses-dev libncurses5 libtinfo5 perl tar llvm libnuma-dev
     # && apt-get clean \
     # && rm -rf /var/lib/apt/lists/*
-
-ENV HOME=/home/theia
-EXPOSE 3000
-
+    
 # We install stack as the main CLI tool.
 # It bundles the creation of new projects (`stack new`), building (`stack build`) and finally running (`stack exec`) Haskell projects.
 RUN bash -c "curl -sSL https://get.haskellstack.org/ | sh" \
@@ -91,14 +93,16 @@ RUN bash -c "curl -sSL https://get.haskellstack.org/ | sh" \
     -- --version \
     && chmod -R a+rw $STACK_ROOT
 
+EXPOSE 3000
+
 # Specify default shell for Theia and the Built-In plugins directory
 ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
-ENV USE_LOCAL_GIT=true 
+ENV USE_LOCAL_GIT=true
 
-# Switch to Theia user
+# Swtich to Theia user
 USER theia
 WORKDIR /home/theia/applications/browser
 

@@ -1,0 +1,16 @@
+.git
+.DS_Store
+**/node_modules
+**/.browser_modules
+**/dist
+**/lib
+**/src-gen
+**/gen-webpack.config.js
+**/gen-webpack.node.config.js
+**/plugins
+**/tsconfig.tsbuildinfo
+*.log
+license-check-summary.txt*
+BaseDockerfile
+Dockerfile
+ToolDockerfile
