@@ -3,15 +3,15 @@ ARG BUILDER_IMAGE=swift:focal
 ARG RUNTIME_IMAGE=swift:focal
 
 # Load the base-ide image, only copy from here
-FROM ghcr.io/ls1intum/theia/base as base-ide
+FROM ghcr.io/ls1intum/theia/base AS base-ide
 
 # Load the plugin image, only copy from here
-FROM node:18-bullseye as plugin-image
+FROM node:20-bullseye AS plugin-image
 
 WORKDIR /home/theia
 
 # Configure to skip download of puppeteer
-ENV PUPPETEER_SKIP_DOWNLOAD true
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Copy required configuration files
 COPY yarn.lock yarn.lock
@@ -28,7 +28,7 @@ RUN yarn --pure-lockfile && \
 
 # Prepare Swift Application
 # Adapted from https://github.com/ls1intum/artemis-swift-swiftlint-docker/blob/main/Dockerfile
-FROM ${BUILDER_IMAGE} as builder
+FROM ${BUILDER_IMAGE} AS builder
 
 RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
@@ -49,7 +49,7 @@ RUN mkdir -p /executables
 RUN install -v `swift build ${SWIFT_FLAGS} --show-bin-path`/swiftlint /executables
 
 # Assemble the application
-FROM ${RUNTIME_IMAGE} as final-ide
+FROM ${RUNTIME_IMAGE} AS final-ide
 
 # Required by Swift
 RUN apt-get update && apt-get install -y \
@@ -106,13 +106,13 @@ ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
-ENV USE_LOCAL_GIT true 
+ENV USE_LOCAL_GIT=true 
 
 # Print Installed Swift & SwiftLint Version
 RUN swift --version
 RUN swiftlint version
 
-ENV HOME /home/theia
+ENV HOME=/home/theia
 EXPOSE 3000
 
 # Switch to Theia user

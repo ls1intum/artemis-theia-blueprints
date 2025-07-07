@@ -1,0 +1,102 @@
+# Load the plugin image, only copy from here
+FROM node:20-bullseye AS base-theia-lite
+
+# install required tools to build the application
+RUN apt-get update && apt-get install -y libxkbfile-dev libsecret-1-dev
+
+WORKDIR /home/theia
+
+# Configure to skip download of puppeteer
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+
+# Copy required configuration files
+COPY yarn.lock yarn.lock
+COPY package.json package.json
+COPY tsconfig.json tsconfig.json
+COPY lerna.json lerna.json
+COPY configs configs
+
+# Copy Browser Application (and electron but it will be removed later)
+COPY applications applications
+
+# Copy Theia Extensions (launcher, opfs, product, updater)
+COPY theia-extensions theia-extensions
+
+# Remove unnecesarry files for the browser application
+# Download plugins and build application production mode
+# Use yarn autoclean to remove unnecessary files from package dependencies
+RUN yarn --pure-lockfile --network-timeout 1000000
+RUN yarn autoclean --init && \
+    echo *.ts >> .yarnclean && \
+    echo *.ts.map >> .yarnclean && \
+    echo *.spec.* >> .yarnclean
+
+RUN yarn build:extensions
+RUN yarn browser-only build
+
+RUN yarn autoclean --force && \
+    yarn cache clean && \
+    rm -r theia-extensions/launcher theia-extensions/updater node_modules
+
+# Load the plugin image, only copy from here
+FROM node:20-bullseye AS plugin-image
+
+# Copy required configuration files
+COPY yarn.lock yarn.lock
+
+# Copy image specific files - this should overwrite the default files from the repository
+COPY images/theia-lite/package.json .
+
+RUN yarn --pure-lockfile --network-timeout 1000000 && \
+    yarn download:plugins
+
+COPY scripts/prepare-plugins.js .
+RUN node prepare-plugins.js
+
+# Assemble the application
+FROM nginx:alpine AS final-ide
+
+# Copy IDE files
+COPY --from=base-theia-lite /home/theia/applications/browser-only/lib/frontend /usr/share/nginx/html
+
+# Copy plugins
+COPY --from=plugin-image /hostedPlugin /usr/share/nginx/html/hostedPlugin
+
+# # Create theia user and directories
+# # Application will be copied to /home/theia
+# # Default workspace is located at /home/project
+# RUN adduser --system --group theia --uid 101
+# RUN chmod g+rw /home && \
+#     mkdir -p /home/project && \
+#     chown -R theia:theia /home/theia && \
+#     chown -R theia:theia /home/project
+
+# # Copy the project configuration files
+# COPY --from=plugin-image --chown=theia:theia /home/theia/project /home/project
+# COPY images/theia-lite/project /home/project
+
+# # Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
+# RUN apt-get update && \
+#     apt-get install -y wget apt-transport-https bash git curl && \
+#     apt-get upgrade -y
+
+# # Specify default shell for Theia and the Built-In plugins directory
+# ENV SHELL=/bin/bash \
+#     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
+
+# # Use installed git instead of dugite
+# ENV USE_LOCAL_GIT true 
+
+# # Switch to Theia user
+# USER theia
+# ENV HOME /home/theia
+
+# # Install dependencies for this application: Temurin JDK, JDK, Maven
+# RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash \
+#     && export NVM_DIR="$HOME/.nvm" \
+#     && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" \
+#     && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" \
+#     && nvm install 20 \
+#     && npm install -g npm
+
+EXPOSE 80

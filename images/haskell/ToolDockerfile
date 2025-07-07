@@ -1,13 +1,13 @@
 # Load the base-ide image, only copy from here
-FROM ghcr.io/ls1intum/theia/base as base-ide
+FROM ghcr.io/ls1intum/theia/base AS base-ide
 
 # Load the plugin image, only copy from here
-FROM node:18-bullseye as plugin-image
+FROM node:20-bullseye AS plugin-image
 
 WORKDIR /home/theia
 
 # Configure to skip download of puppeteer
-ENV PUPPETEER_SKIP_DOWNLOAD true
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Copy required configuration files
 COPY yarn.lock yarn.lock
@@ -23,7 +23,7 @@ RUN yarn --pure-lockfile --network-timeout 1000000 && \
 
 # Assemble the application
 # Adapted from https://github.com/uni-passau-artemis/artemis-haskell/blob/main/Dockerfile
-FROM docker.io/library/debian:stable as final-ide
+FROM docker.io/library/debian:stable AS final-ide
 
 WORKDIR /home/theia
 
@@ -59,7 +59,7 @@ RUN apt-get update && \
     apt-get upgrade -y
 
 # Install and copy Haskell dependencies
-ENV STACK_ROOT /stack_cache
+ENV STACK_ROOT=/stack_cache
 RUN mkdir -p $STACK_ROOT
 COPY images/haskell/stack-config/config.yaml $STACK_ROOT/config.yaml
 COPY images/haskell/stack-config/global-project/stack.yaml $STACK_ROOT/global-project/stack.yaml
@@ -71,7 +71,7 @@ RUN apt-get update \
     # && apt-get clean \
     # && rm -rf /var/lib/apt/lists/*
 
-ENV HOME /home/theia
+ENV HOME=/home/theia
 EXPOSE 3000
 
 # We install stack as the main CLI tool.
@@ -96,7 +96,7 @@ ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
-ENV USE_LOCAL_GIT true 
+ENV USE_LOCAL_GIT=true 
 
 # Switch to Theia user
 USER theia

@@ -1,0 +1,94 @@
+{
+  "private": true,
+  "name": "theia-ide-browser-only-app",
+  "description": "Eclipse Theia IDE browser product",
+  "productName": "Theia IDE",
+  "version": "1.62.2",
+  "license": "MIT",
+  "author": "Eclipse Theia <theia-dev@eclipse.org>",
+  "homepage": "https://github.com/eclipse-theia/theia-ide#readme",
+  "bugs": {
+    "url": "https://github.com/eclipse-theia/theia/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eclipse-theia/theia-ide.git"
+  },
+  "engines": {
+    "yarn": ">=1.7.0 <2",
+    "node": ">=12.14.1"
+  },
+  "theia": {
+    "target": "browser-only",
+    "frontend": {
+      "config": {
+        "applicationName": "Theia IDE",
+        "preferences": {
+          "files.enableTrash": false
+        }
+      }
+    },
+    "generator": {
+      "config": {
+        "preloadTemplate": "./resources/preload.html"
+      }
+    }
+  },
+  "dependencies": {
+    "@theia/bulk-edit": "1.62.2",
+    "@theia/callhierarchy": "1.62.2",
+    "@theia/collaboration": "1.62.2",
+    "@theia/console": "1.62.2",
+    "@theia/core": "1.62.2",
+    "@theia/debug": "1.62.2",
+    "@theia/dev-container": "1.62.2",
+    "@theia/editor": "1.62.2",
+    "@theia/editor-preview": "1.62.2",
+    "@theia/external-terminal": "1.62.2",
+    "@theia/file-search": "1.62.2",
+    "@theia/filesystem": "1.62.2",
+    "@theia/getting-started": "1.62.2",
+    "@theia/keymaps": "1.62.2",
+    "@theia/markers": "1.62.2",
+    "@theia/memory-inspector": "1.62.2",
+    "@theia/messages": "1.62.2",
+    "@theia/metrics": "1.62.2",
+    "@theia/mini-browser": "1.62.2",
+    "@theia/monaco": "1.62.2",
+    "@theia/navigator": "1.62.2",
+    "@theia/outline-view": "1.62.2",
+    "@theia/output": "1.62.2",
+    "@theia/plugin-dev": "1.62.2",
+    "@theia/plugin-ext": "1.62.2",
+    "@theia/plugin-ext-vscode": "1.62.2",
+    "@theia/preferences": "1.62.2",
+    "@theia/process": "1.62.2",
+    "@theia/property-view": "1.62.2",
+    "@theia/remote": "1.62.2",
+    "@theia/scm": "1.62.2",
+    "@theia/search-in-workspace": "1.62.2",
+    "@theia/secondary-window": "1.62.2",
+    "@theia/task": "1.62.2",
+    "@theia/terminal": "1.62.2",
+    "@theia/timeline": "1.62.2",
+    "@theia/toolbar": "1.62.2",
+    "@theia/typehierarchy": "1.62.2",
+    "@theia/userstorage": "1.62.2",
+    "@theia/variable-resolver": "1.62.2",
+    "@theia/workspace": "1.62.2",
+    "theia-ide-lite-ext": "1.62.200"
+  },
+  "devDependencies": {
+    "@theia/cli": "1.62.2",
+    "glob": "^7.1.7"
+  },
+  "scripts": {
+    "clean": "theia clean && rimraf node_modules",
+    "build": "theia build --mode development",
+    "build:prod": "theia build",
+    "start": "theia start",
+    "watch": "concurrently --kill-others -n tsc,build -c red,yellow \"tsc -b -w --preserveWatchOutput\" \"yarn -s watch:bundle\"",
+    "update:theia": "ts-node ../../scripts/update-theia-version.ts",
+    "update:next": "ts-node ../../scripts/update-theia-version.ts next"
+  }
+}
