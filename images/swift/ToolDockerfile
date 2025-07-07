@@ -3,15 +3,16 @@ ARG BUILDER_IMAGE=swift:focal
 ARG RUNTIME_IMAGE=swift:focal
 
 # Load the base-ide image, only copy from here
-FROM ghcr.io/ls1intum/theia/base as base-ide
+ARG BASE_IDE_TAG=latest
+FROM ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG} AS base-ide
 
 # Load the plugin image, only copy from here
-FROM node:18-bullseye as plugin-image
+FROM node:20-bullseye AS plugin-image
 
 WORKDIR /home/theia
 
 # Configure to skip download of puppeteer
-ENV PUPPETEER_SKIP_DOWNLOAD true
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Copy required configuration files
 COPY yarn.lock yarn.lock
@@ -19,6 +20,8 @@ COPY yarn.lock yarn.lock
 # Copy image specific files - this should overwrite the default files from the repository
 # WARNING: This needs to be adapted to the specific image
 COPY images/swift/package.json .
+
+COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 
 # Remove unnecesarry files for the browser application
 # Download plugins and build application production mode
@@ -28,7 +31,7 @@ RUN yarn --pure-lockfile && \
 
 # Prepare Swift Application
 # Adapted from https://github.com/ls1intum/artemis-swift-swiftlint-docker/blob/main/Dockerfile
-FROM ${BUILDER_IMAGE} as builder
+FROM ${BUILDER_IMAGE} AS builder
 
 RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
@@ -49,23 +52,21 @@ RUN mkdir -p /executables
 RUN install -v `swift build ${SWIFT_FLAGS} --show-bin-path`/swiftlint /executables
 
 # Assemble the application
-FROM ${RUNTIME_IMAGE} as final-ide
+FROM ${RUNTIME_IMAGE} AS final-ide
+
+WORKDIR /home/theia
+
+# Copy node from plugin-image as it is required for Theia 
+COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
+COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
+COPY --from=plugin-image /usr/local/lib/node_modules/ /home/theia/node_modules/
+COPY --from=plugin-image /home/theia/node_modules/ /home/theia/node_modules/
 
 # Required by Swift
 RUN apt-get update && apt-get install -y \
     libcurl4 \
     libxml2 \
     && rm -r /var/lib/apt/lists/*
-
-WORKDIR /home/theia
-
-# Copy IDE files
-COPY --from=base-ide /home/theia/applications/browser/lib/backend /home/theia/applications/browser/lib/backend
-COPY --from=base-ide /home/theia/applications/browser/ /home/theia/applications/browser/
-
-# Copy plugins
-COPY --from=base-ide /home/theia/plugins /home/theia/plugins
-COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
 
 # Create theia user and directories
 # Application will be copied to /home/theia
@@ -75,6 +76,15 @@ RUN chmod g+rw /home && \
     mkdir -p /home/project && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
+
+ENV HOME=/home/theia
+WORKDIR /home/theia
+
+# Copy application from builder-stage
+COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
+
+# Copy additional plugins
+COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
 
 # Copy the project configuration files
 COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
@@ -87,12 +97,6 @@ COPY --from=builder /usr/lib/swift/linux/libdispatch.so /usr/lib
 COPY --from=builder /usr/lib/swift/linux/libswiftCore.so /usr/lib
 COPY --from=builder /executables/* /usr/bin
 
-# Copy node from plugin-image as it is required for Theia 
-COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
-COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
-COPY --from=plugin-image /usr/local/lib/node_modules/ /home/theia/node_modules/
-COPY --from=plugin-image /home/theia/node_modules/ /home/theia/node_modules/
-
 # Create a symbolic link to the node_modules directory
 RUN ln -s /home/theia/node_modules /home/theia/applications/browser/node_modules.asar
 
@@ -101,21 +105,20 @@ RUN apt-get update && \
     apt-get install -y wget apt-transport-https bash && \
     apt-get upgrade -y
 
+# Print Installed Swift & SwiftLint Version
+RUN swift --version
+RUN swiftlint version
+
+EXPOSE 3000
+
 # Specify default shell for Theia and the Built-In plugins directory
 ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
-ENV USE_LOCAL_GIT true 
+ENV USE_LOCAL_GIT=true
 
-# Print Installed Swift & SwiftLint Version
-RUN swift --version
-RUN swiftlint version
-
-ENV HOME /home/theia
-EXPOSE 3000
-
-# Switch to Theia user
+# Swtich to Theia user
 USER theia
 WORKDIR /home/theia/applications/browser
 
