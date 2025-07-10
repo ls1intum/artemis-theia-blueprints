@@ -62,41 +62,12 @@ COPY --from=base-theia-lite /home/theia/applications/browser-only/lib/frontend /
 # Copy plugins
 COPY --from=plugin-image /hostedPlugin /usr/share/nginx/html/hostedPlugin
 
-# # Create theia user and directories
-# # Application will be copied to /home/theia
-# # Default workspace is located at /home/project
-# RUN adduser --system --group theia --uid 101
-# RUN chmod g+rw /home && \
-#     mkdir -p /home/project && \
-#     chown -R theia:theia /home/theia && \
-#     chown -R theia:theia /home/project
+RUN mkdir -p /var/cache/nginx /var/run /var/log/nginx /tmp/nginx && \
+    chmod -R 777 /var/cache/nginx /var/run /var/log/nginx /tmp/nginx /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/cache/nginx /var/run /var/log/nginx /tmp/nginx /usr/share/nginx/html && \
+    sed -i 's/user nginx/user nginx nginx/g' /etc/nginx/nginx.conf && \
+    sed -i 's!pid /var/run/nginx.pid!pid /tmp/nginx/nginx.pid!g' /etc/nginx/nginx.conf
 
-# # Copy the project configuration files
-# COPY --from=plugin-image --chown=theia:theia /home/theia/project /home/project
-# COPY images/theia-lite/project /home/project
+RUN sed -i 's/listen\s*80/listen 3000/g' /etc/nginx/conf.d/default.conf
 
-# # Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
-# RUN apt-get update && \
-#     apt-get install -y wget apt-transport-https bash git curl && \
-#     apt-get upgrade -y
-
-# # Specify default shell for Theia and the Built-In plugins directory
-# ENV SHELL=/bin/bash \
-#     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
-
-# # Use installed git instead of dugite
-# ENV USE_LOCAL_GIT true 
-
-# # Switch to Theia user
-# USER theia
-# ENV HOME /home/theia
-
-# # Install dependencies for this application: Temurin JDK, JDK, Maven
-# RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash \
-#     && export NVM_DIR="$HOME/.nvm" \
-#     && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" \
-#     && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" \
-#     && nvm install 20 \
-#     && npm install -g npm
-
-EXPOSE 80
+EXPOSE 3000
