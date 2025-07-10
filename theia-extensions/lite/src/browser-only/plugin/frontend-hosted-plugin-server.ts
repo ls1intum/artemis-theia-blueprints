@@ -38,15 +38,15 @@ export class FrontendHostedPluginServer implements HostedPluginServer, RpcConnec
         return [];
     }
     onMessage(targetHost: string, message: Uint8Array): Promise<void> {
-        throw new Error('Method not implemented.');
+        return Promise.resolve();
     }
     dispose(): void {
-        throw new Error('Method not implemented.');
+        return;
     }
     setClient(client: HostedPluginClient | undefined): void {
-        throw new Error('Method not implemented.');
+        return;
     }
     getClient?(): HostedPluginClient | undefined {
-        throw new Error('Method not implemented.');
+        return undefined;
     }
 }
