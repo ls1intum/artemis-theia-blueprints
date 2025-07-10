@@ -10,7 +10,7 @@
 import { injectable } from '@theia/core/shared/inversify';
 import { Event, RpcConnectionEventEmitter } from '@theia/core';
 import { staticMetadata } from './static-plugin-metadata';
-import { DeployedPlugin, ExtPluginApi, HostedPluginClient, HostedPluginServer, PluginIdentifiers } from '@theia/plugin-ext';
+import { DeployedPlugin, ExtPluginApi, GetDeployedPluginsParams, HostedPluginClient, HostedPluginServer, PluginIdentifiers } from '@theia/plugin-ext';
 
 @injectable()
 export class FrontendHostedPluginServer implements HostedPluginServer, RpcConnectionEventEmitter {
@@ -30,8 +30,8 @@ export class FrontendHostedPluginServer implements HostedPluginServer, RpcConnec
         return [];
     }
 
-    async getDeployedPlugins(ids: PluginIdentifiers.VersionedId[]): Promise<DeployedPlugin[]> {
-        return staticMetadata.filter(p => ids.includes(PluginIdentifiers.componentsToVersionedId(p.metadata.model)));
+    async getDeployedPlugins(params: GetDeployedPluginsParams): Promise<DeployedPlugin[]> {
+        return staticMetadata.filter(p => params.pluginIds.includes(PluginIdentifiers.componentsToVersionedId(p.metadata.model)));
     }
 
     async getExtPluginAPI(): Promise<ExtPluginApi[]> {
