@@ -8,8 +8,8 @@
  ********************************************************************************/
 
 import { ContainerModule, interfaces } from '@theia/core/shared/inversify';
-import { HostedPluginServer, PluginServer } from '@robertjndw/plugin-ext';
-import { PluginPathsService } from '@robertjndw/plugin-ext/lib/main/common/plugin-paths-protocol';
+import { HostedPluginServer, PluginServer } from '@theia/plugin-ext';
+import { PluginPathsService } from '@theia/plugin-ext/lib/main/common/plugin-paths-protocol';
 
 import { FrontendHostedPluginServer } from './plugin/frontend-hosted-plugin-server';
 import { FrontendPluginServer } from './plugin/frontend-plugin-server';

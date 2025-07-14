@@ -10,7 +10,7 @@
 import { injectable } from '@theia/core/shared/inversify';
 import { Event, RpcConnectionEventEmitter } from '@theia/core';
 import { staticMetadata } from './static-plugin-metadata';
-import { DeployedPlugin, ExtPluginApi, GetDeployedPluginsParams, HostedPluginClient, HostedPluginServer, PluginIdentifiers } from '@robertjndw/plugin-ext';
+import { DeployedPlugin, ExtPluginApi, GetDeployedPluginsParams, HostedPluginClient, HostedPluginServer, PluginIdentifiers } from '@theia/plugin-ext';
 
 @injectable()
 export class FrontendHostedPluginServer implements HostedPluginServer, RpcConnectionEventEmitter {

@@ -34,8 +34,12 @@
       }
     }
   },
+  "resolutions": {
+    "@theia/plugin-ext": "@robertjndw/plugin-ext",
+    "**/@theia/plugin-ext": "@robertjndw/plugin-ext"
+  },
   "dependencies": {
-    "@robertjndw/plugin-ext": "1.58.5",
+    "@theia/plugin-ext": "1.58.5",
     "@theia/bulk-edit": "1.58.5",
     "@theia/callhierarchy": "1.58.5",
     "@theia/collaboration": "1.58.5",
