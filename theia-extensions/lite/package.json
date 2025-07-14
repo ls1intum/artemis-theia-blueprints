@@ -5,8 +5,10 @@
   "dependencies": {
     "@theia/core": "1.58.5",
     "@theia/filesystem": "1.58.5",
+    "@theia/file-search": "1.58.5",
     "@theia/plugin-ext": "1.58.5",
-    "@theia/terminal": "1.58.5"
+    "@theia/terminal": "1.58.5",
+    "minimatch": "10.0.3"
   },
   "theiaExtensions": [
     {

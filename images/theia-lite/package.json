@@ -26,7 +26,7 @@
   },
   "theiaPluginsDir": "plugins",
   "theiaPlugins": {
-    "robertjndw.ts-executor-web" : "https://github.com/robertjndw/ts-executor-web/releases/download/v0.0.0/ts-executor-web-0.0.1.vsix",
+    "robertjndw.ts-executor-web" : "https://github.com/robertjndw/ts-executor-web/releases/download/v0.0.1/ts-executor-web-0.0.1.vsix",
     "vscode.typescript": "https://open-vsx.org/api/vscode/typescript/1.95.3/file/vscode.typescript-1.95.3.vsix",
     "vscode.typescript-language-features": "https://open-vsx.org/api/vscode/typescript-language-features/1.95.3/file/vscode.typescript-language-features-1.95.3.vsix"
   },

@@ -18,11 +18,13 @@ import { ExampleOPFSInitialization } from './filesystem/example-filesystem-initi
 import { OPFSInitialization } from '@theia/filesystem/lib/browser-only/opfs-filesystem-initialization';
 import { TerminalFrontendOnlyContribution } from './terminal/terminal-frontend-only';
 import { TerminalService } from '@theia/terminal/lib/browser/base/terminal-service';
+import { FileSearchServiceImpl } from './file-search/file-search-service-impl';
+import { FileSearchService } from '@theia/file-search/lib/common/file-search-service';
 
 export default new ContainerModule((
     bind: interfaces.Bind,
     _unbind: interfaces.Unbind,
-    _isBound: interfaces.IsBound,
+    isBound: interfaces.IsBound,
     rebind: interfaces.Rebind,
 ) => {
     bind(ExampleOPFSInitialization).toSelf();
@@ -34,4 +36,10 @@ export default new ContainerModule((
 
     bind(TerminalFrontendOnlyContribution).toSelf().inSingletonScope();
     rebind(TerminalService).toService(TerminalFrontendOnlyContribution);
+
+    if (isBound(FileSearchService)) {
+        rebind(FileSearchService).to(FileSearchServiceImpl).inSingletonScope();
+    } else {
+        bind(FileSearchService).to(FileSearchServiceImpl).inSingletonScope();
+    }
 });
