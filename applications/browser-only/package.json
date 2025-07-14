@@ -35,6 +35,7 @@
     }
   },
   "dependencies": {
+    "@robertjndw/plugin-ext": "1.58.5",
     "@theia/bulk-edit": "1.58.5",
     "@theia/callhierarchy": "1.58.5",
     "@theia/collaboration": "1.58.5",
@@ -57,7 +58,6 @@
     "@theia/outline-view": "1.58.5",
     "@theia/output": "1.58.5",
     "@theia/plugin-dev": "1.58.5",
-    "@theia/plugin-ext": "1.58.5",
     "@theia/plugin-ext-vscode": "1.58.5",
     "@theia/preferences": "1.58.5",
     "@theia/process": "1.58.5",

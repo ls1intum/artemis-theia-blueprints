@@ -7,8 +7,8 @@
  * SPDX-License-Identifier: MIT
  ********************************************************************************/
 import { injectable } from '@theia/core/shared/inversify';
-import { PluginDeployOptions, PluginIdentifiers, PluginServer, PluginStorageKind, PluginType } from '@theia/plugin-ext';
-import { KeysToAnyValues, KeysToKeysToAnyValue } from '@theia/plugin-ext/lib/common/types';
+import { PluginDeployOptions, PluginIdentifiers, PluginServer, PluginStorageKind, PluginType } from '@robertjndw/plugin-ext';
+import { KeysToAnyValues, KeysToKeysToAnyValue } from '@robertjndw/plugin-ext/lib/common/types';
 
 @injectable()
 export class FrontendPluginServer implements PluginServer {

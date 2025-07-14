@@ -8,7 +8,7 @@
  ********************************************************************************/
 
 import { injectable } from '@theia/core/shared/inversify';
-import { PluginPathsService } from '@theia/plugin-ext/lib/main/common/plugin-paths-protocol';
+import { PluginPathsService } from '@robertjndw/plugin-ext/lib/main/common/plugin-paths-protocol';
 
 @injectable()
 export class FrontendPluginPathService implements PluginPathsService {
