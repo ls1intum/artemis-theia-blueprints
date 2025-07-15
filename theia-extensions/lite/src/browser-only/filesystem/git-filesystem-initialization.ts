@@ -43,7 +43,7 @@ export class GitOPFSInitialization extends DefaultOPFSInitialization {
                 http,
                 dir: '/home', // TODO: Change this to the desired directory
                 // corsProxy: 'http://localhost:3001', // TODO change this
-                corsProxy: 'http://git-proxy.theia.artemis.cit.tum.de:80', // TODO change this
+                corsProxy: 'https://git-proxy.theia.artemis.cit.tum.de', // TODO change this
                 url: gitUrl,
                 singleBranch: true,
                 depth: 1
