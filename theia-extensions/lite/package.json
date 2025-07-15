@@ -3,8 +3,8 @@
   "version": "1.58.500",
   "description": "OPFS init for Theia",
   "resolutions": {
-    "@theia/plugin-ext": "@robertjndw/plugin-ext@1.58.7",
-    "**/@theia/plugin-ext": "@robertjndw/plugin-ext@1.58.7"
+    "@theia/plugin-ext": "@robertjndw/plugin-ext@1.58.6",
+    "**/@theia/plugin-ext": "@robertjndw/plugin-ext@1.58.6"
   },
   "dependencies": {
     "@theia/core": "1.58.5",

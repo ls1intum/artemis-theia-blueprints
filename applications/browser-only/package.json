@@ -35,8 +35,8 @@
     }
   },
   "resolutions": {
-    "@theia/plugin-ext": "@robertjndw/plugin-ext@1.58.7",
-    "**/@theia/plugin-ext": "@robertjndw/plugin-ext@1.58.7"
+    "@theia/plugin-ext": "@robertjndw/plugin-ext@1.58.6",
+    "**/@theia/plugin-ext": "@robertjndw/plugin-ext@1.58.6"
   },
   "dependencies": {
     "@theia/plugin-ext": "1.58.5",

@@ -47,7 +47,11 @@ export default new ContainerModule((
     }
 
     const ownURI = new Endpoint().getRestUrl();
-    const pluginUri = URI.parse(ownURI.parent + '/hostedPlugin/vscode_typescript');
+     const pluginUri = URI.parse(ownURI + '/hostedPlugin/vscode_typescript');
     console.log(`Theia Lite plugin URI: ${pluginUri.toString()}`);
+    const pluginUriParent = URI.parse(ownURI.parent + '/hostedPlugin/vscode_typescript');
+    console.log(`Theia Lite parent plugin URI: ${pluginUriParent.toString()}`);
+     const pluginUriToString = URI.parse(ownURI.toString() + '/hostedPlugin/vscode_typescript');
+    console.log(`Theia Lite toString plugin URI: ${pluginUriToString.toString()}`);
     console.log(`Location ${self.location}`);
 });
