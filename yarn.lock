@@ -1873,7 +1873,7 @@
     unbzip2-stream "^1.4.3"
     yargs "^17.7.2"
 
-"@robertjndw/plugin-ext@1.58.5":
+"@robertjndw/plugin-ext@1.58.7":
   version "1.58.5"
   resolved "https://registry.yarnpkg.com/@robertjndw/plugin-ext/-/plugin-ext-1.58.5.tgz#762024044b852e99635dbd66e17eec6aee5c6434"
   integrity sha512-Ol85PXgMSZZrdu+NgSqpnHvSHetFsqPqLjERHOilswCo/6itUXPzl79wu9sdDusJ0HSiwwfUPCmrpdEFtYAZPw==
