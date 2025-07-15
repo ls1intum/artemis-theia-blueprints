@@ -21,6 +21,9 @@ import { TerminalService } from '@theia/terminal/lib/browser/base/terminal-servi
 import { FileSearchServiceImpl } from './file-search/file-search-service-impl';
 import { FileSearchService } from '@theia/file-search/lib/common/file-search-service';
 
+import { Endpoint } from '@theia/core/lib/browser/endpoint';
+import { URI } from '@theia/plugin-ext/lib/plugin/types-impl';
+
 export default new ContainerModule((
     bind: interfaces.Bind,
     _unbind: interfaces.Unbind,
@@ -42,4 +45,9 @@ export default new ContainerModule((
     } else {
         bind(FileSearchService).to(FileSearchServiceImpl).inSingletonScope();
     }
+
+    const ownURI = new Endpoint().getRestUrl();
+    const pluginUri = URI.parse(ownURI.parent + '/hostedPlugin/vscode_typescript');
+    console.log(`Theia Lite plugin URI: ${pluginUri.toString()}`);
+    console.log(`Location ${self.location}`);
 });
