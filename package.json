@@ -86,7 +86,7 @@
     "**/cpu-features": "0.0.9",
     "**/perfect-scrollbar": "1.5.5",
     "**/node-abi": "3.71.0",
-    "@theia/plugin-ext": "npm:@robertjndw/plugin-ext@1.58.8",
-    "**/@theia/plugin-ext": "npm:@robertjndw/plugin-ext@1.58.8"
+    "@theia/plugin-ext": "npm:@robertjndw/plugin-ext@1.58.6",
+    "**/@theia/plugin-ext": "npm:@robertjndw/plugin-ext@1.58.6"
   }
 }
