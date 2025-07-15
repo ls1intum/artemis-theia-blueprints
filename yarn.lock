@@ -2504,10 +2504,10 @@
     filenamify "^4.1.0"
     tslib "^2.6.2"
 
-"@theia/plugin-ext@1.58.5", "@theia/plugin-ext@npm:@robertjndw/plugin-ext@1.58.6":
-  version "1.58.8"
-  resolved "https://registry.yarnpkg.com/@robertjndw/plugin-ext/-/plugin-ext-1.58.8.tgz#5c666a4f9b6d9c95755e666a5bf48774946907e4"
-  integrity sha512-hdyIBtWa7SUNoA6F/M6WCVI1l7RoxlYZ5Tdpa5CGzdpXTUfJGleTZoJpObPAFR+ZmMObyqgOPA7EQQ15y8mpDA==
+"@theia/plugin-ext@1.58.5", "@theia/plugin-ext@npm:@robertjndw/plugin-ext@1.58.9":
+  version "1.58.9"
+  resolved "https://registry.yarnpkg.com/@robertjndw/plugin-ext/-/plugin-ext-1.58.9.tgz#7438768313195fd4c2c01a5ece53b196e3009f5f"
+  integrity sha512-bw7U47dpDv35ggOtGyjJOiwCrozEPvx47CQYjLUW4KiFAWCenHOnJr1PqgOdKaU9KBSm1WGABc8beTAlL36Jjw==
   dependencies:
     "@theia/bulk-edit" "1.58.5"
     "@theia/callhierarchy" "1.58.5"
