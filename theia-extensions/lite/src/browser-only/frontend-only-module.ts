@@ -14,15 +14,12 @@ import { PluginPathsService } from '@theia/plugin-ext/lib/main/common/plugin-pat
 import { FrontendHostedPluginServer } from './plugin/frontend-hosted-plugin-server';
 import { FrontendPluginServer } from './plugin/frontend-plugin-server';
 import { FrontendPluginPathService } from './plugin/frontend-plugin-path-service';
-import { ExampleOPFSInitialization } from './filesystem/example-filesystem-initialization';
 import { OPFSInitialization } from '@theia/filesystem/lib/browser-only/opfs-filesystem-initialization';
 import { TerminalFrontendOnlyContribution } from './terminal/terminal-frontend-only';
 import { TerminalService } from '@theia/terminal/lib/browser/base/terminal-service';
 import { FileSearchServiceImpl } from './file-search/file-search-service-impl';
 import { FileSearchService } from '@theia/file-search/lib/common/file-search-service';
-
-import { Endpoint } from '@theia/core/lib/browser/endpoint';
-import { URI } from '@theia/plugin-ext/lib/plugin/types-impl';
+import { GitOPFSInitialization } from './filesystem/git-filesystem-initialization';
 
 export default new ContainerModule((
     bind: interfaces.Bind,
@@ -30,8 +27,10 @@ export default new ContainerModule((
     isBound: interfaces.IsBound,
     rebind: interfaces.Rebind,
 ) => {
-    bind(ExampleOPFSInitialization).toSelf();
-    rebind(OPFSInitialization).toService(ExampleOPFSInitialization);
+    bind(GitOPFSInitialization).toSelf();
+    rebind(OPFSInitialization).toService(GitOPFSInitialization);
+
+    // Bind the necessary services for plugin support
     rebind(HostedPluginServer).to(FrontendHostedPluginServer).inSingletonScope();
     rebind(HostedPluginServer).to(FrontendHostedPluginServer).inSingletonScope();
     rebind(PluginServer).to(FrontendPluginServer).inSingletonScope();
@@ -45,13 +44,4 @@ export default new ContainerModule((
     } else {
         bind(FileSearchService).to(FileSearchServiceImpl).inSingletonScope();
     }
-
-    const ownURI = new Endpoint().getRestUrl();
-     const pluginUri = URI.parse(ownURI + '/hostedPlugin/vscode_typescript');
-    console.log(`Theia Lite plugin URI: ${pluginUri.toString()}`);
-    const pluginUriParent = URI.parse(ownURI.parent + '/hostedPlugin/vscode_typescript');
-    console.log(`Theia Lite parent plugin URI: ${pluginUriParent.toString()}`);
-     const pluginUriToString = URI.parse(ownURI.toString() + '/hostedPlugin/vscode_typescript');
-    console.log(`Theia Lite toString plugin URI: ${pluginUriToString.toString()}`);
-    console.log(`Location ${self.location}`);
 });
