@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.62.200",
+  "version": "1.58.500",
   "license": "MIT",
   "author": "Rob Moran <github@thegecko.org>",
   "homepage": "https://github.com/eclipse-theia/theia-ide#readme",
@@ -16,7 +16,7 @@
     "node": ">=12.14.1"
   },
   "devDependencies": {
-    "@theia/cli": "1.62.2",
+    "@theia/cli": "1.58.5",
     "node-pty": "1.0.0"
   },
   "scripts": {

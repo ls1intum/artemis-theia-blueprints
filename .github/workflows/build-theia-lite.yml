@@ -1,0 +1,18 @@
+name: Build and Push Theia Lite Image
+
+on:
+  push:
+    branches:
+      - feat/theia-lite-old
+      - feat/theia-lite-old-*
+
+jobs:
+  build-and-push-lite:
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.1.1
+    with:
+      docker-file: images/theia-lite/ToolDockerfile
+      image-name: ghcr.io/ls1intum/theia/theia-lite
+      docker-context: .
+      tags: "clone"
+      network: "host"
+    secrets: inherit

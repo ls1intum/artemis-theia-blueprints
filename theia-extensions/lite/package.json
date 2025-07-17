@@ -1,12 +1,19 @@
 {
   "name": "theia-ide-lite-ext",
-  "version": "1.62.200",
+  "version": "1.58.500",
   "description": "OPFS init for Theia",
+  "resolutions": {
+    "@theia/plugin-ext": "npm:@robertjndw/plugin-ext@1.58.9",
+    "**/@theia/plugin-ext": "npm:@robertjndw/plugin-ext@1.58.9"
+  },
   "dependencies": {
-    "@theia/core": "1.62.2",
-    "@theia/filesystem": "1.62.2",
-    "@theia/plugin-ext": "1.62.2",
-    "@theia/terminal": "1.62.2"
+    "@theia/core": "1.58.5",
+    "@theia/filesystem": "1.58.5",
+    "@theia/file-search": "1.58.5",
+    "@theia/plugin-ext": "1.58.5",
+    "@theia/terminal": "1.58.5",
+    "minimatch": "10.0.3",
+    "isomorphic-git": "1.29.0"
   },
   "theiaExtensions": [
     {
