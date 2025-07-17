@@ -38,7 +38,7 @@ export default new ContainerModule((
 
     bind(TerminalFrontendOnlyContribution).toSelf().inSingletonScope();
     rebind(TerminalService).toService(TerminalFrontendOnlyContribution);
-
+  
     if (isBound(FileSearchService)) {
         rebind(FileSearchService).to(FileSearchServiceImpl).inSingletonScope();
     } else {
