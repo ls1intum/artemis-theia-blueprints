@@ -62,7 +62,7 @@
     "theiaPluginsDir": "plugins",
     "theiaPlugins": {
         "eclipse-theia.builtin-extension-pack": "https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix",
-        "scorpio": "https://open-vsx.org/api/tum-aet/artemis-scorpio/1.0.7/file/tum-aet.artemis-scorpio-1.0.7.vsix"
+        "scorpio": "https://open-vsx.org/api/tum-aet/artemis-scorpio/1.0.8/file/tum-aet.artemis-scorpio-1.0.8.vsix"
     },
     "theiaPluginsExcludeIds": [
         "ms-vscode.js-debug-companion",
