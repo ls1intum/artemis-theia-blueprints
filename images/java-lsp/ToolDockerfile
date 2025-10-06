@@ -1,0 +1,19 @@
+FROM openjdk:17-slim as builder
+
+WORKDIR /build
+
+RUN apt-get update && apt-get install -y wget unzip
+
+RUN wget https://open-vsx.org/api/redhat/java/1.2.0/file/redhat.java-1.2.0.vsix -O redhat-java.vsix && \
+    unzip -q redhat-java.vsix -d redhat-java && \
+    rm redhat-java.vsix
+
+FROM openjdk:17-slim
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /build/redhat-java/extension/server/ /usr/src/app/
+
+EXPOSE 5007
+
+CMD ["java", "-Declipse.application=org.eclipse.jdt.ls.core.id1", "-Dosgi.bundles.defaultStartLevel=4", "-Declipse.product=org.eclipse.jdt.ls.core.product", "-Dlog.level=ALL", "-noverify", "-Xmx1G", "-jar", "/usr/src/app/plugins/org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar", "-configuration", "/usr/src/app/config_linux", "-data", "/usr/src/app/workspace"]

@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  theia:
+    build:
+      context: .
+      dockerfile: images/java-17-NoLSP/ToolDockerfile
+    ports:
+      - "3000:3000"
+
+  theia-with-lsp:
+    build:
+      context: .
+      dockerfile: images/java-17/ToolDockerfile
+    ports:
+      - "3001:3000"
+
+  java-lsp:
+    build:
+      context: .
+      dockerfile: images/java-lsp/ToolDockerfile
+    ports:
+      - "5007:5007"

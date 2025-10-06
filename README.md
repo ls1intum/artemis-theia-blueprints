@@ -146,3 +146,24 @@ docker run -p=3000:3000 --rm theia-ide
 ```
 
 and connect to <http://localhost:3000/>
+
+# External Java Language Server for Theia
+
+This document outlines the steps taken to externalize the Java Language Server from the Theia IDE.
+
+## 1. Creating a Theia Image without the Java Language Server
+
+- We created a copy of the `java-17` image and named it `java-17-NoLSP`.
+- We modified the `package.json` in `images/java-17-NoLSP` to remove the `vscjava.vscode-java-pack` and `vscjava.vscode-java-dependency` plugins. This prevents the integrated Java language server from being installed.
+
+## 2. Creating an External Java Language Server Image
+
+- We created a new image called `java-lsp` based on `openjdk:17-slim`.
+- The `ToolDockerfile` for this image downloads and extracts the Red Hat Java language server from Open VSX.
+
+## 3. Running the Services with Docker Compose
+
+- A `docker-compose.yml` file was created to manage the `theia` and `java-lsp` services.
+- The `theia` service is built from the `java-17-NoLSP` image.
+- The `java-lsp` service is built from the `java-lsp` image.
+- The `docker-compose up -d` command starts both services in the background.
