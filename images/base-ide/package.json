@@ -48,7 +48,6 @@
         "permissions:writeable": "ts-node scripts/make-files-writeable.ts plugins",
         "watch": "lerna run --parallel watch",
         "test": "lerna run test",
-        "electron": "yarn --cwd applications/electron",
         "browser": "yarn --cwd applications/browser",
         "update:theia": "ts-node scripts/update-theia-version.ts",
         "update:theia:children": "lerna run update:theia -- ",
@@ -61,8 +60,7 @@
     },
     "theiaPluginsDir": "plugins",
     "theiaPlugins": {
-        "eclipse-theia.builtin-extension-pack": "https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix",
-        "scorpio": "https://open-vsx.org/api/tum-aet/artemis-scorpio/1.0.8/file/tum-aet.artemis-scorpio-1.0.8.vsix"
+        "eclipse-theia.builtin-extension-pack": "https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix"
     },
     "theiaPluginsExcludeIds": [
         "ms-vscode.js-debug-companion",

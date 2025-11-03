@@ -4,7 +4,8 @@ ARG RUNTIME_IMAGE=swift:focal
 
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
-FROM ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG} AS base-ide
+ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
+FROM ${BASE_IMAGE} AS base-ide
 
 # Load the plugin image, only copy from here
 FROM node:20-bullseye AS plugin-image
@@ -23,7 +24,7 @@ COPY images/swift/package.json .
 
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 
-# Remove unnecesarry files for the browser application
+# Remove unnecessary files for the browser application
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
 RUN yarn --pure-lockfile && \
@@ -100,10 +101,10 @@ COPY --from=builder /executables/* /usr/bin
 # Create a symbolic link to the node_modules directory
 RUN ln -s /home/theia/node_modules /home/theia/applications/browser/node_modules.asar
 
-# Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
+# Install required tools for terminal usage inside the IDE
 RUN apt-get update && \
-    apt-get install -y wget apt-transport-https bash && \
-    apt-get upgrade -y
+    apt-get install -y --no-install-recommends bash ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Print Installed Swift & SwiftLint Version
 RUN swift --version
@@ -118,7 +119,7 @@ ENV SHELL=/bin/bash \
 # Use installed git instead of dugite
 ENV USE_LOCAL_GIT=true
 
-# Swtich to Theia user
+# Switch to Theia user
 USER theia
 WORKDIR /home/theia/applications/browser
 

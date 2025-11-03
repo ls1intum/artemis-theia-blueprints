@@ -1,6 +1,7 @@
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
-FROM ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG} AS base-ide
+ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
+FROM ${BASE_IMAGE} AS base-ide
 
 # Load the plugin image, only copy from here
 FROM node:20-bullseye AS plugin-image
@@ -18,7 +19,7 @@ COPY images/javascript/package.json .
 
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 
-# Remove unnecesarry files for the browser application
+# Remove unnecessary files for the browser application
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
 RUN yarn --pure-lockfile --network-timeout 1000000 && \
@@ -38,23 +39,15 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
-# Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
+# Install required shell and tooling dependencies for terminal usage inside the IDE
 RUN apt-get update && \
-    apt-get install -y wget apt-transport-https bash git curl && \
-    apt-get upgrade -y
+    apt-get install -y --no-install-recommends bash git curl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Switch to Theia user
 USER theia
 ENV HOME=/home/theia
 WORKDIR /home/theia
-
-# Install dependencies for this application: Temurin JDK, JDK, Maven
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash \
-    && export NVM_DIR="$HOME/.nvm" \
-    && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" \
-    && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" \
-    && nvm install 20 \
-    && npm install -g npm
 
 # Copy application from builder-stage
 COPY --from=base-ide --chown=theia:theia /home/theia /home/theia

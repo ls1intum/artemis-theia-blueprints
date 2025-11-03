@@ -25,6 +25,7 @@
   },
   "theiaPluginsDir": "plugins",
   "theiaPlugins": {
+    "scorpio": "https://open-vsx.org/api/tum-aet/artemis-scorpio/1.0.8/file/tum-aet.artemis-scorpio-1.0.8.vsix",
     "eclipse-theia.builtin-extension-pack": "https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix",
     "ms-python": "https://open-vsx.org/api/ms-python/python/2024.4.1/file/ms-python.python-2024.4.1.vsix"
   },
