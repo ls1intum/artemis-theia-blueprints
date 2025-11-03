@@ -68,10 +68,29 @@ RUN mkdir -p $STACK_ROOT
 COPY images/haskell/stack-config/config.yaml $STACK_ROOT/config.yaml
 COPY images/haskell/stack-config/global-project/stack.yaml $STACK_ROOT/global-project/stack.yaml
 
-# Install Haskell dependencies
+# Install Haskell dependencies and build tools
 # build-essentials libffi6
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl libffi-dev libgmp-dev libgmp10 libncurses-dev libncurses5 libtinfo5 perl tar llvm libnuma-dev \
+    && apt-get install -y --no-install-recommends \
+        curl \
+        gcc \
+        g++ \
+        make \
+        xz-utils \
+        zlib1g-dev \
+        git \
+        gnupg \
+        netbase \
+        libffi-dev \
+        libgmp-dev \
+        libgmp10 \
+        libncurses-dev \
+        libncurses5 \
+        libtinfo5 \
+        perl \
+        tar \
+        llvm \
+        libnuma-dev \
     && rm -rf /var/lib/apt/lists/*
     
 # We install stack as the main CLI tool.
