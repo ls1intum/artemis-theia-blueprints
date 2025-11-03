@@ -26,9 +26,7 @@ RUN yarn --pure-lockfile --network-timeout 1000000 && \
     yarn download:plugins
 
 # Assemble the application
-# Adapted from https://github.com/ls1intum/artemis-c-docker/blob/main/Dockerfile
-# Changed: Use theia user instead of artemis user, do not install python
-FROM docker.io/library/debian:stable AS final-ide
+FROM node:20-bullseye-slim AS final-ide
 
 WORKDIR /home/theia
 
