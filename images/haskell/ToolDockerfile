@@ -19,8 +19,7 @@ COPY images/haskell/package.json .
 
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 
-# Remove unnecessary files for the browser application
-# Download plugins and build application production mode
+# Install dependencies and download plugins for the browser application
 # Use yarn autoclean to remove unnecessary files from package dependencies
 RUN yarn --pure-lockfile --network-timeout 1000000 && \
     yarn download:plugins
