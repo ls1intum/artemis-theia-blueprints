@@ -69,7 +69,6 @@ COPY images/haskell/stack-config/config.yaml $STACK_ROOT/config.yaml
 COPY images/haskell/stack-config/global-project/stack.yaml $STACK_ROOT/global-project/stack.yaml
 
 # Install Haskell dependencies and build tools
-# build-essentials libffi6
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         curl \
