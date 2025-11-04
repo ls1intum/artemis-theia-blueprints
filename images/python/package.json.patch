@@ -1,37 +1,11 @@
 {
-  "private": true,
-  "version": "1.62.200",
-  "license": "MIT",
-  "author": "Rob Moran <github@thegecko.org>",
-  "homepage": "https://github.com/eclipse-theia/theia-ide#readme",
-  "bugs": {
-    "url": "https://github.com/eclipse-theia/theia/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/eclipse-theia/theia-ide.git"
-  },
-  "engines": {
-    "yarn": ">=1.7.0 <2",
-    "node": ">=12.14.1"
-  },
-  "devDependencies": {
-    "@theia/cli": "1.62.2",
-    "node-pty": "1.0.0"
-  },
-  "scripts": {
-    "clean": "lerna run clean && rimraf node_modules",
-    "build:extensions": "lerna run --scope=\"theia-ide*ext\" build",
-    "download:plugins": "theia download:plugins --rate-limit=15 --parallel=false --ignore-errors"
-  },
-  "theiaPluginsDir": "plugins",
   "theiaPlugins": {
     "scorpio": "https://open-vsx.org/api/tum-aet/artemis-scorpio/1.0.8/file/tum-aet.artemis-scorpio-1.0.8.vsix",
     "eclipse-theia.builtin-extension-pack": "https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix",
-    "swiftlint-vsc": "https://open-vsx.org/api/vknabel/vscode-swiftlint/1.8.4/file/vknabel.vscode-swiftlint-1.8.4.vsix",
-    "swift-lang": "https://open-vsx.org/api/sswg/swift-lang/1.11.0/file/sswg.swift-lang-1.11.0.vsix"
+    "ms-python": "https://open-vsx.org/api/ms-python/python/2024.4.1/file/ms-python.python-2024.4.1.vsix"
   },
   "theiaPluginsExcludeIds": [
+    "ms-python.debugpy",
     "ms-vscode.js-debug-companion",
     "VisualStudioExptTeam.vscodeintellicode",
     "vscode.builtin-notebook-renderers",
@@ -79,7 +53,6 @@
     "vscode.php-language-features",
     "vscode.powershell",
     "vscode.pug",
-    "vscode.python",
     "vscode.r",
     "vscode.razor",
     "vscode.references-view",
@@ -91,6 +64,7 @@
     "vscode.shellscript",
     "vscode.simple-browser",
     "vscode.sql",
+    "vscode.swift",
     "vscode.theme-abyss",
     "vscode.theme-defaults",
     "vscode.theme-kimbie-dark",
@@ -109,15 +83,6 @@
     "vscode.vscode-theme-seti",
     "vscode.xml",
     "vscode.yaml"
-  ],
-  "resolutions": {
-    "inversify": "6.0.3",
-    "@types/puppeteer": "^5.4.0",
-    "@yarnpkg/parsers": "3.0.0-rc.44",
-    "**/multer": "1.4.4-lts.1",
-    "**/nan": "2.20.0",
-    "**/cpu-features": "0.0.9",
-    "**/perfect-scrollbar": "1.5.5",
-    "**/node-abi": "3.71.0"
-  }
+  ]
 }
+

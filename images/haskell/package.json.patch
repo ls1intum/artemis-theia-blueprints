@@ -1,34 +1,8 @@
 {
-  "private": true,
-  "version": "1.62.200",
-  "license": "MIT",
-  "author": "Rob Moran <github@thegecko.org>",
-  "homepage": "https://github.com/eclipse-theia/theia-ide#readme",
-  "bugs": {
-    "url": "https://github.com/eclipse-theia/theia/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/eclipse-theia/theia-ide.git"
-  },
-  "engines": {
-    "yarn": ">=1.7.0 <2",
-    "node": ">=12.14.1"
-  },
-  "devDependencies": {
-    "@theia/cli": "1.62.2"
-  },
-  "scripts": {
-    "clean": "lerna run clean && rimraf node_modules",
-    "build:extensions": "lerna run --scope=\"theia-ide*ext\" build",
-    "download:plugins": "theia download:plugins --rate-limit=15 --parallel=false --ignore-errors"
-  },
-  "theiaPluginsDir": "plugins",
   "theiaPlugins": {
     "scorpio": "https://open-vsx.org/api/tum-aet/artemis-scorpio/1.0.8/file/tum-aet.artemis-scorpio-1.0.8.vsix",
     "eclipse-theia.builtin-extension-pack": "https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix",
-    "MakefileTools": "https://open-vsx.org/api/ms-vscode/makefile-tools/0.9.10/file/ms-vscode.makefile-tools-0.9.10.vsix",
-    "clangd": "https://open-vsx.org/api/llvm-vs-code-extensions/vscode-clangd/0.1.29/file/llvm-vs-code-extensions.vscode-clangd-0.1.29.vsix"
+    "haskell_for_vsc": "https://open-vsx.org/api/haskell/haskell/2.5.3/file/haskell.haskell-2.5.3.vsix"
   },
   "theiaPluginsExcludeIds": [
     "ms-vscode.js-debug-companion",
@@ -44,6 +18,8 @@
     "vscode.clojure",
     "vscode.coffeescript",
     "vscode.configuration-editing",
+    "vscode.cpp",
+    "vscode.csharp",
     "vscode.css",
     "vscode.css-language-features",
     "vscode.dart",
@@ -68,6 +44,7 @@
     "vscode.latex",
     "vscode.less",
     "vscode.lua",
+    "vscode.make",
     "vscode.npm",
     "vscode.objective-c",
     "vscode.perl",
@@ -106,15 +83,6 @@
     "vscode.vscode-theme-seti",
     "vscode.xml",
     "vscode.yaml"
-  ],
-  "resolutions": {
-    "inversify": "6.0.3",
-    "@types/puppeteer": "^5.4.0",
-    "@yarnpkg/parsers": "3.0.0-rc.44",
-    "**/multer": "1.4.4-lts.1",
-    "**/nan": "2.20.0",
-    "**/cpu-features": "0.0.9",
-    "**/perfect-scrollbar": "1.5.5",
-    "**/node-abi": "3.71.0"
-  }
+  ]
 }
+
