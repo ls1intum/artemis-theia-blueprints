@@ -85,26 +85,58 @@ CMD ["/home/project", "--hostname=0.0.0.0"]
 
 ### 2. Customize Plugins and Configuration
 
-To add language-specific plugins or override Theia configuration:
+To add language-specific plugins or override Theia configuration, use a **patch-based approach** that merges your changes with the root `package.json`. This ensures you automatically inherit updates to the base configuration while only specifying your customizations.
+
+#### Creating a Package Patch File
 
 1. Create a directory structure matching your target (e.g., `my-python-ide/`)
-2. Add a `package.json` to specify additional plugins:
+2. Add a `package.json.patch` file containing **only the fields you want to modify or add**. Typically, you'll only need to specify language-specific plugins and exclusions:
 
 ```json
 {
   "theiaPlugins": {
-    "ms-python.python": "https://open-vsx.org/api/ms-python/python/..."
-  }
+    "ms-python.python": "https://open-vsx.org/api/ms-python/python/2023.20.0/file/ms-python.python-2023.20.0.vsix"
+  },
+  "theiaPluginsExcludeIds": [
+    "vscode.java",
+    "vscode.ruby",
+    "vscode.go"
+  ]
 }
 ```
 
-3. Use `COPY` in your Dockerfile to overlay these files:
+Note: You don't need to patch `scripts`, `devDependencies`, or other fields that work fine from the root `package.json`—only specify what needs to change for your language variant.
+
+#### Merging with jq in Your Dockerfile
+
+Use `jq` to merge the root `package.json` with your patch file:
 
 ```dockerfile
-COPY my-python-ide/ /home/theia/
+# Install jq for JSON merging
+RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
+
+# Copy base and patch files
+COPY package.json ./package.json.base
+COPY my-python-ide/package.json.patch ./package.json.patch
+
+# Merge the base package.json with your patch using jq
+RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json
 ```
 
-Files in subdirectories will recursively override existing files in the image.
+The `jq -s '.[0] + .[1]'` command performs a merge where:
+- `.[0]` is the root `package.json`
+- `.[1]` is your patch file
+- Fields in the patch override those in the base
+- Arrays in the patch replace (not append to) arrays in the base
+
+#### Benefits of the Patch Approach
+
+- **Version independence**: No need to update version numbers across multiple files
+- **Automatic updates**: Changes to the root `package.json` (dependencies, scripts, etc.) automatically propagate
+- **Minimal maintenance**: Only update patches when plugins or exclusions change
+- **Clear intent**: Patches clearly show what differs from the base configuration
+
+See the existing image directories (`base-ide/`, `java-17/`, `c/`, `javascript/`) for complete examples of this pattern in practice.
 
 ## Choosing Plugins
 

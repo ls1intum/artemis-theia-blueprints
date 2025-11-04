@@ -4,18 +4,23 @@ ARG BASE_IMAGE=ghcr.io/eclipse-theia/theia-ide/base-ide:latest
 FROM ${BASE_IMAGE} AS base-ide
 
 # Load the plugin image, only copy from here
-FROM node:20-bullseye AS plugin-image
+FROM node:22-bullseye AS plugin-image
 
 WORKDIR /home/theia
 
 # Configure to skip download of puppeteer
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
-# Copy required configuration files
-COPY yarn.lock yarn.lock
+# Install jq for JSON merging
+RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
 
-# Copy image specific files - this should overwrite the default files from the repository
-COPY images/java-17/package.json .
+# Copy required configuration files
+COPY package.json ./package.json.base
+COPY images/java-17/package.json.patch ./package.json.patch
+
+# Merge the base package.json with the java-17-specific patch using jq
+RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json
+RUN rm package.json.base package.json.patch
 
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 
@@ -26,7 +31,7 @@ RUN yarn --pure-lockfile --network-timeout 1000000 && \
     yarn download:plugins
 
 # Assemble the application
-FROM node:20-bullseye-slim AS final-ide
+FROM node:22-bullseye-slim AS final-ide
 
 WORKDIR /home/theia
 

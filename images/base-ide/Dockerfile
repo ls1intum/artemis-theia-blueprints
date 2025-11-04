@@ -1,9 +1,9 @@
 # Dependency installation stage to maximise caching
-FROM node:20-bullseye AS install-deps
+FROM node:22-bullseye AS install-deps
 
 # Install build prerequisites only once and clean up afterwards
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libxkbfile-dev libsecret-1-dev \
+    && apt-get install -y --no-install-recommends libxkbfile-dev libsecret-1-dev jq \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /home/theia
@@ -13,21 +13,28 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Copy only dependency manifests
 COPY lerna.json ./
-COPY images/base-ide/package.json ./package.json
-COPY images/base-ide/yarn.lock ./yarn.lock
+COPY package.json ./package.json.base
+COPY images/base-ide/package.json.patch ./package.json.patch
 COPY applications/browser/package.json applications/browser/
 COPY theia-extensions/product/package.json theia-extensions/product/
 
+# Merge the base package.json with the patch using jq
+RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json.merged
+RUN cp package.json.merged package.json
+
 # Install all workspace dependencies needed for the build
 RUN yarn config set network-timeout 600000 -g \
-    && yarn install --pure-lockfile
+    && yarn install
 
 # Build the browser application and download plugins
 FROM install-deps AS build-stage
 
 # Include the full repository for building
 COPY . .
-COPY images/base-ide/ .
+
+# Restore the merged package.json (COPY . . overwrote it with the root package.json)
+RUN cp package.json.merged package.json
+RUN rm package.json.merged package.json.base package.json.patch
 
 # Increase Node.js heap size for build process
 ENV NODE_OPTIONS=--max-old-space-size=8192
@@ -49,7 +56,7 @@ RUN rm -rf applications/electron \
     && rm -rf .git applications/electron theia-extensions/launcher theia-extensions/updater
 
 # Final runtime stage
-FROM node:20-bullseye-slim AS base-ide
+FROM node:22-bullseye-slim AS base-ide
 
 # Install only the libraries required at runtime
 RUN apt-get update \
