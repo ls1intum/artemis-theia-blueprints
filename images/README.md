@@ -112,32 +112,7 @@ Plugins extend the base IDE with language-specific features like syntax highligh
 
 ### Finding Plugins
 
-Browse available VS Code extensions at [Open VSX Registry](https://open-vsx.org/). Popular choices include:
-
-- **Python**: `ms-python.python` - Python language support and debugging
-- **Java**: `redhat.java` - Java language server with IntelliSense
-- **C/C++**: `ms-vscode.cpptools` - C/C++ language support
-- **ESLint**: `dbaeumer.vscode-eslint` - JavaScript/TypeScript linting
-- **Prettier**: `esbenp.prettier-vscode` - Code formatting
-
-### Adding Plugins to Your Image
-
-Specify plugins in your `package.json`:
-
-```json
-{
-  "theiaPlugins": {
-    "ms-python.python": "https://open-vsx.org/api/ms-python/python/2023.10.0/file/ms-python.python-2023.10.0.vsix"
-  }
-}
-```
-
-Then in your Dockerfile, copy this configuration and run the download step:
-
-```dockerfile
-COPY my-language/package.json /home/theia/
-RUN yarn --cwd /home/theia theia download:plugins
-```
+Browse available VS Code extensions at [Open VSX Registry](https://open-vsx.org/). 
 
 ### Configuring VS Code Built-in Extensions
 
