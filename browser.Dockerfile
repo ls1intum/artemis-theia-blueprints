@@ -1,55 +1,59 @@
-# Builder stage
-FROM node:22-bullseye AS build-stage
+# Load the base-ide image, only copy from here
+ARG BASE_IMAGE=ghcr.io/eclipse-theia/theia-ide/base-ide:latest
 
-# install required tools to build the application
-RUN apt-get update && apt-get install -y libxkbfile-dev libsecret-1-dev
+FROM ${BASE_IMAGE} AS base-ide
+
+# Load the plugin image, only copy from here
+FROM node:22-bullseye AS plugin-image
 
 WORKDIR /home/theia
 
-# Copy repository files
-COPY . .
+# Configure to skip download of puppeteer
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
-# Remove unnecesarry files for the browser application
+# Copy the root package.json directly (no patching)
+COPY package.json ./package.json
+
+COPY --from=base-ide /home/theia/plugins /home/theia/plugins
+
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
-RUN yarn config set network-timeout 600000 -g && \
-    yarn --pure-lockfile && \
-    yarn build:extensions && \
-    yarn download:plugins && \
-    yarn browser build && \
-    yarn && \
-    yarn autoclean --init && \
-    echo *.ts >> .yarnclean && \
-    echo *.ts.map >> .yarnclean && \
-    echo *.spec.* >> .yarnclean && \
-    yarn autoclean --force && \
-    yarn cache clean && \
-    rm -rf .git applications/electron theia-extensions/launcher theia-extensions/updater node_modules
+RUN yarn --pure-lockfile --network-timeout 1000000 && \
+    yarn download:plugins
 
-# Production stage uses a small base image
-FROM node:22-bullseye-slim AS production-stage
+# Assemble the application
+FROM node:22-bullseye-slim AS final-ide
+
+WORKDIR /home/theia
 
 # Create theia user and directories
 # Application will be copied to /home/theia
 # Default workspace is located at /home/project
-RUN adduser --system --group theia
+RUN adduser --system --group theia --uid 101
 RUN chmod g+rw /home && \
     mkdir -p /home/project && \
     chown -R theia:theia /home/theia && \
-    chown -R theia:theia /home/project;
+    chown -R theia:theia /home/project
 
-# Install required tools for application: Temurin JDK, JDK, SSH, Bash, Maven
-# Node is already available in base image
-RUN apt-get update && apt-get install -y wget apt-transport-https && \
-    apt-get update && apt-get install -y git openssh-client openssh-server bash libsecret-1-0 openjdk-17-jdk maven && \
-    apt-get purge -y wget && \
-    apt-get clean
+# Install required tools for the application: Git, SSH, Bash
+# Node is already available in the base image
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git openssh-client openssh-server bash libsecret-1-0 && \
+    rm -rf /var/lib/apt/lists/*
 
-ENV HOME /home/theia
+# Switch to Theia user
+USER theia
+ENV HOME=/home/theia
 WORKDIR /home/theia
 
-# Copy application from builder-stage
-COPY --from=build-stage --chown=theia:theia /home/theia /home/theia
+# Copy application from the base image
+COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
+
+# Copy additional plugins
+COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
+
+# Copy the project configuration files
+COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
 
 EXPOSE 3000
 
@@ -58,10 +62,8 @@ ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
-ENV USE_LOCAL_GIT true
+ENV USE_LOCAL_GIT=true
 
-# Swtich to Theia user
-USER theia
 WORKDIR /home/theia/applications/browser
 
 # Launch the backend application via node
