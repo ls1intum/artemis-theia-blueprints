@@ -22,6 +22,10 @@ COPY images/javascript/package.json.patch ./package.json.patch
 RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json
 RUN rm package.json.base package.json.patch
 
+# Copy scripts and dependencies from base-ide needed for yarn commands
+COPY --from=base-ide /home/theia/scripts /home/theia/scripts
+COPY --from=base-ide /home/theia/configs /home/theia/configs
+COPY --from=base-ide /home/theia/tsconfig.json /home/theia/tsconfig.json
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 
 # Remove unnecessary files for the browser application
@@ -58,7 +62,7 @@ WORKDIR /home/theia
 COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 
 # Copy additional plugins
-COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
+COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
 # Copy the project configuration files
 COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
