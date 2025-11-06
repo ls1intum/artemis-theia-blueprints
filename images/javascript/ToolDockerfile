@@ -62,7 +62,7 @@ WORKDIR /home/theia
 COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 
 # Copy additional plugins
-COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
+COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
 # Copy the project configuration files
 COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
