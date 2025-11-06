@@ -31,6 +31,7 @@ FROM install-deps AS build-stage
 
 # Include the full repository for building
 COPY . .
+COPY images/base-ide/ .
 
 # Restore the merged package.json (COPY . . overwrote it with the root package.json)
 RUN cp package.json.merged package.json
