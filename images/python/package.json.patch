@@ -5,6 +5,7 @@
     "ms-python": "https://open-vsx.org/api/ms-python/python/2024.4.1/file/ms-python.python-2024.4.1.vsix"
   },
   "theiaPluginsExcludeIds": [
+    "ms-python.vscode-pylance",
     "ms-python.debugpy",
     "ms-vscode.js-debug-companion",
     "VisualStudioExptTeam.vscodeintellicode",
