@@ -1,8 +1,4 @@
 {
-  "devDependencies": {
-    "@theia/cli": "1.62.2",
-    "node-pty": "1.0.0"
-  },
   "theiaPlugins": {
     "scorpio": "https://open-vsx.org/api/tum-aet/artemis-scorpio/1.0.8/file/tum-aet.artemis-scorpio-1.0.8.vsix",
     "eclipse-theia.builtin-extension-pack": "https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix",
