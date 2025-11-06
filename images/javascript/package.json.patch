@@ -5,6 +5,7 @@
     "js-essentials": "https://open-vsx.org/api/Gydunhn/javascript-essentials/0.1.1/file/Gydunhn.javascript-essentials-0.1.1.vsix"
   },
   "theiaPluginsExcludeIds": [
+    "xabikos.JavaScriptSnippets",
     "ms-vscode.js-debug-companion",
     "VisualStudioExptTeam.vscodeintellicode",
     "vscode.builtin-notebook-renderers",
