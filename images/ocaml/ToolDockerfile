@@ -59,7 +59,7 @@ ENV HOME=/home/theia
 
 # Install required tooling for terminal usage and OCaml development
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget apt-transport-https bash curl m4 tzdata opam ca-certificates && \
+    apt-get install -y --no-install-recommends wget apt-transport-https bash curl m4 tzdata opam ocaml ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Set up non-root user early to avoid root permission issues with opam
