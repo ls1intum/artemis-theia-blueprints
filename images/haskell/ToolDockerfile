@@ -67,6 +67,9 @@ COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 # Copy additional plugins
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
+# Copy project settings (includes .theia/settings.json with file exclusions)
+COPY images/haskell/project /home/project
+
 # Install and copy Haskell dependencies
 ENV STACK_ROOT=/stack_cache
 RUN mkdir -p $STACK_ROOT
