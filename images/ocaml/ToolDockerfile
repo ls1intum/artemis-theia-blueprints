@@ -73,9 +73,6 @@ RUN opam init --disable-sandboxing -y && \
     opam install dune.3.19.1 -y && \
     opam install qcheck ocaml-lsp-server odoc ocamlformat utop user-setup -y
 
-# Ensure the OPAM environment is loaded for future shell sessions
-RUN opam init --yes
-
 # Create .ocamlformat file inside project's root directory for ocamlformat to work
 RUN touch /home/project/.ocamlformat
 
