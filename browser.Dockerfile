@@ -38,7 +38,7 @@ RUN chmod g+rw /home && \
 # Install required tools for the application: Git, SSH, Bash
 # Node is already available in the base image
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git openssh-client openssh-server bash libsecret-1-0 && \
+    apt-get install -y --no-install-recommends git openssh-client openssh-server bash libsecret-1-0 openjdk-17-jdk maven && \
     rm -rf /var/lib/apt/lists/*
 
 # Switch to Theia user
