@@ -19,7 +19,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
 
 # Copy required configuration files
-COPY package.json ./package.json.base
+COPY --from=base-ide /home/theia/package.json ./package.json.base
 COPY images/swift/package.json.patch ./package.json.patch
 
 # Merge the base package.json with the swift-specific patch using jq
