@@ -14,6 +14,9 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 # Copy the root package.json directly (no patching)
 COPY package.json ./package.json
 
+COPY --from=base-ide /home/theia/scripts /home/theia/scripts
+COPY --from=base-ide /home/theia/configs /home/theia/configs
+COPY --from=base-ide /home/theia/tsconfig.json /home/theia/tsconfig.json
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 
 # Download plugins and build application production mode
