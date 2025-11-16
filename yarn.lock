@@ -2016,6 +2016,19 @@
     minimatch "^5.1.0"
     tslib "^2.6.2"
 
+"@theia/ai-openai@1.62.2":
+  version "1.62.2"
+  resolved "https://registry.yarnpkg.com/@theia/ai-openai/-/ai-openai-1.62.2.tgz#6b53a0ad7e92ce27332c09a316e40bdcf5216614"
+  integrity sha512-j7pXDXRoYxPvVbowEN0EPDA/6292E2OQ6gJrDB6m8eefazbqtT5MyPtuyXCwgAbuOBlwJYZsb/C59f29E8XSlA==
+  dependencies:
+    "@theia/ai-core" "1.62.2"
+    "@theia/core" "1.62.2"
+    "@theia/filesystem" "1.62.2"
+    "@theia/workspace" "1.62.2"
+    minimatch "^5.1.0"
+    openai "^5.0.1"
+    tslib "^2.6.2"
+
 "@theia/application-manager@1.62.2":
   version "1.62.2"
   resolved "https://registry.yarnpkg.com/@theia/application-manager/-/application-manager-1.62.2.tgz#083f54c91978f5f7a31839d6da9913463894dc6e"
@@ -10855,6 +10868,11 @@ open@^8.4.0:
     define-lazy-prop "^2.0.0"
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
+
+openai@^5.0.1:
+  version "5.23.2"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-5.23.2.tgz#f13e2dc2ef6b88aab6a9b97cdc68d41a1d083c68"
+  integrity sha512-MQBzmTulj+MM5O8SKEk/gL8a7s5mktS9zUtAkU257WjvobGc9nKcBuVwjyEEcb9SI8a8Y2G/mzn3vm9n1Jlleg==
 
 opener@^1.5.1:
   version "1.5.2"

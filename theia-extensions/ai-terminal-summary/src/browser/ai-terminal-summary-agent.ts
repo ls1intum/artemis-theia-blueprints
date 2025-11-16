@@ -75,7 +75,8 @@ export class AiTerminalSummaryAgent implements Agent {
     languageModelRequirements: LanguageModelRequirement[] = [
         {
             purpose: 'summarize-terminal-output',
-            identifier: 'default/universal',
+            // identifier: 'default/universal',
+            identifier: 'openai/gpt-4o',
         }
     ];
 
