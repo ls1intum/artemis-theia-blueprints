@@ -90,7 +90,9 @@
     "@theia/vsx-registry": "1.62.2",
     "@theia/workspace": "1.62.2",
     "fs-extra": "^9.0.1",
-    "theia-ide-product-ext": "1.62.200"
+    "theia-ide-product-ext": "1.62.200",
+    "@theia/ai-chat": "1.62.2",
+    "@theia/ai-terminal-summary": "1.62.2"
   },
   "devDependencies": {
     "@theia/cli": "1.62.2",

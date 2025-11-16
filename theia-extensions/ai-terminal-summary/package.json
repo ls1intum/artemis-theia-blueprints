@@ -1,0 +1,34 @@
+{
+  "name": "@theia/ai-terminal-summary",
+  "keywords": [
+    "theia-extension"
+  ],
+  "version": "1.62.2",
+  "description": "Theia - AI Terminal Summary Extension",
+  "dependencies": {
+    "@theia/ai-core": "1.62.2",
+    "@theia/core": "1.62.2",
+    "@theia/terminal": "1.62.2",
+    "@theia/debug": "1.62.2",
+    "zod-to-json-schema": "^3.24.1"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
+  "devDependencies": {
+    "rimraf": "^5.0.0",
+    "typescript": "~5.4.5"
+  },
+  "scripts": {
+    "prepare": "npm run clean && npm run build",
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/ai-terminal-summary-frontend-module"
+    }
+  ]
+}
