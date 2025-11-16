@@ -1,5 +1,5 @@
 {
-  "name": "@theia/ai-terminal-summary",
+  "name": "theia-ide-ai-terminal-summary-ext",
   "keywords": [
     "theia-extension"
   ],
