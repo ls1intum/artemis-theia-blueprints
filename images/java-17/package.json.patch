@@ -1,6 +1,6 @@
 {
   "theiaPlugins": {
-    "scorpio": "https://open-vsx.org/api/tum-aet/artemis-scorpio/1.0.8/file/tum-aet.artemis-scorpio-1.0.8.vsix",
+    "scorpio": "https://open-vsx.org/api/tum-aet/artemis-scorpio/1.0.9/file/tum-aet.artemis-scorpio-1.0.9.vsix",
     "vscjava.vscode-java-pack": "https://open-vsx.org/api/vscjava/vscode-java-pack/0.25.11/file/vscjava.vscode-java-pack-0.25.11.vsix",
     "vscjava.vscode-java-dependency": "https://open-vsx.org/api/vscjava/vscode-java-dependency/0.21.2/file/vscjava.vscode-java-dependency-0.21.2.vsix"
   },
