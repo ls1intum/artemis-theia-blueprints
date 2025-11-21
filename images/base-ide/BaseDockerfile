@@ -56,6 +56,19 @@ RUN rm -rf applications/electron \
     && yarn cache clean \
     && rm -rf .git applications/electron theia-extensions/launcher theia-extensions/updater
 
+# Production dependencies stage - install only runtime dependencies
+FROM node:22-bullseye-slim AS prod-deps
+
+WORKDIR /home/theia
+
+# Copy package manifests
+COPY --from=build-stage /home/theia/package.json /home/theia/lerna.json ./
+COPY --from=build-stage /home/theia/applications/browser/package.json applications/browser/
+COPY --from=build-stage /home/theia/theia-extensions/product/package.json theia-extensions/product/
+
+# Install ONLY production dependencies
+RUN yarn install --production --frozen-lockfile --ignore-scripts --network-timeout 600000
+
 # Final runtime stage
 FROM node:22-bullseye-slim AS base-ide
 
@@ -67,4 +80,13 @@ RUN apt-get update \
 WORKDIR /home/theia
 
 # Copy the built artefacts and configuration from the build stage
-COPY --from=build-stage /home/theia /home/theia
+COPY --from=build-stage /home/theia/applications /home/theia/applications
+COPY --from=build-stage /home/theia/plugins /home/theia/plugins
+COPY --from=build-stage /home/theia/theia-extensions /home/theia/theia-extensions
+COPY --from=build-stage /home/theia/package.json /home/theia/package.json
+COPY --from=build-stage /home/theia/scripts /home/theia/scripts
+COPY --from=build-stage /home/theia/configs /home/theia/configs
+COPY --from=build-stage /home/theia/tsconfig.json /home/theia/tsconfig.json
+
+# Copy production-only node_modules
+COPY --from=prod-deps /home/theia/node_modules /home/theia/node_modules
