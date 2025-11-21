@@ -83,3 +83,24 @@ jobs:
         BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
       network: "host"
     secrets: inherit
+
+  build-and-push-languageservers:
+    needs: determine-tag
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - docker-file: images/langserver-java/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/langserver-java
+          - docker-file: images/langserver-rust/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/langserver-rust
+
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
+    with:
+      docker-file: ${{ matrix.docker-file }}
+      image-name: ${{ matrix.image-name }}
+      docker-context: ${{ matrix.docker-context }}
+      network: "host"
+    secrets: inherit
