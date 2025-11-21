@@ -90,14 +90,17 @@ ENV USE_LOCAL_GIT=true
 # Switch to Theia user
 USER theia
 
-# Install dependencies for this application: Rustup
+# Install Rust with minimal profile and cleanup
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs --output rust.sh \
     && chmod +x rust.sh \
-    && ./rust.sh -y \
+    && ./rust.sh -y --profile minimal \
     && rm rust.sh \
     && . "$HOME/.cargo/env" \
-    && /home/theia/.cargo/bin/rustup component add rust-analysis rust-src rust-analyzer \
-    && export PATH="$HOME/.cargo/bin:$PATH"
+    && rustup component add rust-analyzer \
+    && rm -rf $HOME/.cargo/registry \
+    && rm -rf $HOME/.cargo/git \
+    && rm -rf $HOME/.rustup/downloads \
+    && rm -rf $HOME/.rustup/toolchains/*/share/doc
 
 # Add Rust to the global PATH for all users
 ENV PATH=/home/theia/.cargo/bin:$PATH
