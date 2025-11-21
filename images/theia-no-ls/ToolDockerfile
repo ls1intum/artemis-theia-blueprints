@@ -14,7 +14,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 COPY yarn.lock yarn.lock
 
 # Copy image specific files - this should overwrite the default files from the repository
-COPY images/rust/package.json .
+COPY images/theia-no-ls/package.json .
 
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 
@@ -25,22 +25,9 @@ RUN yarn --pure-lockfile --network-timeout 1000000 && \
     yarn download:plugins
 
 # Assemble the application
-FROM ubuntu:24.04 AS final-ide
+FROM node:20-bullseye-slim AS final-ide
 
 WORKDIR /home/theia
-
-# Copy node from plugin-image as it is required for Theia 
-COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
-COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
-COPY --from=plugin-image /usr/local/lib/node_modules/ /home/theia/node_modules/
-COPY --from=plugin-image /home/theia/node_modules/ /home/theia/node_modules/
-
-# Make sure all sources are up to date
-RUN apt update && \
-    apt upgrade -y --autoremove && \
-    apt install -y --no-install-recommends \
-    curl adduser build-essential && \
-    apt clean && rm -rf /var/lib/apt/lists/*
 
 # Create theia user and directories
 # Application will be copied to /home/theia
@@ -51,10 +38,13 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
-# Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
-RUN apt-get update && \
-    apt-get install -y wget apt-transport-https bash git && \
-    apt-get upgrade -y
+# Install required tools for application: Temurin JDK, JDK, SSH, Bash, Maven
+# Node is already available in base image
+# ADDED: curl and build-essential for Rust support
+RUN apt-get update && apt-get install -y wget apt-transport-https && \
+    apt-get update && apt-get install -y git openssh-client openssh-server bash libsecret-1-0 openjdk-17-jdk maven curl build-essential && \
+    apt-get purge -y wget && \
+    apt-get clean
 
 ENV HOME=/home/theia
 WORKDIR /home/theia

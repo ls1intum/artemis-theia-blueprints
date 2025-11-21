@@ -66,6 +66,9 @@ jobs:
           - docker-file: images/rust/ToolDockerfile
             docker-context: "."
             image-name: ghcr.io/ls1intum/theia/rust
+          - docker-file: images/theia-no-ls/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/theia-no-ls
           # - docker-file: images/swift/ToolDockerfile
           #   docker-context: '.'
           #   image-name: ghcr.io/ls1intum/theia/swift
