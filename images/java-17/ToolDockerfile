@@ -52,7 +52,11 @@ RUN chmod g+rw /home && \
 # Node is already available in the base image
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git openssh-client openssh-server bash libsecret-1-0 openjdk-17-jdk maven ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get remove -y openjdk-11-jre-headless && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* \
+    && rm -rf /usr/lib/jvm/java-11-openjdk-arm64 \
+    && rm -rf /usr/lib/jvm/java-17-openjdk-arm64/man
 
 # Switch to Theia user
 USER theia
