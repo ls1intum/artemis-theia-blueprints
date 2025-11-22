@@ -1,7 +1,7 @@
-FROM alpine:latest
+FROM alpine:3.22
 
 RUN apk update && apk add --no-cache socat rust-analyzer cargo busybox-extras
 
 WORKDIR /home/project
 
-CMD ["socat", "TCP-LISTEN:5555,fork", "EXEC:rust-analyzer"]
+CMD ["socat", "TCP-LISTEN:5555,reuseaddr,fork", "EXEC:rust-analyzer"]

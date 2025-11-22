@@ -1,6 +1,6 @@
 FROM eclipse-temurin:21-jdk-jammy
 
-ARG JDTLS_URL=https://www.eclipse.org/downloads/download.php?file=/jdtls/milestones/1.53.0/jdt-language-server-1.53.0-202511192211.tar.gz
+ARG JDTLS_URL=https://www.eclipse.org/downloads/download.php?file=/jdtls/milestones/1.50.0/jdt-language-server-1.50.0-202509041425.tar.gz
 
 # WICHTIG: socat installieren!
 RUN apt-get update && apt-get install -y wget tar socat && \
