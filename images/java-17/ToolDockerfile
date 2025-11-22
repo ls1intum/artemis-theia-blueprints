@@ -55,8 +55,7 @@ RUN apt-get update && \
     apt-get remove -y openjdk-11-jre-headless && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* \
-    && rm -rf /usr/lib/jvm/java-11-openjdk-arm64 \
-    && rm -rf /usr/lib/jvm/java-17-openjdk-arm64/man
+    && rm -rf /usr/lib/jvm/java-11-openjdk-arm64
 
 # Switch to Theia user
 USER theia
