@@ -1,7 +1,7 @@
 {
   "theiaPlugins": {
     "eclipse-theia.builtin-extension-pack": "https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix",
-    "credential-bridge": "https://github.com/ls1intum/theia-credential-bridge/releases/download/v0.0.4/theia-credential-bridge-0.0.4.vsix
+    "credential-bridge": "https://github.com/ls1intum/theia-credential-bridge/releases/download/v0.0.5/credential-bridge-0.0.5.vsix"
   },
   "theiaPluginsExcludeIds": [
     "ms-vscode.js-debug-companion",
