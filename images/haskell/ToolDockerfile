@@ -1,32 +1,39 @@
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
-FROM ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG} AS base-ide
+ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
+FROM ${BASE_IMAGE} AS base-ide
 
 # Load the plugin image, only copy from here
-FROM node:20-bullseye AS plugin-image
+FROM node:22-bullseye AS plugin-image
 
 WORKDIR /home/theia
 
 # Configure to skip download of puppeteer
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
+# Install jq for JSON merging
+RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
+
 # Copy required configuration files
-COPY yarn.lock yarn.lock
+COPY --from=base-ide /home/theia/package.json ./package.json.base
+COPY images/haskell/package.json.patch ./package.json.patch
 
-# Copy image specific files - this should overwrite the default files from the repository
-COPY images/haskell/package.json .
+# Merge the base package.json with the haskell-specific patch using jq
+RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json
+RUN rm package.json.base package.json.patch
 
+# Copy scripts and dependencies from base-ide needed for yarn commands
+COPY --from=base-ide /home/theia/scripts /home/theia/scripts
+COPY --from=base-ide /home/theia/configs /home/theia/configs
+COPY --from=base-ide /home/theia/tsconfig.json /home/theia/tsconfig.json
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 
-# Remove unnecesarry files for the browser application
-# Download plugins and build application production mode
+# Install dependencies and download plugins for the browser application
 # Use yarn autoclean to remove unnecessary files from package dependencies
 RUN yarn --pure-lockfile --network-timeout 1000000 && \
     yarn download:plugins
 
 # Assemble the application
-# Adapted from https://github.com/ls1intum/artemis-c-docker/blob/main/Dockerfile
-# Changed: Use theia user instead of artemis user, do not install python
 FROM node:22-bullseye-slim AS final-ide
 
 WORKDIR /home/theia
@@ -46,10 +53,10 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
     
-# Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
+# Install required tools for terminal usage inside the IDE
 RUN apt-get update && \
-    apt-get install -y wget apt-transport-https bash && \
-    apt-get upgrade -y
+    apt-get install -y --no-install-recommends wget apt-transport-https bash ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/home/theia
 WORKDIR /home/theia
@@ -58,10 +65,10 @@ WORKDIR /home/theia
 COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 
 # Copy additional plugins
-COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
+COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
-# Copy the project configuration files
-COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
+# Copy project settings (includes .theia/settings.json with file exclusions)
+COPY images/haskell/project /home/project
 
 # Install and copy Haskell dependencies
 ENV STACK_ROOT=/stack_cache
@@ -69,12 +76,29 @@ RUN mkdir -p $STACK_ROOT
 COPY images/haskell/stack-config/config.yaml $STACK_ROOT/config.yaml
 COPY images/haskell/stack-config/global-project/stack.yaml $STACK_ROOT/global-project/stack.yaml
 
-# Install Haskell dependencies
-# build-essentials libffi6
+# Install Haskell dependencies and build tools
 RUN apt-get update \
-    && apt-get -y install curl libffi-dev libgmp-dev libgmp10 libncurses-dev libncurses5 libtinfo5 perl tar llvm libnuma-dev
-    # && apt-get clean \
-    # && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y --no-install-recommends \
+        curl \
+        gcc \
+        g++ \
+        make \
+        xz-utils \
+        zlib1g-dev \
+        git \
+        gnupg \
+        netbase \
+        libffi-dev \
+        libgmp-dev \
+        libgmp10 \
+        libncurses-dev \
+        libncurses5 \
+        libtinfo5 \
+        perl \
+        tar \
+        llvm \
+        libnuma-dev \
+    && rm -rf /var/lib/apt/lists/*
     
 # We install stack as the main CLI tool.
 # It bundles the creation of new projects (`stack new`), building (`stack build`) and finally running (`stack exec`) Haskell projects.
@@ -102,7 +126,7 @@ ENV SHELL=/bin/bash \
 # Use installed git instead of dugite
 ENV USE_LOCAL_GIT=true
 
-# Swtich to Theia user
+# Switch to Theia user
 USER theia
 WORKDIR /home/theia/applications/browser
 
