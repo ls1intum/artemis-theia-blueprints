@@ -4,26 +4,35 @@ ARG RUNTIME_IMAGE=swift:focal
 
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
-FROM ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG} AS base-ide
+ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
+FROM ${BASE_IMAGE} AS base-ide
 
 # Load the plugin image, only copy from here
-FROM node:20-bullseye AS plugin-image
+FROM node:22-bullseye AS plugin-image
 
 WORKDIR /home/theia
 
 # Configure to skip download of puppeteer
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
+# Install jq for JSON merging
+RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
+
 # Copy required configuration files
-COPY yarn.lock yarn.lock
+COPY --from=base-ide /home/theia/package.json ./package.json.base
+COPY images/swift/package.json.patch ./package.json.patch
 
-# Copy image specific files - this should overwrite the default files from the repository
-# WARNING: This needs to be adapted to the specific image
-COPY images/swift/package.json .
+# Merge the base package.json with the swift-specific patch using jq
+RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json
+RUN rm package.json.base package.json.patch
 
+# Copy scripts and dependencies from base-ide needed for yarn commands
+COPY --from=base-ide /home/theia/scripts /home/theia/scripts
+COPY --from=base-ide /home/theia/configs /home/theia/configs
+COPY --from=base-ide /home/theia/tsconfig.json /home/theia/tsconfig.json
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 
-# Remove unnecesarry files for the browser application
+# Remove unnecessary files for the browser application
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
 RUN yarn --pure-lockfile && \
@@ -84,10 +93,9 @@ WORKDIR /home/theia
 COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 
 # Copy additional plugins
-COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
+COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
 # Copy the project configuration files
-COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
 COPY images/swift/project /home/project
 
 # Copy dependencies from builder image
@@ -100,10 +108,10 @@ COPY --from=builder /executables/* /usr/bin
 # Create a symbolic link to the node_modules directory
 RUN ln -s /home/theia/node_modules /home/theia/applications/browser/node_modules.asar
 
-# Install required tools for tool creation and terminal usage: wget, apt-transport-https, update & upgrade packages, bash
+# Install required tools for terminal usage inside the IDE
 RUN apt-get update && \
-    apt-get install -y wget apt-transport-https bash && \
-    apt-get upgrade -y
+    apt-get install -y --no-install-recommends bash ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Print Installed Swift & SwiftLint Version
 RUN swift --version
@@ -118,7 +126,7 @@ ENV SHELL=/bin/bash \
 # Use installed git instead of dugite
 ENV USE_LOCAL_GIT=true
 
-# Swtich to Theia user
+# Switch to Theia user
 USER theia
 WORKDIR /home/theia/applications/browser
 
