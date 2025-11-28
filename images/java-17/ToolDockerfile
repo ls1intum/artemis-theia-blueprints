@@ -38,12 +38,19 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
-# Install required tools for application: Temurin JDK, JDK, SSH, Bash, Maven
+# Install required tools for application: Temurin JDK, JDK, SSH, Bash, Maven, Gradle
 # Node is already available in base image
-RUN apt-get update && apt-get install -y wget apt-transport-https && \
+RUN apt-get update && apt-get install -y wget apt-transport-https unzip && \
     apt-get update && apt-get install -y git openssh-client openssh-server bash libsecret-1-0 openjdk-17-jdk maven && \
+    wget https://services.gradle.org/distributions/gradle-8.5-bin.zip -P /tmp && \
+    unzip -d /opt/gradle /tmp/gradle-8.5-bin.zip && \
+    rm /tmp/gradle-8.5-bin.zip && \
     apt-get purge -y wget && \
     apt-get clean
+
+# Set Gradle environment variables
+ENV GRADLE_HOME=/opt/gradle/gradle-8.5
+ENV PATH=${GRADLE_HOME}/bin:${PATH}
 
 ENV HOME=/home/theia
 WORKDIR /home/theia
