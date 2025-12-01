@@ -1,0 +1,30 @@
+services:
+  theia:
+    image: ghcr.io/ls1intum/theia/theia-no-ls:latest
+    container_name: theia-ide
+    ports:
+      - "3000:3000"
+    volumes:
+      - project-data:/home/project
+    networks:
+      - app-net
+    environment:
+      - LS_RUST_HOST=rust-language-server
+      - LS_RUST_PORT=5555
+
+  rust-ls:
+    image: ghcr.io/ls1intum/theia/langserver-rust:latest
+    container_name: rust-language-server
+    environment:
+      - SERVER_PORT=5555
+    volumes:
+      - project-data:/home/project
+    networks:
+      - app-net
+
+volumes:
+  project-data:
+
+networks:
+  app-net:
+    driver: bridge
