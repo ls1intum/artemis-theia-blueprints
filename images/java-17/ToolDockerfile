@@ -73,8 +73,12 @@ ENV SHELL=/bin/bash \
 # Use installed git instead of dugite
 ENV USE_LOCAL_GIT=true
 
-# Swtich to Theia user
+# Create .gradle directory with correct ownership for Gradle caching
+RUN mkdir -p /home/theia/.gradle && chown -R theia:theia /home/theia/.gradle
+
+# Switch to Theia user
 USER theia
+
 WORKDIR /home/theia/applications/browser
 
 # Launch the backend application via node
