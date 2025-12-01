@@ -73,8 +73,8 @@ ENV SHELL=/bin/bash \
 # Use installed git instead of dugite
 ENV USE_LOCAL_GIT=true
 
-# Create .gradle directory with correct ownership for Gradle caching
-RUN mkdir -p /home/theia/.gradle && chown -R theia:theia /home/theia/.gradle
+# Since the Operator overwrites the owner to root, the Theia user needs write permissions for the .gradle directory
+RUN mkdir -p /home/theia/.gradle && chmod 777 /home/theia/.gradle
 
 # Switch to Theia user
 USER theia
