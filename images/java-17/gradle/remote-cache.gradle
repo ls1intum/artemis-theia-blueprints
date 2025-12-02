@@ -18,6 +18,7 @@ beforeSettings { settings ->
                 url = cacheUrl
                 push = cachePush
                 enabled = true
+                allowInsecureProtocol = true
             }
         }
         
