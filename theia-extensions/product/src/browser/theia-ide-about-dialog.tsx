@@ -17,18 +17,13 @@ import { injectable, inject } from "@theia/core/shared/inversify";
 import {
   renderWhatIs,
 } from "./branding-util";
-//import { VSXEnvironment } from '@theia/vsx-registry/lib/common/vsx-environment';
 import { WindowService } from "@theia/core/lib/browser/window/window-service";
 
 @injectable()
 export class TheiaIDEAboutDialog extends AboutDialog {
-  //@inject(VSXEnvironment)
-  //protected readonly environment: VSXEnvironment;
 
   @inject(WindowService)
   protected readonly windowService: WindowService;
-
-  protected vscodeApiVersion: string;
 
   constructor(
     @inject(AboutDialogProps) protected readonly props: AboutDialogProps

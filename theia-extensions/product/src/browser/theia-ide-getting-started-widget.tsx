@@ -25,8 +25,6 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
   @inject(WindowService)
   protected readonly windowService: WindowService;
 
-  protected vscodeApiVersion: string;
-
   protected async doInit(): Promise<void> {
     super.doInit();
     this.update();
