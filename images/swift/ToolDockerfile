@@ -110,7 +110,7 @@ RUN ln -s /home/theia/node_modules /home/theia/applications/browser/node_modules
 
 # Install required tools for terminal usage inside the IDE
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends bash ca-certificates && \
+    apt-get install -y --no-install-recommends zsh curl git ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Print Installed Swift & SwiftLint Version
@@ -120,7 +120,7 @@ RUN swiftlint version
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
-ENV SHELL=/bin/bash \
+ENV SHELL=/bin/zsh \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
@@ -128,6 +128,12 @@ ENV USE_LOCAL_GIT=true
 
 # Switch to Theia user
 USER theia
+
+# Install Oh My Zsh with essential plugins for better user experience
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
+    sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting command-not-found colored-man-pages)/' ${HOME}/.zshrc
 WORKDIR /home/theia/applications/browser
 
 # Launch the backend application via node
