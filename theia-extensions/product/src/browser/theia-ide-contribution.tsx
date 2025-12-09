@@ -23,11 +23,6 @@ export namespace TheiaIDECommands {
         category: CATEGORY,
         label: 'Report Issue'
     };
-    export const DOCUMENTATION: Command = {
-        id: 'theia-ide:documentation',
-        category: CATEGORY,
-        label: 'Documentation'
-    };
 }
 
 @injectable()
@@ -36,15 +31,12 @@ export class TheiaIDEContribution implements CommandContribution, MenuContributi
     @inject(WindowService)
     protected readonly windowService: WindowService;
 
-    static REPORT_ISSUE_URL = 'https://github.com/eclipse-theia/theia-ide/issues/new?assignees=&labels=&template=bug_report.md';
-    static DOCUMENTATION_URL = 'https://theia-ide.org/docs/user_getting_started/';
+    static REPORT_ISSUE_URL = 'https://github.com/ls1intum/artemis-theia-blueprints/issues';
+
 
     registerCommands(commandRegistry: CommandRegistry): void {
         commandRegistry.registerCommand(TheiaIDECommands.REPORT_ISSUE, {
             execute: () => this.windowService.openNewWindow(TheiaIDEContribution.REPORT_ISSUE_URL, { external: true })
-        });
-        commandRegistry.registerCommand(TheiaIDECommands.DOCUMENTATION, {
-            execute: () => this.windowService.openNewWindow(TheiaIDEContribution.DOCUMENTATION_URL, { external: true })
         });
     }
 
@@ -53,11 +45,6 @@ export class TheiaIDEContribution implements CommandContribution, MenuContributi
             commandId: TheiaIDECommands.REPORT_ISSUE.id,
             label: TheiaIDECommands.REPORT_ISSUE.label,
             order: '1'
-        });
-        menus.registerMenuAction(TheiaIDEMenus.THEIA_IDE_HELP, {
-            commandId: TheiaIDECommands.DOCUMENTATION.id,
-            label: TheiaIDECommands.DOCUMENTATION.label,
-            order: '2'
         });
     }
 }
