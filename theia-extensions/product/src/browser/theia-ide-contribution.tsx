@@ -23,11 +23,6 @@ export namespace TheiaIDECommands {
         category: CATEGORY,
         label: 'Report Issue'
     };
-    export const DOCUMENTATION: Command = {
-        id: 'theia-ide:documentation',
-        category: CATEGORY,
-        label: 'Documentation'
-    };
 }
 
 @injectable()
@@ -37,7 +32,7 @@ export class TheiaIDEContribution implements CommandContribution, MenuContributi
     protected readonly windowService: WindowService;
 
     static REPORT_ISSUE_URL = 'https://github.com/eclipse-theia/theia-ide/issues/new?assignees=&labels=&template=bug_report.md';
-    static DOCUMENTATION_URL = 'https://theia-ide.org/docs/user_getting_started/';
+
 
     registerCommands(commandRegistry: CommandRegistry): void {
         commandRegistry.registerCommand(TheiaIDECommands.REPORT_ISSUE, {
