@@ -47,17 +47,12 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
           <hr className="gs-hr" />
           <div className="flex-grid">
             <div className="col">
-            {this.renderHeader()}
-              <div className="col">
+              {this.renderHeader()}
+              <div>
                 {this.renderActions()}
               </div>
             </div>
             <div className="col col-flex">
-              {/* <div className="logo-container">
-                <div className="gs-logo"></div>
-                <h1>/</h1>
-                <div className="gs-artemis-logo"></div>
-              </div> */}
               {renderWhatIs(this.windowService)}
               {renderTickets(this.windowService)}
             </div>
