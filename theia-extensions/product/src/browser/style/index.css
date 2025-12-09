@@ -9,10 +9,19 @@
 
 :root {
     --theia-branding-logo: url(../icons/TheiaIDE.png);
+    --theia-logo: url(../icons/512-512.png);
+    --artemis-logo: url(../icons/artemis-logo.png);
 }
 
 .theia-icon {
     background-image: url("../icons/512-512.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+
+.artemis-icon {
+    background-image: url("../icons/artemis-logo.png");
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
@@ -38,13 +47,28 @@
 }
 
 .gs-logo {
-    background-image: var(--theia-branding-logo);
+    /* background-image: var(--theia-branding-logo); */
+    background-image: var(--theia-logo);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: contain;
-    width: 250px;
+    width: 150px;
     height: 118px;
     padding: 20px;
+}
+
+.gs-artemis-logo {
+    background-image: var(--artemis-logo);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 125px;
+    height: 80px;
+    padding: 20px;
+}
+
+.gs-content-centered {
+    padding: 12rem;
 }
 
 .ad-logo {
@@ -75,3 +99,35 @@ ul.theia-aboutExtensions {
     padding: 0;
     margin-left: 10px;
  }
+
+.header-container {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.onboarding-header {
+    margin: 0;
+}
+
+.onboarding-subheader {
+    margin: 0;
+}
+
+.logo-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 8rem;
+}
+
+.logo-container h1 {
+    font-size: 8rem;
+    font-weight: 400;
+    padding-bottom: 2rem;
+}
+
+.col-flex {
+    display: flex;
+    flex-direction: column;
+}

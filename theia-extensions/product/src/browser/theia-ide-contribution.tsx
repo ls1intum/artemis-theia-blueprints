@@ -43,9 +43,6 @@ export class TheiaIDEContribution implements CommandContribution, MenuContributi
         commandRegistry.registerCommand(TheiaIDECommands.REPORT_ISSUE, {
             execute: () => this.windowService.openNewWindow(TheiaIDEContribution.REPORT_ISSUE_URL, { external: true })
         });
-        commandRegistry.registerCommand(TheiaIDECommands.DOCUMENTATION, {
-            execute: () => this.windowService.openNewWindow(TheiaIDEContribution.DOCUMENTATION_URL, { external: true })
-        });
     }
 
     registerMenus(menus: MenuModelRegistry): void {
@@ -53,11 +50,6 @@ export class TheiaIDEContribution implements CommandContribution, MenuContributi
             commandId: TheiaIDECommands.REPORT_ISSUE.id,
             label: TheiaIDECommands.REPORT_ISSUE.label,
             order: '1'
-        });
-        menus.registerMenuAction(TheiaIDEMenus.THEIA_IDE_HELP, {
-            commandId: TheiaIDECommands.DOCUMENTATION.id,
-            label: TheiaIDECommands.DOCUMENTATION.label,
-            order: '2'
         });
     }
 }
