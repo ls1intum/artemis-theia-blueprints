@@ -30,17 +30,16 @@ setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
 
 # Autosuggestion settings
+# Gray suggestions from history - press RIGHT ARROW or END to accept
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # Syntax highlighting settings
+# Commands are highlighted in green if valid, red if invalid
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 
-# Aliases
+# Enable colored output for common commands
 alias ls='ls --color=auto'
-alias ll='ls -lah'
-alias la='ls -A'
-alias l='ls -CF'
 alias grep='grep --color=auto'
 
 # Language-specific environment initialization will be appended below by Dockerfiles
