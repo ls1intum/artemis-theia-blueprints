@@ -129,13 +129,6 @@ ENV USE_LOCAL_GIT=true
 # Switch to Theia user
 USER theia
 
-<<<<<<< Updated upstream
-# Install Oh My Zsh with essential plugins for better user experience
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
-    sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting command-not-found colored-man-pages)/' ${HOME}/.zshrc
-=======
 # Install Oh My Zsh and plugins
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
     git clone https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
@@ -143,7 +136,6 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 
 # Copy centralized zsh configuration
 COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
->>>>>>> Stashed changes
 WORKDIR /home/theia/applications/browser
 
 # Launch the backend application via node

@@ -10,10 +10,8 @@ ZSH_THEME="robbyrussell"
 # Plugins configuration
 # Note: plugins can be found in ~/.oh-my-zsh/plugins/
 plugins=(
-  git
   zsh-autosuggestions
   zsh-syntax-highlighting
-  command-not-found
   colored-man-pages
 )
 
