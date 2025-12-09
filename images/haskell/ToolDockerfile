@@ -99,10 +99,13 @@ RUN apt-get update \
         llvm \
         libnuma-dev \
     && rm -rf /var/lib/apt/lists/*
-    
+
 # We install stack as the main CLI tool.
 # It bundles the creation of new projects (`stack new`), building (`stack build`) and finally running (`stack exec`) Haskell projects.
+<<<<<<< Updated upstream
 # Note: the stack installer script uses sh internally, so we can run it with sh even though we're switching to zsh
+=======
+>>>>>>> Stashed changes
 RUN sh -c "curl -sSL https://get.haskellstack.org/ | sh" \
     && stack setup \
     && stack ghc \
@@ -130,11 +133,21 @@ ENV USE_LOCAL_GIT=true
 # Switch to Theia user
 USER theia
 
+<<<<<<< Updated upstream
 # Install Oh My Zsh with essential plugins for better user experience
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
     git clone https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
     sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting command-not-found colored-man-pages)/' ${HOME}/.zshrc
+=======
+# Install Oh My Zsh and plugins
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+# Copy centralized zsh configuration
+COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
+>>>>>>> Stashed changes
 WORKDIR /home/theia/applications/browser
 
 # Launch the backend application via node

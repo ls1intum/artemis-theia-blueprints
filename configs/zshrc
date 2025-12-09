@@ -1,0 +1,47 @@
+# Theia IDE - Oh My Zsh Configuration
+# This file is copied into all language-specific Docker images
+
+# Path to Oh My Zsh installation
+export ZSH="$HOME/.oh-my-zsh"
+
+# Theme configuration
+ZSH_THEME="robbyrussell"
+
+# Plugins configuration
+# Note: plugins can be found in ~/.oh-my-zsh/plugins/
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  command-not-found
+  colored-man-pages
+)
+
+# Oh My Zsh initialization
+source $ZSH/oh-my-zsh.sh
+
+# User configuration
+
+# History settings
+HISTSIZE=10000
+SAVEHIST=10000
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+
+# Autosuggestion settings
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+# Syntax highlighting settings
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
+
+# Aliases
+alias ls='ls --color=auto'
+alias ll='ls -lah'
+alias la='ls -A'
+alias l='ls -CF'
+alias grep='grep --color=auto'
+
+# Language-specific environment initialization will be appended below by Dockerfiles
+# (e.g., Rust cargo, OCaml opam, etc.)

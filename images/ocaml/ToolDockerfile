@@ -67,9 +67,18 @@ USER theia
 ENV HOME=/home/theia
 WORKDIR /home/theia
 
+# Install Oh My Zsh and plugins
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+# Copy centralized zsh configuration
+COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
+
 # Initialize opam environment for the non-root user (theia)
 RUN opam init --disable-sandboxing -y && \
     opam install dune.3.19.1 -y && \
+<<<<<<< Updated upstream
     opam install qcheck ocaml-lsp-server odoc ocamlformat utop user-setup -y
 
 # Install Oh My Zsh with essential plugins for better user experience
@@ -80,6 +89,10 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 
 # Configure opam for zsh and add it to .zshrc
 RUN opam env --switch default --shell=zsh >> ${HOME}/.zshrc
+=======
+    opam install qcheck ocaml-lsp-server odoc ocamlformat utop user-setup -y && \
+    opam env --switch default --shell=zsh >> /home/theia/.zshrc
+>>>>>>> Stashed changes
 
 # Create .ocamlformat file inside project's root directory for ocamlformat to work
 RUN touch /home/project/.ocamlformat
