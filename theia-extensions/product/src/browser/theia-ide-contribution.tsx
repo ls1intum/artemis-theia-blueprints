@@ -31,7 +31,7 @@ export class TheiaIDEContribution implements CommandContribution, MenuContributi
     @inject(WindowService)
     protected readonly windowService: WindowService;
 
-    static REPORT_ISSUE_URL = 'https://github.com/eclipse-theia/theia-ide/issues/new?assignees=&labels=&template=bug_report.md';
+    static REPORT_ISSUE_URL = 'https://github.com/ls1intum/artemis-theia-blueprints/issues';
 
 
     registerCommands(commandRegistry: CommandRegistry): void {

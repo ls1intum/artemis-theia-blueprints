@@ -47,7 +47,7 @@ export function renderTickets(windowService: WindowService): React.ReactNode {
         </h3>
         <div>
             The Artemis Online IDE is an open source project and we welcome your feedback.
-            For feature requests and bug reports, <BrowserLink text="open an issue on Github" url="https://github.com/eclipse-theia/theia-ide/issues/new/choose"
+            For feature requests and bug reports, <BrowserLink text="open an issue on Github" url="https://github.com/ls1intum/artemis-theia-blueprints/issues"
                 windowService={windowService} ></BrowserLink> to let us know.
         </div>
     </div>;
