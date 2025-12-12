@@ -59,7 +59,7 @@ ENV HOME=/home/theia
 
 # Install required tooling for terminal usage and OCaml development
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget apt-transport-https bash git curl m4 tzdata opam ocaml ca-certificates && \
+    apt-get install -y --no-install-recommends wget apt-transport-https zsh git curl m4 tzdata opam ocaml ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Set up non-root user early to avoid root permission issues with opam
@@ -67,18 +67,22 @@ USER theia
 ENV HOME=/home/theia
 WORKDIR /home/theia
 
+# Install Oh My Zsh and plugins with pinned versions
+RUN curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/f84341c57478445d534d0318231df8157ddfed3e/tools/install.sh -o install-omz.sh && \
+    sh install-omz.sh --unattended && \
+    rm install-omz.sh && \
+    git -C ${HOME}/.oh-my-zsh checkout f84341c57478445d534d0318231df8157ddfed3e && \
+    git clone --depth 1 --branch v0.7.1 https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+    git clone --depth 1 --branch 0.8.0 https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+# Copy centralized zsh configuration
+COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
+
 # Initialize opam environment for the non-root user (theia)
 RUN opam init --disable-sandboxing -y && \
     opam install dune.3.19.1 -y && \
     opam install qcheck ocaml-lsp-server odoc ocamlformat utop user-setup -y && \
-    opam env --switch default --shell=sh > /home/theia/.opam/opam.sh
-
-# change to root to copy opam.sh to /etc/profile.d for global availability
-USER root
-RUN install -m 644 /home/theia/.opam/opam.sh /etc/profile.d/opam.sh && \
-    chown root:root /etc/profile.d/opam.sh
-
-USER theia
+    opam env --switch default --shell=zsh >> /home/theia/.zshrc
 
 # Create .ocamlformat file inside project's root directory for ocamlformat to work
 RUN touch /home/project/.ocamlformat
@@ -95,7 +99,7 @@ COPY images/ocaml/project /home/project
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
-ENV SHELL=/bin/bash \
+ENV SHELL=/bin/zsh \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
