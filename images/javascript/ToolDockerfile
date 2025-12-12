@@ -58,16 +58,19 @@ USER theia
 ENV HOME=/home/theia
 WORKDIR /home/theia
 
-# Install Oh My Zsh and plugins
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-
 # Copy application from builder-stage
 COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 
 # Copy additional plugins
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
+
+# Install Oh My Zsh and plugins with pinned versions
+RUN curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/f84341c57478445d534d0318231df8157ddfed3e/tools/install.sh -o install-omz.sh && \
+    sh install-omz.sh --unattended && \
+    rm install-omz.sh && \
+    git -C ${HOME}/.oh-my-zsh checkout f84341c57478445d534d0318231df8157ddfed3e && \
+    git clone --depth 1 --branch v0.7.1 https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+    git clone --depth 1 --branch 0.8.0 https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 
 # Copy centralized zsh configuration
 COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
