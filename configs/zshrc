@@ -12,7 +12,6 @@ ZSH_THEME="robbyrussell"
 plugins=(
   zsh-autosuggestions
   zsh-syntax-highlighting
-  colored-man-pages
 )
 
 # Oh My Zsh initialization
@@ -21,8 +20,8 @@ source $ZSH/oh-my-zsh.sh
 # User configuration
 
 # History settings
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=1000
+SAVEHIST=1000
 setopt SHARE_HISTORY
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
@@ -39,6 +38,3 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 # Enable colored output for common commands
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
-
-# Language-specific environment initialization will be appended below by Dockerfiles
-# (e.g., Rust cargo, OCaml opam, etc.)
