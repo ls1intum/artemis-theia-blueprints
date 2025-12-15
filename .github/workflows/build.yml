@@ -33,7 +33,7 @@ jobs:
       docker-file: images/base-ide/BaseDockerfile
       image-name: ghcr.io/ls1intum/theia/base
       docker-context: .
-      tags: "2025-06-15"
+      tags: ${{ needs.determine-tag.outputs.base_tag }}
       network: "host"
     secrets: inherit
 
