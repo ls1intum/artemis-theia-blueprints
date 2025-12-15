@@ -18,7 +18,7 @@ RUN mkdir -p /opt/workspace
 RUN addgroup --system app && adduser --system --group app
 RUN chown -R app:app /opt/jdt-ls && chown -R app:app /opt/workspace
 
-COPY images/langserver-java/start-ls.sh /opt/start-ls.sh
+COPY images/languageserver/java/start-ls.sh /opt/start-ls.sh
 RUN chmod +x /opt/start-ls.sh
 
 USER app

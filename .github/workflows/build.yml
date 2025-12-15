@@ -93,10 +93,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - docker-file: images/langserver-java/ToolDockerfile
+          - docker-file: images/languageserver/java/Dockerfile
             docker-context: "."
             image-name: ghcr.io/ls1intum/theia/langserver-java
-          - docker-file: images/langserver-rust/ToolDockerfile
+          - docker-file: images/languageserver/rust/Dockerfile
             docker-context: "."
             image-name: ghcr.io/ls1intum/theia/langserver-rust
 
