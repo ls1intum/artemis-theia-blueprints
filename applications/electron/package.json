@@ -54,8 +54,6 @@
     }
   },
   "dependencies": {
-    "@theia/bulk-edit": "1.62.2",
-    "@theia/callhierarchy": "1.62.2",
     "@theia/console": "1.62.2",
     "@theia/core": "1.62.2",
     "@theia/debug": "1.62.2",
@@ -82,7 +80,6 @@
     "@theia/remote-wsl": "1.62.2",
     "@theia/scm": "1.62.2",
     "@theia/search-in-workspace": "1.62.2",
-    "@theia/secondary-window": "1.62.2",
     "@theia/task": "1.62.2",
     "@theia/terminal": "1.62.2",
     "@theia/timeline": "1.62.2",
