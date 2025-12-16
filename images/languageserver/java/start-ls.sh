@@ -3,6 +3,15 @@
 SERVER_PORT=${SERVER_PORT:-5556}
 LAUNCHER_JAR=$(find /opt/jdt-ls/plugins -name "org.eclipse.equinox.launcher_*.jar" | head -n 1)
 
+# Validate LAUNCHER_JAR exists
+if [ -z "$LAUNCHER_JAR" ] || [ ! -f "$LAUNCHER_JAR" ]; then
+  echo "ERROR: Could not find Eclipse Equinox launcher JAR." >&2
+  echo "Search path: /opt/jdt-ls/plugins" >&2
+  echo "Expected file pattern: org.eclipse.equinox.launcher_*.jar" >&2
+  echo "Suggestion: Reinstall or update the JDT Language Server plugins." >&2
+  exit 1
+fi
+
 # Wir erstellen ein Hilfs-Skript, das Java im STDIO-Modus startet.
 # Wir entfernen -DSERVER_PORT, damit Java auf stdin/stdout reagiert.
 cat <<EOF > /tmp/run-jdt.sh
