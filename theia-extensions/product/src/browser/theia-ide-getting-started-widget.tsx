@@ -93,13 +93,22 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
      */
   protected override renderStart(): React.ReactNode {
       const requireSingleOpen = isOSX || !environment.electron.is();
+      const openScorpio = requireSingleOpen && <div className='gs-action-container'>
+          <a
+              role={'button'}
+              tabIndex={0}
+              onClick={this.doOpenScorpio}
+              onKeyDown={this.doOpenScorpioEnter}>
+              {nls.localizeByDefault('Open Exercise')}
+          </a>
+      </div>;
       const openFileExplorer = requireSingleOpen && <div className='gs-action-container'>
           <a
               role={'button'}
               tabIndex={0}
               onClick={this.doOpenExplorer}
               onKeyDown={this.doOpenExplorerEnter}>
-              {nls.localizeByDefault('Open Exercise in Explorer View')}
+              {nls.localizeByDefault('Open Exercise Files')}
           </a>
       </div>;
       const openSourceControl = requireSingleOpen && <div className='gs-action-container'>
@@ -123,10 +132,11 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
 
       return <div className='gs-section'>
           <h3 className='gs-section-header'><i className={codicon('folder-opened')}></i>{nls.localizeByDefault('Start')}</h3>
+          {openScorpio}
           {openFileExplorer}
           {openSourceControl}
           {showAllTerminals}
-      </div>;
+      </div>
   }
 
   /**
@@ -138,14 +148,6 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
           this.doOpenExplorer();
       }
   };
-  protected test = () => {
-    console.log('start listing all commands')
-    const iterator = this.commandRegistry.getAllCommands();
-    for (let out = iterator.next(); !out.done; out = iterator.next()) {
-      console.log('command', out.value);
-    }
-    console.log('finish listing all commands')
-  }
 
   /**
   * Trigger the view source control manager command.
@@ -166,4 +168,15 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
           this.doToggleTermials();
       }
   }
+
+  /**
+  * Trigger the open scorpio sidebar command. 
+  */
+  protected doOpenScorpio = () => this.commandRegistry.executeCommand('artemis-sidebar.focus');
+  protected doOpenScorpioEnter = (e: React.KeyboardEvent) => {
+      if (this.isEnterKey(e)) {
+          this.doOpenScorpio();
+      }
+  }
+
 }
