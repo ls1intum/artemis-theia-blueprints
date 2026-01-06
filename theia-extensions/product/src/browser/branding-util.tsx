@@ -33,7 +33,7 @@ export function renderWhatIs(windowService: WindowService): React.ReactNode {
             What is this?
         </h3>
         <div>
-            This is the Artemis Online IDE based on the Eclipse Theia IDE. The Eclipse Theia IDE is a modern and open IDE for cloud and desktop, that is based on the <BrowserLink text="Theia platform"
+            This is the Artemis Online IDE based on <BrowserLink text="Eclipse Theia"
             url="https://theia-ide.org" windowService={windowService} ></BrowserLink>.
         </div>
     </div>;
@@ -47,7 +47,7 @@ export function renderTickets(windowService: WindowService): React.ReactNode {
         </h3>
         <div>
             The Artemis Online IDE is an open source project and we welcome your feedback.
-            For feature requests and bug reports, <BrowserLink text="open an issue on Github" url="https://github.com/ls1intum/artemis-theia-blueprints/issues"
+            For feature requests and bug reports, <BrowserLink text="open an issue on Github" url="https://github.com/ls1intum/artemis-theia-blueprints/issues/new/choose"
                 windowService={windowService} ></BrowserLink> to let us know.
         </div>
     </div>;

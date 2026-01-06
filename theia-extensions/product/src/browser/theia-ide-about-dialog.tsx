@@ -61,7 +61,7 @@ export class TheiaIDEAboutDialog extends AboutDialog {
             Artemis <span className="gs-blue-header">Online IDE</span>
           </h1>
           <h2 className="onboarding-subheader">
-            Based on Eclipse Theia IDE
+            Based on Eclipse Theia
           </h2>
       </div>
     );
