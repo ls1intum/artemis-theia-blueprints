@@ -18,13 +18,25 @@ import {
 
 import { GettingStartedWidget } from "@theia/getting-started/lib/browser/getting-started-widget";
 import { WindowService } from "@theia/core/lib/browser/window/window-service";
-import { environment, isOSX, nls } from "@theia/core";
+import { CommandRegistry, environment, isOSX, nls } from "@theia/core";
+
+const CommandIds = {
+  OpenExplorer: 'workbench.view.explorer',
+  OpenScm: 'scmView:toggle',
+  ToggleTerminal: 'workbench.action.terminal.toggleTerminal',
+  OpenScorpioSidebar: 'artemis-sidebar.focus',
+  ScorpioSidebarToggleVisibility: 'plugin-view-container:workbench.view.extension.artemis-sidebar-view:toggle-visibility',
+} as const;
 
 @injectable()
 export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
 
   @inject(WindowService)
   protected readonly windowService: WindowService;
+
+  @inject(CommandRegistry)
+  protected readonly commandRegistry: CommandRegistry;
+  
 
   protected async doInit(): Promise<void> {
     super.doInit();
@@ -132,7 +144,7 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
 
       return <div className='gs-section'>
           <h3 className='gs-section-header'><i className={codicon('folder-opened')}></i>{nls.localizeByDefault('Start')}</h3>
-          {openScorpio}
+          {this.isScorpioExtensionInstalled && openScorpio}
           {openFileExplorer}
           {openSourceControl}
           {showAllTerminals}
@@ -142,7 +154,7 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
   /**
   * Trigger the view explorer command.
   */
-  protected doOpenExplorer = () => this.commandRegistry.executeCommand('workbench.view.explorer');
+  protected doOpenExplorer = () => this.commandRegistry.executeCommand(CommandIds.OpenExplorer);
   protected doOpenExplorerEnter = (e: React.KeyboardEvent) => {
       if (this.isEnterKey(e)) {
           this.doOpenExplorer();
@@ -152,7 +164,7 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
   /**
   * Trigger the view source control manager command.
   */
-  protected doOpenScm = () => this.commandRegistry.executeCommand('scmView:toggle');
+  protected doOpenScm = () => this.commandRegistry.executeCommand(CommandIds.OpenScm);
   protected doOpenScmEnter = (e: React.KeyboardEvent) => {
     if (this.isEnterKey(e)) {
         this.doOpenScm();
@@ -162,7 +174,7 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
   /**
   * Trigger the toggle terminal command.
   */
-  protected doToggleTermials = () => this.commandRegistry.executeCommand('workbench.action.terminal.toggleTerminal');
+  protected doToggleTermials = () => this.commandRegistry.executeCommand(CommandIds.ToggleTerminal);
   protected doToggleTermialsEnter = (e: React.KeyboardEvent) => {
       if (this.isEnterKey(e)) {
           this.doToggleTermials();
@@ -172,11 +184,19 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
   /**
   * Trigger the open scorpio sidebar command. 
   */
-  protected doOpenScorpio = () => this.commandRegistry.executeCommand('artemis-sidebar.focus');
+  protected doOpenScorpio = () => this.commandRegistry.executeCommand(CommandIds.OpenScorpioSidebar);
   protected doOpenScorpioEnter = (e: React.KeyboardEvent) => {
       if (this.isEnterKey(e)) {
           this.doOpenScorpio();
       }
+  }
+
+  /**
+   * Check if scorpio extension is installed.
+   */
+  protected get isScorpioExtensionInstalled(): boolean {
+      const artemisSideBarViewId = CommandIds.ScorpioSidebarToggleVisibility;
+      return this.commandRegistry.getCommand(artemisSideBarViewId) !== undefined;
   }
 
 }
