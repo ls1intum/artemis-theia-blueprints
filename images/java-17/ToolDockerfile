@@ -51,7 +51,7 @@ RUN chmod g+rw /home && \
 # Install required tools for the application: Temurin JDK, SSH, Zsh, Maven
 # Node is already available in the base image
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git openssh-client openssh-server zsh curl libsecret-1-0 openjdk-17-jdk maven ca-certificates && \
+    apt-get install -y --no-install-recommends bash git openssh-client openssh-server zsh curl libsecret-1-0 openjdk-17-jdk maven ca-certificates && \
     apt-get remove -y openjdk-11-jre-headless && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* \

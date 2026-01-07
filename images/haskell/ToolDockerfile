@@ -55,7 +55,7 @@ RUN chmod g+rw /home && \
     
 # Install required tools for terminal usage inside the IDE
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget apt-transport-https zsh ca-certificates && \
+    apt-get install -y --no-install-recommends bash wget apt-transport-https zsh ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/home/theia

@@ -62,7 +62,7 @@ RUN chmod g+rw /home && \
 
 # Install required tools for tool creation and terminal usage inside the IDE
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends zsh curl git python-is-python3 ca-certificates && \
+    apt-get install -y --no-install-recommends bash zsh curl git python-is-python3 ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python Tools

@@ -110,7 +110,7 @@ RUN ln -s /home/theia/node_modules /home/theia/applications/browser/node_modules
 
 # Install required tools for terminal usage inside the IDE
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends zsh curl git ca-certificates && \
+    apt-get install -y --no-install-recommends bash zsh curl git ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Print Installed Swift & SwiftLint Version
