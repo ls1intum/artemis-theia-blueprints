@@ -136,8 +136,8 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
           <a
               role={'button'}
               tabIndex={0}
-              onClick={this.doToggleTermials}
-              onKeyDown={this.doToggleTermialsEnter}>
+              onClick={this.doToggleTerminals}
+              onKeyDown={this.doToggleTerminalsEnter}>
               {nls.localizeByDefault('Open Terminal View')}
           </a>
       </div>;
@@ -174,10 +174,10 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
   /**
   * Trigger the toggle terminal command.
   */
-  protected doToggleTermials = () => this.commandRegistry.executeCommand(CommandIds.ToggleTerminal);
-  protected doToggleTermialsEnter = (e: React.KeyboardEvent) => {
+  protected doToggleTerminals = () => this.commandRegistry.executeCommand(CommandIds.ToggleTerminal);
+  protected doToggleTerminalsEnter = (e: React.KeyboardEvent) => {
       if (this.isEnterKey(e)) {
-          this.doToggleTermials();
+          this.doToggleTerminals();
       }
   }
 
