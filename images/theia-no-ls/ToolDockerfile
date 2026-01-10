@@ -27,7 +27,7 @@ RUN jq -s '.[0] * .[1]' package.json.base package.json.patch > package.json && \
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 COPY scripts/ /home/theia/scripts/
 
-# Remove unnecesarry files for the browser application
+# Remove unnecessary files for the browser application
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
 RUN yarn --pure-lockfile --network-timeout 1000000 && \

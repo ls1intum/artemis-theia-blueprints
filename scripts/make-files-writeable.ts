@@ -31,7 +31,7 @@ async function execute(): Promise<void> {
 
     try {
         makeWritable(directory);
-    } catch (error) {
+    } catch (error: any) {
         console.error(`Failed to make files writable: ${error.message}`);
         process.exit(1);
     }
