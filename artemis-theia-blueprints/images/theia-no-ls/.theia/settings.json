@@ -1,0 +1,9 @@
+{
+    "java.server.launchMode": "LightWeight",
+    "java.completion.enabled": false,
+    "java.hover.enabled": false,
+    "java.signatureHelp.enabled": false,
+    "java.codeAction.enabled": false,
+    "java.foldingRange.enabled": false,
+    "java.symbols.includeSourceMethodDeclarations": false
+}
