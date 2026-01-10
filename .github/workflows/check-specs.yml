@@ -1,0 +1,26 @@
+name: Check Runner Specs
+on: [push, workflow_dispatch]
+
+jobs:
+  check-specs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check CPU
+        run: |
+          echo "CPU Info:"
+          lscpu | grep -E 'Model name|Socket|Thread|NUMA|MHz'
+          echo "Core Count:"
+          nproc
+
+      - name: Check RAM
+        run: |
+          echo "Memory Info:"
+          free -h
+
+      - name: Check Disk Space
+        run: |
+          echo "Disk Usage:"
+          df -h
+
+      - name: Check Environment
+        run: env | grep RUNNER
