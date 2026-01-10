@@ -47,6 +47,11 @@ RUN chmod g+rw /home && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
+# Apply LightWeight settings for Java extension
+RUN mkdir -p /home/theia/applications/browser/resources/user
+COPY images/theia-no-ls/.theia/settings.json /home/theia/applications/browser/resources/user/settings.json
+RUN chown -R theia:theia /home/theia/applications/browser/resources/user
+
 # Install required tools for application: Temurin JDK, JDK, SSH, Bash, Maven
 # Node is already available in base image
 # ADDED: curl and build-essential for Rust support
