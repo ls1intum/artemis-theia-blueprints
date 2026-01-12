@@ -2,8 +2,7 @@
 # This Dockerfile is used to build an image containing basic Theia application with OCaml support
 # The ocaml compiler `ocamlc` and the package manager `opam` are installed
 # However, for `opam` to work properly, it needs to be initialized in every terminal session
-# This can be done by running `eval $(opam env)` in the terminal, automation of this step was not yet successful
-# It´s unclear from which `.profile` or `.bashrc` file the terminal starts in Theia
+# The opam environment is automatically sourced via ~/.zshrc
 #
 
 # Load the base-ide image, only copy from here
