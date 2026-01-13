@@ -49,11 +49,17 @@ export default new ContainerModule((bind, _unbind, isBound, rebind) => {
     } as any);
 
     // Disable the plugins (extensions) view from @theia/plugin-ext
+    // Must provide a complete stub including getters that AbstractViewContribution expects
     rebind(PluginFrontendViewContribution).toConstantValue({
-        initializeLayout: () => { },
         registerCommands: () => { },
         registerKeybindings: () => { },
         registerMenus: () => { },
-        registerToolbarItems: () => { }
+        get viewId() { return ''; },
+        get viewLabel() { return ''; },
+        get widget() { return Promise.reject(); },
+        tryGetWidget: () => undefined,
+        openView: () => Promise.reject(),
+        closeView: () => Promise.reject(),
+        toggleView: () => Promise.reject()
     } as any);
 });
