@@ -12,6 +12,11 @@ import { CommonMenus } from '@theia/core/lib/browser/common-frontend-contributio
 import { Command, CommandContribution, CommandRegistry } from '@theia/core/lib/common/command';
 import { MenuContribution, MenuModelRegistry, MenuPath } from '@theia/core/lib/common/menu';
 import { WindowService } from '@theia/core/lib/browser/window/window-service';
+import { ContributionFilterRegistry, FilterContribution } from '@theia/core/lib/common';
+import { OutlineViewContribution } from '@theia/outline-view/lib/browser/outline-view-contribution';
+import { OutlineViewService } from '@theia/outline-view/lib/browser/outline-view-service';
+import { OutlineBreadcrumbsContribution } from '@theia/outline-view/lib/browser/outline-breadcrumbs-contribution';
+import { PluginFrontendViewContribution } from '@theia/plugin-ext/lib/main/browser/plugin-frontend-view-contribution';
 
 export namespace TheiaIDEMenus {
     export const THEIA_IDE_HELP: MenuPath = [...CommonMenus.HELP, 'theia-ide'];
@@ -28,6 +33,30 @@ export namespace TheiaIDECommands {
         category: CATEGORY,
         label: 'Documentation'
     };
+}
+
+/**
+ * Filter to remove unwanted view contributions (Outline, Plugins) from the UI.
+ * This uses Theia's official Contribution Filter API to prevent these widgets from being registered.
+ *
+ * Filter predicates return TRUE to KEEP a contribution, FALSE to REMOVE it.
+ */
+@injectable()
+export class ViewsFilter implements FilterContribution {
+    registerContributionFilters(registry: ContributionFilterRegistry): void {
+
+        registry.addFilters([CommandContribution], [
+            contrib => {
+                // Remove unwanted view contributions
+                if (contrib instanceof OutlineViewService) return false;
+                if (contrib instanceof OutlineViewContribution) return false;
+                if (contrib instanceof OutlineBreadcrumbsContribution) return false;
+                if (contrib instanceof PluginFrontendViewContribution) return false;
+    
+                return true;
+            }
+        ]);
+    }
 }
 
 @injectable()

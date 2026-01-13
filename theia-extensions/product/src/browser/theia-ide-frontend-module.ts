@@ -15,10 +15,9 @@ import { CommandContribution } from '@theia/core/lib/common/command';
 import { ContainerModule } from '@theia/core/shared/inversify';
 import { GettingStartedWidget } from '@theia/getting-started/lib/browser/getting-started-widget';
 import { MenuContribution } from '@theia/core/lib/common/menu';
-import { OutlineViewContribution } from '@theia/outline-view/lib/browser/outline-view-contribution';
-import { PluginFrontendViewContribution } from '@theia/plugin-ext/lib/main/browser/plugin-frontend-view-contribution';
+import { FilterContribution } from '@theia/core/lib/common';
 import { TheiaIDEAboutDialog } from './theia-ide-about-dialog';
-import { TheiaIDEContribution } from './theia-ide-contribution';
+import { TheiaIDEContribution, ViewsFilter } from './theia-ide-contribution';
 import { TheiaIDEGettingStartedWidget } from './theia-ide-getting-started-widget';
 
 export default new ContainerModule((bind, _unbind, isBound, rebind) => {
@@ -38,28 +37,7 @@ export default new ContainerModule((bind, _unbind, isBound, rebind) => {
         bind(serviceIdentifier).toService(TheiaIDEContribution)
     );
 
-    // Removing the outline view as a dependency does not work since it is referenced in other dependencies.
-    // By replacing the contribution with an empty implementation, we effectively disable it.
-    rebind(OutlineViewContribution).toConstantValue({
-        initializeLayout: () => { },
-        registerCommands: () => { },
-        registerKeybindings: () => { },
-        registerMenus: () => { },
-        registerToolbarItems: () => { }
-    } as any);
-
-    // Disable the plugins (extensions) view from @theia/plugin-ext
-    // Must provide a complete stub including getters that AbstractViewContribution expects
-    rebind(PluginFrontendViewContribution).toConstantValue({
-        registerCommands: () => { },
-        registerKeybindings: () => { },
-        registerMenus: () => { },
-        get viewId() { return ''; },
-        get viewLabel() { return ''; },
-        get widget() { return Promise.reject(); },
-        tryGetWidget: () => undefined,
-        openView: () => Promise.reject(),
-        closeView: () => Promise.reject(),
-        toggleView: () => Promise.reject()
-    } as any);
+    // Register contribution filter to remove Outline and Plugins views
+    bind(ViewsFilter).toSelf().inSingletonScope();
+    bind(FilterContribution).toService(ViewsFilter);
 });
