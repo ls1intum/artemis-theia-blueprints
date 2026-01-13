@@ -13,11 +13,13 @@ import { Command, CommandContribution, CommandRegistry } from '@theia/core/lib/c
 import { MenuContribution, MenuModelRegistry, MenuPath } from '@theia/core/lib/common/menu';
 import { WindowService } from '@theia/core/lib/browser/window/window-service';
 import { ContributionFilterRegistry, FilterContribution } from '@theia/core/lib/common';
-import { WidgetFactory } from '@theia/core/lib/browser';
+import { KeybindingContribution } from '@theia/core/lib/browser/keybinding';
+import { WidgetFactory, FrontendApplicationContribution } from '@theia/core/lib/browser';
+import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { OutlineViewContribution } from '@theia/outline-view/lib/browser/outline-view-contribution';
 import { OutlineViewService } from '@theia/outline-view/lib/browser/outline-view-service';
 import { OutlineBreadcrumbsContribution } from '@theia/outline-view/lib/browser/outline-breadcrumbs-contribution';
-import { PluginFrontendViewContribution } from '@theia/plugin-ext/lib/main/browser/plugin-frontend-view-contribution';
+import { VSXExtensionsContribution } from '@theia/vsx-registry/lib/browser/vsx-extensions-contribution';
 
 export namespace TheiaIDEMenus {
     export const THEIA_IDE_HELP: MenuPath = [...CommonMenus.HELP, 'theia-ide'];
@@ -37,7 +39,7 @@ export namespace TheiaIDECommands {
 }
 
 /**
- * Filter to remove unwanted view contributions (Outline, Plugins) from the UI.
+ * Filter to remove unwanted view contributions (Outline, VSX Extensions marketplace) from the UI.
  * This uses Theia's official Contribution Filter API to prevent these widgets from being registered.
  *
  * Filter predicates return TRUE to KEEP a contribution, FALSE to REMOVE it.
@@ -45,25 +47,29 @@ export namespace TheiaIDECommands {
 @injectable()
 export class ViewsFilter implements FilterContribution {
     registerContributionFilters(registry: ContributionFilterRegistry): void {
-        // Filter across all contribution types, this are the commands/menus/etc
-        registry.addFilters(['*'], [
-            contrib => {
-                // Return false to remove these contributions
-                if (contrib instanceof OutlineViewService) return false;
-                if (contrib instanceof OutlineViewContribution) return false;
-                if (contrib instanceof OutlineBreadcrumbsContribution) return false;
-                if (contrib instanceof PluginFrontendViewContribution) return false;
-                // Keep everything else
-                return true;
-            }
-        ]);
+        const filter = (contrib: Object) => {
+            // Return false to remove these contributions
+            if (contrib instanceof OutlineViewService) return false;
+            if (contrib instanceof OutlineViewContribution) return false;
+            if (contrib instanceof OutlineBreadcrumbsContribution) return false;
+            if (contrib instanceof VSXExtensionsContribution) return false;
+            // Keep everything else
+            return true;
+        };
 
-        // Remove the actual widget factories, this are the actual ui components
+        // Filter contributions - must specify exact types since '*' doesn't always work
+        registry.addFilters([CommandContribution], [filter]);
+        registry.addFilters([MenuContribution], [filter]);
+        registry.addFilters([KeybindingContribution], [filter]);
+        registry.addFilters([FrontendApplicationContribution], [filter]);
+        registry.addFilters([TabBarToolbarContribution], [filter]);
+
+        // Remove the actual widget factories/view containers
         registry.addFilters([WidgetFactory], [
             factory => {
                 const f = factory as WidgetFactory;
                 if (f.id === 'outline-view') return false;
-                if (f.id === 'plugins') return false;
+                if (f.id === 'vsx-extensions-view-container') return false;
                 return true;
             }
         ]);
