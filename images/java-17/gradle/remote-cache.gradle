@@ -1,14 +1,14 @@
 // Remote Build Cache Configuration
 // Requires GRADLE_REMOTE_CACHE_ENABLED=true AND GRADLE_REMOTE_CACHE_URL to be set
 
-beforeSettings { settings ->
+settingsEvaluated { settings ->
     def cacheEnabled = System.getenv('GRADLE_REMOTE_CACHE_ENABLED')?.toLowerCase() == 'true'
     def cacheUrl = System.getenv('GRADLE_REMOTE_CACHE_URL')
     def cachePush = System.getenv('GRADLE_REMOTE_CACHE_PUSH')?.toLowerCase() != 'false'
     
     if (cacheEnabled && cacheUrl?.trim()) {
         // Enable build cache via start parameters
-        startParameter.buildCacheEnabled = true
+        settings.gradle.startParameter.buildCacheEnabled = true
         
         settings.buildCache {
             local {
@@ -19,20 +19,15 @@ beforeSettings { settings ->
                 push = cachePush
                 enabled = true
                 allowUntrustedServer = true
+                allowInsecureProtocol = true
             }
         }
         
-        println "[Build Cache] ✓ Remote cache ENABLED"
-        println "[Build Cache]   URL: ${cacheUrl}"
-        println "[Build Cache]   Push: ${cachePush}"
+        println "[Build Cache] Remote cache ENABLED"
+        println "[Build Cache] URL: ${cacheUrl}"
+        println "[Build Cache] Push: ${cachePush}"
     } else if (cacheEnabled && !cacheUrl?.trim()) {
-        println "[Build Cache] ⚠ WARNING: Cache enabled but no URL configured"
-        println "[Build Cache]   Set GRADLE_REMOTE_CACHE_URL to activate remote caching"
-    } else {
-        // Cache explicitly disabled or not configured - stay silent
-        // Only log if someone wants to debug
-        if (System.getenv('GRADLE_CACHE_DEBUG')?.toLowerCase() == 'true') {
-            println "[Build Cache] Remote cache disabled (GRADLE_REMOTE_CACHE_ENABLED=${System.getenv('GRADLE_REMOTE_CACHE_ENABLED')})"
-        }
+        println "[Build Cache] WARNING: Cache enabled but no URL configured"
+        println "[Build Cache] Set GRADLE_REMOTE_CACHE_URL to activate remote caching"
     }
 }
