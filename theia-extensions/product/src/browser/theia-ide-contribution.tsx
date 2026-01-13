@@ -13,6 +13,7 @@ import { Command, CommandContribution, CommandRegistry } from '@theia/core/lib/c
 import { MenuContribution, MenuModelRegistry, MenuPath } from '@theia/core/lib/common/menu';
 import { WindowService } from '@theia/core/lib/browser/window/window-service';
 import { ContributionFilterRegistry, FilterContribution } from '@theia/core/lib/common';
+import { WidgetFactory } from '@theia/core/lib/browser';
 import { OutlineViewContribution } from '@theia/outline-view/lib/browser/outline-view-contribution';
 import { OutlineViewService } from '@theia/outline-view/lib/browser/outline-view-service';
 import { OutlineBreadcrumbsContribution } from '@theia/outline-view/lib/browser/outline-breadcrumbs-contribution';
@@ -44,15 +45,25 @@ export namespace TheiaIDECommands {
 @injectable()
 export class ViewsFilter implements FilterContribution {
     registerContributionFilters(registry: ContributionFilterRegistry): void {
-
-        registry.addFilters([CommandContribution], [
+        // Filter across all contribution types, this are the commands/menus/etc
+        registry.addFilters(['*'], [
             contrib => {
-                // Remove unwanted view contributions
+                // Return false to remove these contributions
                 if (contrib instanceof OutlineViewService) return false;
                 if (contrib instanceof OutlineViewContribution) return false;
                 if (contrib instanceof OutlineBreadcrumbsContribution) return false;
                 if (contrib instanceof PluginFrontendViewContribution) return false;
-    
+                // Keep everything else
+                return true;
+            }
+        ]);
+
+        // Remove the actual widget factories, this are the actual ui components
+        registry.addFilters([WidgetFactory], [
+            factory => {
+                const f = factory as WidgetFactory;
+                if (f.id === 'outline-view') return false;
+                if (f.id === 'plugins') return false;
                 return true;
             }
         ]);
