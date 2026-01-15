@@ -7,16 +7,6 @@
  * SPDX-License-Identifier: MIT
  ********************************************************************************/
 
-:root {
-    --theia-branding-logo: url(../icons/TheiaIDE.png);
-}
-
-.theia-icon {
-    background-image: url("../icons/512-512.png");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-  }
 
 .gs-blue-header {
     color: #5088e7;
@@ -37,14 +27,8 @@
     padding-left: 20px;
 }
 
-.gs-logo {
-    background-image: var(--theia-branding-logo);
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    width: 250px;
-    height: 118px;
-    padding: 20px;
+.gs-content-centered {
+    padding: 12rem;
 }
 
 .ad-logo {
@@ -75,3 +59,23 @@ ul.theia-aboutExtensions {
     padding: 0;
     margin-left: 10px;
  }
+
+.header-container {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.onboarding-header {
+    margin: 0;
+}
+
+.onboarding-subheader {
+    margin: 0;
+}
+
+.col-flex {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+}
