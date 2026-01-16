@@ -2,7 +2,7 @@ FROM eclipse-temurin:21-jdk-jammy
 
 ARG JDTLS_URL=https://www.eclipse.org/downloads/download.php?file=/jdtls/milestones/1.50.0/jdt-language-server-1.50.0-202509041425.tar.gz
 
-# WICHTIG: socat installieren!
+# IMPORTANT: Install socat for TCP forwarding
 RUN apt-get update && apt-get install -y wget tar socat && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 

@@ -8,4 +8,6 @@ RUN mkdir -p /home/project && chown -R app:app /home/project
 USER app
 WORKDIR /home/project
 
+EXPOSE 5555
+
 CMD ["socat", "TCP-LISTEN:5555,reuseaddr,fork", "EXEC:rust-analyzer"]

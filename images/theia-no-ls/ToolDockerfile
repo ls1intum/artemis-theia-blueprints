@@ -52,13 +52,12 @@ RUN mkdir -p /home/theia/applications/browser/resources/user
 COPY images/theia-no-ls/.theia/settings.json /home/theia/applications/browser/resources/user/settings.json
 RUN chown -R theia:theia /home/theia/applications/browser/resources/user
 
-# Install required tools for application: Temurin JDK, JDK, SSH, Bash, Maven
+# Install required tools for application: OpenJDK 17, SSH, Bash, Maven
 # Node is already available in base image
 # ADDED: curl and build-essential for Rust support
-RUN apt-get update && apt-get install -y wget apt-transport-https && \
-    apt-get update && apt-get install -y git openssh-client openssh-server bash libsecret-1-0 openjdk-17-jdk maven curl build-essential && \
-    apt-get purge -y wget && \
-    apt-get clean
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git openssh-client openssh-server bash libsecret-1-0 openjdk-17-jdk maven curl build-essential && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/home/theia
 WORKDIR /home/theia
@@ -90,8 +89,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs --output rust.sh \
     && ./rust.sh -y \
     && rm rust.sh \
     && . "$HOME/.cargo/env" \
-    && /home/theia/.cargo/bin/rustup component add rust-analysis rust-src \
-    && export PATH="$HOME/.cargo/bin:$PATH"
+    && /home/theia/.cargo/bin/rustup component add rust-src
 
 # Add Rust to the global PATH for all users
 ENV PATH=/home/theia/.cargo/bin:$PATH

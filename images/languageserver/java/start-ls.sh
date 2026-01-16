@@ -12,8 +12,8 @@ if [ -z "$LAUNCHER_JAR" ] || [ ! -f "$LAUNCHER_JAR" ]; then
   exit 1
 fi
 
-# Wir erstellen ein Hilfs-Skript, das Java im STDIO-Modus startet.
-# Wir entfernen -DSERVER_PORT, damit Java auf stdin/stdout reagiert.
+# Create a helper script that starts Java in STDIO mode.
+# We omit -DSERVER_PORT so Java responds to stdin/stdout.
 cat <<EOF > /tmp/run-jdt.sh
 #!/bin/bash
 exec java \
@@ -35,7 +35,7 @@ chmod +x /tmp/run-jdt.sh
 echo "Starting Socat wrapper on port ${SERVER_PORT}..."
 echo "Socat will launch JDT LS for each connection."
 
-# Socat lauscht auf TCP und startet für jede Verbindung das Skript.
-# reuseaddr: Erlaubt schnellen Neustart
-# fork: Erlaubt neue Verbindungen (wichtig falls Theia die Verbindung neu aufbaut)
+# Socat listens on TCP and launches the script for each connection.
+# reuseaddr: Allows fast restart
+# fork: Allows new connections (important if Theia reconnects)
 exec socat TCP-LISTEN:${SERVER_PORT},reuseaddr,fork EXEC:/tmp/run-jdt.sh
