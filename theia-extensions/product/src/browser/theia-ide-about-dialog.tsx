@@ -15,25 +15,15 @@ import {
 } from "@theia/core/lib/browser/about-dialog";
 import { injectable, inject } from "@theia/core/shared/inversify";
 import {
-  renderDocumentation,
-  renderDownloads,
-  renderSourceCode,
-  renderSupport,
-  renderTickets,
   renderWhatIs,
 } from "./branding-util";
-//import { VSXEnvironment } from '@theia/vsx-registry/lib/common/vsx-environment';
 import { WindowService } from "@theia/core/lib/browser/window/window-service";
 
 @injectable()
 export class TheiaIDEAboutDialog extends AboutDialog {
-  //@inject(VSXEnvironment)
-  //protected readonly environment: VSXEnvironment;
 
   @inject(WindowService)
   protected readonly windowService: WindowService;
-
-  protected vscodeApiVersion: string;
 
   constructor(
     @inject(AboutDialogProps) protected readonly props: AboutDialogProps
@@ -42,7 +32,6 @@ export class TheiaIDEAboutDialog extends AboutDialog {
   }
 
   protected async doInit(): Promise<void> {
-    this.vscodeApiVersion = "VSX-Env N/A"; //this.environment.getVscodeApiVersion();
     super.doInit();
   }
 
@@ -54,7 +43,6 @@ export class TheiaIDEAboutDialog extends AboutDialog {
     return (
       <div className="ad-container">
         <div className="ad-float">
-          <div className="ad-logo"></div>
           {this.renderExtensions()}
         </div>
         {this.renderTitle()}
@@ -62,49 +50,21 @@ export class TheiaIDEAboutDialog extends AboutDialog {
         <div className="flex-grid">
           <div className="col">{renderWhatIs(this.windowService)}</div>
         </div>
-        <div className="flex-grid">
-          <div className="col">{renderSupport(this.windowService)}</div>
-        </div>
-        <div className="flex-grid">
-          <div className="col">{renderTickets(this.windowService)}</div>
-        </div>
-        <div className="flex-grid">
-          <div className="col">{renderSourceCode(this.windowService)}</div>
-        </div>
-        <div className="flex-grid">
-          <div className="col">{renderDocumentation(this.windowService)}</div>
-        </div>
-        <div className="flex-grid">
-          <div className="col">{renderDownloads()}</div>
-        </div>
       </div>
     );
   }
 
   protected renderTitle(): React.ReactNode {
     return (
-      <div className="gs-header">
-        <h1>
-          Eclipse Theia <span className="gs-blue-header">IDE</span>
-        </h1>
-        {this.renderVersion()}
+      <div className="header-container">
+          <h1 className="onboarding-header">
+            Artemis <span className="gs-blue-header">Online IDE</span>
+          </h1>
+          <h2 className="onboarding-subheader">
+            Based on Eclipse Theia
+          </h2>
       </div>
     );
   }
 
-  protected renderVersion(): React.ReactNode {
-    return (
-      <div>
-        <p className="gs-sub-header">
-          {this.applicationInfo
-            ? "Version " + this.applicationInfo.version
-            : "-"}
-        </p>
-
-        <p className="gs-sub-header">
-          {"VS Code API Version: " + this.vscodeApiVersion}
-        </p>
-      </div>
-    );
-  }
 }
