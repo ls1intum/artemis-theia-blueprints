@@ -24,7 +24,6 @@ settingsEvaluated { settings ->
         }
         
         println "[Build Cache] Remote cache ENABLED"
-        println "[Build Cache] URL: ${cacheUrl}"
         println "[Build Cache] Push: ${cachePush}"
     } else if (cacheEnabled && !cacheUrl?.trim()) {
         println "[Build Cache] WARNING: Cache enabled but no URL configured"
