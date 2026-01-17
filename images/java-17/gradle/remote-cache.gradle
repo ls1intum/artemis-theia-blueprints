@@ -12,12 +12,14 @@ settingsEvaluated { settings ->
         
         settings.buildCache {
             local {
-                enabled = true
+                enabled = cacheEnabled == false
             }
             remote(HttpBuildCache) {
                 url = cacheUrl
                 push = cachePush
                 enabled = true
+
+                // Currently untrusted servers are allowed. When the Cache server allows for tls, this attributes will be removed.
                 allowUntrustedServer = true
                 allowInsecureProtocol = true
             }
