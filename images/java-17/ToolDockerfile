@@ -62,13 +62,12 @@ USER theia
 ENV HOME=/home/theia
 WORKDIR /home/theia
 
+# Copy application from the base image
+COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
+
 # Gradle Remote Cache Setup
 RUN mkdir -p /home/theia/.gradle/init.d
 COPY --chown=theia:theia images/java-17/gradle/remote-cache.gradle /home/theia/.gradle/init.d/
-
-
-# Copy application from the base image
-COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 
 # Copy additional plugins
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
