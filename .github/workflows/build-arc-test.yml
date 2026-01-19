@@ -22,7 +22,8 @@ jobs:
   build-and-push-base:
     needs: determine-tag
     # Hybrid runs-on: use self-hosted for fork testing, GitHub-hosted for upstream
-    runs-on: ${{ (github.repository_owner == 'CodeByNikolas') && 'arc-runner-blueprints' || 'ubuntu-latest' }}
+    # Note: arc-runner-set-1 and arc-runner-set-2 are the runner scale set names registered in GitHub
+    runs-on: ${{ (github.repository_owner == 'CodeByNikolas') && 'arc-runner-set-1' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       
@@ -81,7 +82,7 @@ jobs:
           - docker-file: images/rust/ToolDockerfile
             image-suffix: rust
 
-    runs-on: ${{ (github.repository_owner == 'CodeByNikolas') && 'arc-runner-blueprints' || 'ubuntu-latest' }}
+    runs-on: ${{ (github.repository_owner == 'CodeByNikolas') && 'arc-runner-set-1' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       
