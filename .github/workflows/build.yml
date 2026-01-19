@@ -28,14 +28,48 @@ jobs:
 
   build-and-push-base:
     needs: determine-tag
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
-    with:
-      docker-file: images/base-ide/BaseDockerfile
-      image-name: ghcr.io/ls1intum/theia/base
-      docker-context: .
-      tags: "2025-06-15"
-      network: "host"
-    secrets: inherit
+    # Experimental: Self-hosted ARC runners with Docker layer caching
+    # Hybrid: Uses self-hosted for ls1intum, GitHub-hosted for forks
+    runs-on: ${{ github.repository_owner == 'ls1intum' && 'arc-runner-set-1' || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+
+      - uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: "network=host"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/theia/base
+          tags: |
+            type=raw,value=2025-06-15
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: images/base-ide/BaseDockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          network: host
 
   build-and-push:
     needs:
@@ -45,41 +79,78 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - docker-file: images/c/ToolDockerfile
-            docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/c
+          # Runner-Set-1: Haskell + Python (cache affinity group)
           - docker-file: images/haskell/ToolDockerfile
             docker-context: "."
             image-name: ghcr.io/ls1intum/theia/haskell
-          - docker-file: images/java-17/ToolDockerfile
-            docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/java-17
-          - docker-file: images/javascript/ToolDockerfile
-            docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/javascript
-          - docker-file: images/ocaml/ToolDockerfile
-            docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/ocaml
+            runner-set: arc-runner-set-1
           - docker-file: images/python/ToolDockerfile
             docker-context: "."
             image-name: ghcr.io/ls1intum/theia/python
+            runner-set: arc-runner-set-1
+          # Runner-Set-2: JavaScript + OCaml + Java-17 (cache affinity group)
+          - docker-file: images/javascript/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/javascript
+            runner-set: arc-runner-set-2
+          - docker-file: images/ocaml/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/ocaml
+            runner-set: arc-runner-set-2
+          - docker-file: images/java-17/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/java-17
+            runner-set: arc-runner-set-2
+          # Runner-Set-3: C + Rust (cache affinity group)
+          - docker-file: images/c/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/c
+            runner-set: arc-runner-set-3
           - docker-file: images/rust/ToolDockerfile
             docker-context: "."
             image-name: ghcr.io/ls1intum/theia/rust
-          # - docker-file: images/swift/ToolDockerfile
-          #   docker-context: '.'
-          #   image-name: ghcr.io/ls1intum/theia/swift
-          #   build-args: |
-          #     "BUILDER_IMAGE=swift:5.9.2-focal"
-          #     "RUNTIME_IMAGE=swift:5.9.2-focal"
-          #     "SWIFTLINT_VERSION=0.54.0"
+            runner-set: arc-runner-set-3
 
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
-    with:
-      docker-file: ${{ matrix.docker-file }}
-      image-name: ${{ matrix.image-name }}
-      docker-context: ${{ matrix.docker-context }}
-      build-args: |
-        BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
-      network: "host"
-    secrets: inherit
+    # Experimental: Sticky runner assignment for cache affinity
+    # Hybrid: Uses self-hosted for ls1intum, GitHub-hosted for forks
+    runs-on: ${{ github.repository_owner == 'ls1intum' && matrix.runner-set || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+
+      - uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: "network=host"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ matrix.image-name }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.docker-context }}
+          file: ${{ matrix.docker-file }}
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
+          network: host
