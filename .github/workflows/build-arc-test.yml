@@ -67,22 +67,32 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - docker-file: images/c/ToolDockerfile
-            image-suffix: c
+          # Runner Set 1: Haskell, Java, Python (sticky cache affinity)
           - docker-file: images/haskell/ToolDockerfile
             image-suffix: haskell
+            runner-set: arc-runner-set-1
           - docker-file: images/java-17/ToolDockerfile
             image-suffix: java-17
-          - docker-file: images/javascript/ToolDockerfile
-            image-suffix: javascript
-          - docker-file: images/ocaml/ToolDockerfile
-            image-suffix: ocaml
+            runner-set: arc-runner-set-1
           - docker-file: images/python/ToolDockerfile
             image-suffix: python
+            runner-set: arc-runner-set-1
+          # Runner Set 2: JavaScript, OCaml, Rust, C (sticky cache affinity)
+          - docker-file: images/javascript/ToolDockerfile
+            image-suffix: javascript
+            runner-set: arc-runner-set-2
+          - docker-file: images/ocaml/ToolDockerfile
+            image-suffix: ocaml
+            runner-set: arc-runner-set-2
           - docker-file: images/rust/ToolDockerfile
             image-suffix: rust
+            runner-set: arc-runner-set-2
+          - docker-file: images/c/ToolDockerfile
+            image-suffix: c
+            runner-set: arc-runner-set-2
 
-    runs-on: ${{ (github.repository_owner == 'CodeByNikolas') && 'arc-runner-set-1' || 'ubuntu-latest' }}
+    # Sticky runner assignment for cache affinity on self-hosted, ubuntu-latest for upstream
+    runs-on: ${{ (github.repository_owner == 'CodeByNikolas') && matrix.runner-set || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       
