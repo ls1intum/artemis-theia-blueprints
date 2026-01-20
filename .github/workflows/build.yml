@@ -35,7 +35,7 @@ jobs:
       docker-context: .
       tags: "2025-06-15"
       network: "host"
-      runner: "arc-runner-set-stateless"
+      runner-amd64: "arc-runner-set-stateless"
       cache-from: "type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache"
       cache-to: "type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache,mode=max"
     secrets: inherit
@@ -85,7 +85,7 @@ jobs:
       build-args: |
         BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
       network: "host"
-      runner: "arc-runner-set-stateless"
+      runner-amd64: "arc-runner-set-stateless"
       cache-from: "type=registry,ref=${{ matrix.image-name }}:build-cache"
       cache-to: "type=registry,ref=${{ matrix.image-name }}:build-cache,mode=max"
     secrets: inherit
