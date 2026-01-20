@@ -1,13 +1,13 @@
-name: Build and Push Theia Images (ARC Test)
+name: Build and Push Theia Images (Stateless Comparison)
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - feature/arc-self-hosted-runners
     paths:
       - 'images/**'
-      - '.github/workflows/build-arc-test.yml'
+      - '.github/workflows/build-stateless-test.yml'
 
 jobs:
   determine-tag:
@@ -21,9 +21,7 @@ jobs:
 
   build-and-push-base:
     needs: determine-tag
-    # Hybrid runs-on: use self-hosted for fork testing, GitHub-hosted for upstream
-    # Note: arc-runner-set-1 and arc-runner-set-2 are the runner scale set names registered in GitHub
-    runs-on: ${{ (github.repository_owner == 'CodeByNikolas') && 'arc-runner-set-1' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
@@ -46,7 +44,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/theia/base
+          images: ghcr.io/${{ github.repository_owner }}/theia/base-stateless
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -58,6 +56,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           network: host
+          # Use registry caching (slow pull)
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/base-stateless:buildcache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/base-stateless:buildcache,mode=max
 
   build-and-push-tools:
     needs: 
@@ -67,32 +68,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Runner Set 1: Haskell, Java, Python (sticky cache affinity)
-          - docker-file: images/haskell/ToolDockerfile
-            image-suffix: haskell
-            runner-set: arc-runner-set-1
-          - docker-file: images/java-17/ToolDockerfile
-            image-suffix: java-17
-            runner-set: arc-runner-set-1
           - docker-file: images/python/ToolDockerfile
-            image-suffix: python
-            runner-set: arc-runner-set-1
-          # Runner Set 2: JavaScript, OCaml, Rust, C (sticky cache affinity)
+            image-suffix: python-stateless
           - docker-file: images/javascript/ToolDockerfile
-            image-suffix: javascript
-            runner-set: arc-runner-set-2
-          - docker-file: images/ocaml/ToolDockerfile
-            image-suffix: ocaml
-            runner-set: arc-runner-set-2
-          - docker-file: images/rust/ToolDockerfile
-            image-suffix: rust
-            runner-set: arc-runner-set-3
-          - docker-file: images/c/ToolDockerfile
-            image-suffix: c
-            runner-set: arc-runner-set-3
+            image-suffix: javascript-stateless
 
-    # Sticky runner assignment for cache affinity on self-hosted, ubuntu-latest for upstream
-    runs-on: ${{ (github.repository_owner == 'CodeByNikolas') && matrix.runner-set || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
@@ -129,3 +110,6 @@ jobs:
           build-args: |
             BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
           network: host
+          # Use registry caching
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/${{ matrix.image-suffix }}:buildcache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/${{ matrix.image-suffix }}:buildcache,mode=max
