@@ -28,13 +28,16 @@ jobs:
 
   build-and-push-base:
     needs: determine-tag
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
     with:
       docker-file: images/base-ide/BaseDockerfile
       image-name: ghcr.io/ls1intum/theia/base
       docker-context: .
       tags: "2025-06-15"
       network: "host"
+      runner: "arc-runner-set-stateless"
+      cache-from: "type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache"
+      cache-to: "type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache,mode=max"
     secrets: inherit
 
   build-and-push:
@@ -74,7 +77,7 @@ jobs:
           #     "RUNTIME_IMAGE=swift:5.9.2-focal"
           #     "SWIFTLINT_VERSION=0.54.0"
 
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
     with:
       docker-file: ${{ matrix.docker-file }}
       image-name: ${{ matrix.image-name }}
@@ -82,4 +85,7 @@ jobs:
       build-args: |
         BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
       network: "host"
+      runner: "arc-runner-set-stateless"
+      cache-from: "type=registry,ref=${{ matrix.image-name }}:build-cache"
+      cache-to: "type=registry,ref=${{ matrix.image-name }}:build-cache,mode=max"
     secrets: inherit
