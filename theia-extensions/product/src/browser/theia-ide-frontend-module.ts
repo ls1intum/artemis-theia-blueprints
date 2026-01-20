@@ -9,7 +9,7 @@
 
 import '../../src/browser/style/index.css';
 
-import { WidgetFactory } from '@theia/core/lib/browser';
+import { WidgetFactory, FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { AboutDialog } from '@theia/core/lib/browser/about-dialog';
 import { CommandContribution } from '@theia/core/lib/common/command';
 import { ContainerModule } from '@theia/core/shared/inversify';
@@ -17,7 +17,7 @@ import { GettingStartedWidget } from '@theia/getting-started/lib/browser/getting
 import { MenuContribution } from '@theia/core/lib/common/menu';
 import { FilterContribution } from '@theia/core/lib/common';
 import { TheiaIDEAboutDialog } from './theia-ide-about-dialog';
-import { TheiaIDEContribution, ViewsFilter } from './theia-ide-contribution';
+import { TheiaIDEContribution, ViewsFilter, DisabledFeaturesContribution } from './theia-ide-contribution';
 import { TheiaIDEGettingStartedWidget } from './theia-ide-getting-started-widget';
 
 export default new ContainerModule((bind, _unbind, isBound, rebind) => {
@@ -37,7 +37,11 @@ export default new ContainerModule((bind, _unbind, isBound, rebind) => {
         bind(serviceIdentifier).toService(TheiaIDEContribution)
     );
 
-    // Register contribution filter to remove Outline and Plugins views
+    // Register contribution filter to remove Outline and VSX Extensions views
     bind(ViewsFilter).toSelf().inSingletonScope();
     bind(FilterContribution).toService(ViewsFilter);
+
+    // Register runtime feature disabler for additional protection
+    bind(DisabledFeaturesContribution).toSelf().inSingletonScope();
+    bind(FrontendApplicationContribution).toService(DisabledFeaturesContribution);
 });
