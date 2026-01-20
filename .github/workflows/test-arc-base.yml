@@ -2,6 +2,9 @@ name: Test ARC Runner - Base Image
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/arc-self-hosted-runners
 
 jobs:
   build-base-image:
