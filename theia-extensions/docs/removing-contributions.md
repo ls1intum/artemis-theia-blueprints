@@ -1,18 +1,27 @@
 # Removing Theia Contributions and Widgets
 
-This document explains how to remove unwanted UI views and contributions from the Theia IDE using the Contribution Filter API.
+This document explains how to remove unwanted UI views and contributions from the Theia IDE.
 
 ## Overview
 
-Theia's Contribution Filter API allows you to selectively remove contributions (commands, menus, keybindings, widgets) from the UI without modifying the source packages.
+Two complementary approaches are used:
+1. **Contribution Filter** - Prevents contributions from registering (preferred)
+2. **Runtime Disabler** - Unregisters commands and blocks widgets at runtime (additional protection)
 
 ## Implementation Location
 
-The filter implementation is in:
-- `theia-extensions/product/src/browser/theia-ide-contribution.tsx` - Filter class
+Both implementations are in:
+- `theia-extensions/product/src/browser/theia-ide-contribution.tsx` - Filter classes
 - `theia-extensions/product/src/browser/theia-ide-frontend-module.ts` - Registration
 
-## How to Filter a View/Widget
+## Approach 1: Contribution Filter (Preferred)
+
+### When to Use
+- You know the contribution class to remove
+- You want to remove all commands/menus/keybindings from that class
+- Clean removal at registration time
+
+### How to Filter a View/Widget
 
 ### Step 1: Identify the Contribution Class
 
@@ -33,7 +42,7 @@ You can find these by searching the package source code:
 grep -r "id.*=.*'view-name'" node_modules/@theia/package-name/
 ```
 
-### Step 3: Add to Filter
+### Step 3: Add to ViewsFilter
 
 Edit `theia-extensions/product/src/browser/theia-ide-contribution.tsx`:
 
@@ -42,49 +51,58 @@ Edit `theia-extensions/product/src/browser/theia-ide-contribution.tsx`:
 import { ViewContribution } from '@theia/package-name/lib/browser/view-contribution';
 ```
 
-2. Add instanceof check in the filter function:
+2. Add to `FILTERED_CONTRIBUTIONS` Set:
 ```typescript
-const filter = (contrib: Object) => {
-    if (contrib instanceof ViewContribution) return false;
-    // ... other filters
-    return true;
-};
-```
-
-3. Add widget factory ID to the WidgetFactory filter:
-```typescript
-registry.addFilters([WidgetFactory], [
-    factory => {
-        const f = factory as WidgetFactory;
-        if (f.id === 'view-id') return false;
-        return true;
-    }
+private static readonly FILTERED_CONTRIBUTIONS = new Set<Function>([
+    OutlineViewService,
+    OutlineViewContribution,
+    ViewContribution  // Add new class here
 ]);
 ```
-## Example: Filtering Outline View
 
+3. Add widget factory ID to `FILTERED_WIDGET_IDS` Set:
 ```typescript
-import { OutlineViewContribution } from '@theia/outline-view/lib/browser/outline-view-contribution';
-import { OutlineViewService } from '@theia/outline-view/lib/browser/outline-view-service';
-
-const filter = (contrib: Object) => {
-    if (contrib instanceof OutlineViewContribution) return false;
-    if (contrib instanceof OutlineViewService) return false;
-    return true;
-};
-
-registry.addFilters([CommandContribution], [filter]);
-// ... other contribution types
-
-registry.addFilters([WidgetFactory], [
-    factory => {
-        const f = factory as WidgetFactory;
-        if (f.id === 'outline-view') return false;
-        return true;
-    }
+private static readonly FILTERED_WIDGET_IDS = new Set<string>([
+    'outline-view',
+    'view-id'  // Add new widget ID here
 ]);
 ```
-## References
 
-- [Theia Contribution Filter Documentation](https://theia-ide.org/docs/contribution_filter/)
-- Current implementation: `theia-extensions/product/src/browser/theia-ide-contribution.tsx`
+## Approach 2: Runtime Disabler
+
+### When to Use
+- You only know specific command/widget IDs (not the contribution class)
+- You need protection against restored layouts
+- Contribution filter isn't sufficient
+
+### How to Disable Features at Runtime
+
+Edit `theia-extensions/product/src/browser/theia-ide-contribution.tsx`:
+
+1. Add widget ID to `DISABLED_WIDGET_IDS`:
+```typescript
+private static readonly DISABLED_WIDGET_IDS = new Set<string>([
+    'scm-view-container',
+    'your-widget-id'  // Add here
+]);
+```
+
+2. Add command IDs to `DISABLED_COMMAND_IDS`:
+```typescript
+private static readonly DISABLED_COMMAND_IDS = new Set<string>([
+    'testing.runAll',
+    'your.command.id'  // Add here
+]);
+```
+
+## Example: Current Configuration
+
+**Contribution Filter** removes (complete removal):
+- Outline View (OutlineViewContribution, OutlineViewService, OutlineBreadcrumbsContribution)
+- VSX Extensions Marketplace (VSXExtensionsContribution)
+- SCM View - Source Control (ScmContribution)
+- Debug View (DebugFrontendApplicationContribution)
+
+**Runtime Disabler** provides additional protection for:
+- All widgets from the above features (defense against restored layouts)
+## Which Approach to Use?
