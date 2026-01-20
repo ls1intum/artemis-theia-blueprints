@@ -1,0 +1,21 @@
+name: Test Reusable Workflow (Stateless + Harbor)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/arc-self-hosted-runners
+    paths:
+      - '.github/workflows/build-reusable-test.yml'
+
+jobs:
+  # Test Base Image Build using Reusable Workflow
+  build-base-reusable:
+    uses: CodeByNikolas/.github/.github/workflows/build-and-push-docker-image.yml@feature/add-caching-support
+    with:
+      image-name: ${{ github.repository_owner }}/theia/base-reusable
+      docker-file: images/base-ide/BaseDockerfile
+      docker-context: .
+      network: host
+      runner_type: arc-runner-set-stateless
+    secrets: inherit

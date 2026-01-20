@@ -91,3 +91,4 @@ COPY --from=build-stage /home/theia/project /home/theia/project
 
 # Copy production-only node_modules
 COPY --from=prod-deps /home/theia/node_modules /home/theia/node_modules
+# Trigger build Tue Jan 20 13:57:46 CET 2026
