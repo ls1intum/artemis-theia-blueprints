@@ -30,7 +30,6 @@ jobs:
   build-and-push-base:
     needs: determine-tag
     # Hybrid runs-on: use self-hosted for fork testing, GitHub-hosted for upstream
-    # Note: arc-runner-set-1 and arc-runner-set-2 are the runner scale set names registered in GitHub
     runs-on: ${{ (github.repository_owner == 'CodeByNikolas') && 'arc-runner-set-1' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
@@ -62,7 +61,8 @@ jobs:
           context: .
           file: images/base-ide/BaseDockerfile
           push: true
-          platforms: linux/amd64,linux/arm64
+          # AMD64 ONLY to avoid QEMU memory issues
+          platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           network: host
@@ -85,13 +85,14 @@ jobs:
           - docker-file: images/python/ToolDockerfile
             image-suffix: python
             runner-set: arc-runner-set-1
-          # Runner Set 2: JavaScript, OCaml, Rust, C (sticky cache affinity)
+          # Runner Set 2: JavaScript, OCaml
           - docker-file: images/javascript/ToolDockerfile
             image-suffix: javascript
             runner-set: arc-runner-set-2
           - docker-file: images/ocaml/ToolDockerfile
             image-suffix: ocaml
             runner-set: arc-runner-set-2
+          # Runner Set 3: Rust, C
           - docker-file: images/rust/ToolDockerfile
             image-suffix: rust
             runner-set: arc-runner-set-3
@@ -131,7 +132,8 @@ jobs:
           context: .
           file: ${{ matrix.docker-file }}
           push: true
-          platforms: linux/amd64,linux/arm64
+          # AMD64 ONLY to avoid QEMU memory issues
+          platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
