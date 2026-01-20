@@ -80,6 +80,14 @@ jobs:
             image-suffix: python-stateless
           - docker-file: images/javascript/ToolDockerfile
             image-suffix: javascript-stateless
+          - docker-file: images/ocaml/ToolDockerfile
+            image-suffix: ocaml-stateless
+          - docker-file: images/java-17/ToolDockerfile
+            image-suffix: java-17-stateless
+          - docker-file: images/rust/ToolDockerfile
+            image-suffix: rust-stateless
+          - docker-file: images/c/ToolDockerfile
+            image-suffix: c-stateless
 
     runs-on: arc-runner-set-stateless
     steps:
