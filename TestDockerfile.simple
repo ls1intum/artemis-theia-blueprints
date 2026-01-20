@@ -1,0 +1,43 @@
+# Simple multi-layer Dockerfile for testing Docker layer caching
+# Each layer represents a cacheable step
+
+# Layer 1: Base image
+FROM node:20-slim
+
+# Layer 2: Install system dependencies (frequently cached)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# Layer 3: Create working directory
+WORKDIR /app
+
+# Layer 4: Install a few npm packages (demonstrates dependency caching)
+RUN npm install -g \
+    typescript@5.3.3 \
+    ts-node@10.9.2 \
+    nodemon@3.0.2
+
+# Layer 5: Create some files
+RUN echo "console.log('Hello from cached layer 1');" > test1.js && \
+    echo "console.log('Hello from cached layer 2');" > test2.js && \
+    echo "console.log('Hello from cached layer 3');" > test3.js
+
+# Layer 6: Run a simple build step
+RUN node test1.js && \
+    node test2.js && \
+    node test3.js
+
+# Layer 7: Create final output
+RUN echo "Build completed at: $(date)" > build-timestamp.txt && \
+    cat build-timestamp.txt
+
+# Layer 8: Set metadata
+LABEL version="1.0" \
+      description="Simple test image for Docker layer caching validation" \
+      test="cache-performance"
+
+CMD ["node", "--version"]
