@@ -1,4 +1,4 @@
-name: Build and Push Theia Images (Stateless Comparison)
+name: Build and Push Theia Images (Self-Hosted Stateless)
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   determine-tag:
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set-stateless
     outputs:
       base_tag: ${{ steps.set-tag.outputs.base_tag }}
     steps:
@@ -21,7 +21,7 @@ jobs:
 
   build-and-push-base:
     needs: determine-tag
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set-stateless
     steps:
       - uses: actions/checkout@v4
       
@@ -56,7 +56,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           network: host
-          # Use registry caching (slow pull)
+          # Registry caching (essential for stateless)
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/base-stateless:buildcache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/base-stateless:buildcache,mode=max
 
@@ -73,7 +73,7 @@ jobs:
           - docker-file: images/javascript/ToolDockerfile
             image-suffix: javascript-stateless
 
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set-stateless
     steps:
       - uses: actions/checkout@v4
       
@@ -110,6 +110,6 @@ jobs:
           build-args: |
             BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
           network: host
-          # Use registry caching
+          # Registry caching
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/${{ matrix.image-suffix }}:buildcache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/${{ matrix.image-suffix }}:buildcache,mode=max
