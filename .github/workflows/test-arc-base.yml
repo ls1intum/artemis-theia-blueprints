@@ -38,6 +38,6 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/theia/base:test-cache
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/base:buildcache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/base:buildcache,mode=max
+            ghcr.io/codebynikolas/theia/base:test-cache
+          cache-from: type=registry,ref=ghcr.io/codebyniko las/theia/base:buildcache
+          cache-to: type=registry,ref=ghcr.io/codebyniko las/theia/base:buildcache,mode=max
