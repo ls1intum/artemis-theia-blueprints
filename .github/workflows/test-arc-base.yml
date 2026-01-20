@@ -33,11 +33,11 @@ jobs:
       - name: Build Base Image
         uses: docker/build-push-action@v6
         with:
-          context: ./images/base
-          file: ./images/base/BaseDockerfile
+          context: ./images/base-ide
+          file: ./images/base-ide/BaseDockerfile
           platforms: linux/amd64
           push: true
           tags: |
             ghcr.io/codebynikolas/theia/base:test-cache
-          cache-from: type=registry,ref=ghcr.io/codebyniko las/theia/base:buildcache
-          cache-to: type=registry,ref=ghcr.io/codebyniko las/theia/base:buildcache,mode=max
+          cache-from: type=registry,ref=ghcr.io/codebynikolas/theia/base:buildcache
+          cache-to: type=registry,ref=ghcr.io/codebynikolas/theia/base:buildcache,mode=max
