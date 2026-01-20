@@ -24,7 +24,7 @@ Eclipse Theia IDE also serves as a template for building desktop-based products 
 ## License
 
 - [MIT](LICENSE)
-
+.
 ## Trademark
 
 "Theia" is a trademark of the Eclipse Foundation
