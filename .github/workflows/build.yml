@@ -28,9 +28,8 @@ jobs:
 
   build-and-push-base:
     needs: determine-tag
-    # Experimental: Self-hosted ARC runners with Docker layer caching
-    # Hybrid: Uses self-hosted for ls1intum, GitHub-hosted for forks
-    runs-on: ${{ github.repository_owner == 'ls1intum' && 'arc-runner-set-1' || 'ubuntu-latest' }}
+    # Stateless runner set for fast, scalable builds
+    runs-on: ${{ github.repository_owner == 'ls1intum' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       
@@ -66,6 +65,9 @@ jobs:
           context: .
           file: images/base-ide/BaseDockerfile
           push: true
+          # Using registry cache to speed up stateless builds
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/base:build-cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/base:build-cache,mode=max
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -79,41 +81,30 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Runner-Set-1: Haskell + Python (cache affinity group)
-          - docker-file: images/haskell/ToolDockerfile
-            docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/haskell
-            runner-set: arc-runner-set-1
-          - docker-file: images/python/ToolDockerfile
-            docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/python
-            runner-set: arc-runner-set-1
-          # Runner-Set-2: JavaScript + OCaml + Java-17 (cache affinity group)
-          - docker-file: images/javascript/ToolDockerfile
-            docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/javascript
-            runner-set: arc-runner-set-2
-          - docker-file: images/ocaml/ToolDockerfile
-            docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/ocaml
-            runner-set: arc-runner-set-2
-          - docker-file: images/java-17/ToolDockerfile
-            docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/java-17
-            runner-set: arc-runner-set-2
-          # Runner-Set-3: C + Rust (cache affinity group)
           - docker-file: images/c/ToolDockerfile
             docker-context: "."
             image-name: ghcr.io/ls1intum/theia/c
-            runner-set: arc-runner-set-3
+          - docker-file: images/haskell/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/haskell
+          - docker-file: images/java-17/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/java-17
+          - docker-file: images/javascript/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/javascript
+          - docker-file: images/ocaml/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/ocaml
+          - docker-file: images/python/ToolDockerfile
+            docker-context: "."
+            image-name: ghcr.io/ls1intum/theia/python
           - docker-file: images/rust/ToolDockerfile
             docker-context: "."
             image-name: ghcr.io/ls1intum/theia/rust
-            runner-set: arc-runner-set-3
 
-    # Experimental: Sticky runner assignment for cache affinity
-    # Hybrid: Uses self-hosted for ls1intum, GitHub-hosted for forks
-    runs-on: ${{ github.repository_owner == 'ls1intum' && matrix.runner-set || 'ubuntu-latest' }}
+    # Stateless runner set for fast, scalable builds
+    runs-on: ${{ github.repository_owner == 'ls1intum' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       
@@ -148,6 +139,9 @@ jobs:
           context: ${{ matrix.docker-context }}
           file: ${{ matrix.docker-file }}
           push: true
+          # Using registry cache to speed up stateless builds
+          cache-from: type=registry,ref=${{ matrix.image-name }}:build-cache
+          cache-to: type=registry,ref=${{ matrix.image-name }}:build-cache,mode=max
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
