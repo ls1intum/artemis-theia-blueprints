@@ -29,10 +29,17 @@ jobs:
   build-and-push-base:
     needs: determine-tag
     # Stateless runner set for fast, scalable builds
-    runs-on: ${{ github.repository_owner == 'ls1intum' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
+    runs-on: arc-runner-set-stateless
     steps:
       - uses: actions/checkout@v4
       
+      - name: Lowercase Repo Owner
+        id: owner
+        run: |
+          echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+
       - uses: docker/setup-qemu-action@v3
         with:
           platforms: all
@@ -52,7 +59,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/theia/base
+          images: ghcr.io/${{ steps.owner.outputs.owner }}/theia/base
           tags: |
             type=raw,value=2025-06-15
             type=ref,event=branch
@@ -66,8 +73,8 @@ jobs:
           file: images/base-ide/BaseDockerfile
           push: true
           # Using registry cache to speed up stateless builds
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/base:build-cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/theia/base:build-cache,mode=max
+          cache-from: type=registry,ref=ghcr.io/${{ steps.owner.outputs.owner }}/theia/base:build-cache
+          cache-to: type=registry,ref=ghcr.io/${{ steps.owner.outputs.owner }}/theia/base:build-cache,mode=max
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -83,31 +90,38 @@ jobs:
         include:
           - docker-file: images/c/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/c
+            image-suffix: c
           - docker-file: images/haskell/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/haskell
+            image-suffix: haskell
           - docker-file: images/java-17/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/java-17
+            image-suffix: java-17
           - docker-file: images/javascript/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/javascript
+            image-suffix: javascript
           - docker-file: images/ocaml/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/ocaml
+            image-suffix: ocaml
           - docker-file: images/python/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/python
+            image-suffix: python
           - docker-file: images/rust/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/rust
+            image-suffix: rust
 
     # Stateless runner set for fast, scalable builds
-    runs-on: ${{ github.repository_owner == 'ls1intum' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
+    runs-on: arc-runner-set-stateless
     steps:
       - uses: actions/checkout@v4
       
+      - name: Lowercase Repo Owner
+        id: owner
+        run: |
+          echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+
       - uses: docker/setup-qemu-action@v3
         with:
           platforms: all
@@ -127,7 +141,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ matrix.image-name }}
+          images: ghcr.io/${{ steps.owner.outputs.owner }}/theia/${{ matrix.image-suffix }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -140,8 +154,8 @@ jobs:
           file: ${{ matrix.docker-file }}
           push: true
           # Using registry cache to speed up stateless builds
-          cache-from: type=registry,ref=${{ matrix.image-name }}:build-cache
-          cache-to: type=registry,ref=${{ matrix.image-name }}:build-cache,mode=max
+          cache-from: type=registry,ref=ghcr.io/${{ steps.owner.outputs.owner }}/theia/${{ matrix.image-suffix }}:build-cache
+          cache-to: type=registry,ref=ghcr.io/${{ steps.owner.outputs.owner }}/theia/${{ matrix.image-suffix }}:build-cache,mode=max
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
