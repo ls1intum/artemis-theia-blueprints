@@ -1,0 +1,14 @@
+name: Test ARC Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-runner:
+    runs-on: arc-runner-set-stateless
+    steps:
+      - name: Check Runner Info
+        run: |
+          echo "Hostname: $(hostname)"
+          echo "User: $(whoami)"
+          docker info
