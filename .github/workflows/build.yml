@@ -36,6 +36,7 @@ jobs:
       tags: "2025-06-15"
       network: "host"
       runner-amd64: "arc-runner-set-stateless"
+      runner-arm64: "arc-runner-set-arm64"
       build-arm64: true
       cache-from: |
         type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache-pr-${{ github.event.number }}
@@ -89,6 +90,7 @@ jobs:
         BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
       network: "host"
       runner-amd64: "arc-runner-set-stateless"
+      runner-arm64: "arc-runner-set-arm64"
       build-arm64: true
       cache-from: |
         type=registry,ref=${{ matrix.image-name }}:build-cache-pr-${{ github.event.number }}
