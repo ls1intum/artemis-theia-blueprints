@@ -13,7 +13,7 @@ on:
 jobs:
   # Determine base tag (pr-<nr> or latest)
   determine-tag:
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set-stateless
     outputs:
       base_tag: ${{ steps.set-tag.outputs.base_tag }}
     steps:
