@@ -36,6 +36,8 @@ jobs:
       tags: "2025-06-15"
       network: "host"
       runner-amd64: "arc-runner-set-stateless"
+      # Disable ARM builds temporarily to optimize AMD cycle time
+      build-arm64: false
       cache-from: |
         type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache-pr-${{ github.event.number }}
         type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache
@@ -88,6 +90,8 @@ jobs:
         BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
       network: "host"
       runner-amd64: "arc-runner-set-stateless"
+      # Disable ARM builds temporarily to optimize AMD cycle time
+      build-arm64: false
       cache-from: |
         type=registry,ref=${{ matrix.image-name }}:build-cache-pr-${{ github.event.number }}
         type=registry,ref=${{ matrix.image-name }}:build-cache
