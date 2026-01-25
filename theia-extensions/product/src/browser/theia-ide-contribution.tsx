@@ -20,7 +20,6 @@ import { OutlineViewContribution } from '@theia/outline-view/lib/browser/outline
 import { OutlineViewService } from '@theia/outline-view/lib/browser/outline-view-service';
 import { OutlineBreadcrumbsContribution } from '@theia/outline-view/lib/browser/outline-breadcrumbs-contribution';
 import { VSXExtensionsContribution } from '@theia/vsx-registry/lib/browser/vsx-extensions-contribution';
-import { DebugFrontendApplicationContribution } from '@theia/debug/lib/browser/debug-frontend-application-contribution';
 import { ScmContribution } from '@theia/scm/lib/browser/scm-contribution';
 
 export namespace TheiaIDEMenus {
@@ -53,14 +52,12 @@ export class ViewsFilter implements FilterContribution {
         OutlineViewContribution,
         OutlineBreadcrumbsContribution,
         VSXExtensionsContribution,
-        DebugFrontendApplicationContribution,
         ScmContribution
     ]);
 
     private static readonly FILTERED_WIDGET_IDS = new Set<string>([
         'outline-view',
         'vsx-extensions-view-container',
-        'debug',
         'scm-view-container'
     ]);
 
@@ -96,7 +93,6 @@ export class DisabledFeaturesContribution implements FrontendApplicationContribu
     private static readonly DISABLED_WIDGET_IDS = new Set<string>([
         'outline-view',
         'vsx-extensions-view-container',
-        'debug',
         'scm-view-container',
         'scm-view'
     ]);
