@@ -91,12 +91,15 @@ ENV USE_LOCAL_GIT=true
 USER theia
 
 # Install Rust with minimal profile and cleanup
+# Replace bundled rust-analyzer server with rustup version to ensure
+# proc-macro API version compatibility with the Rust toolchain
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs --output rust.sh \
     && chmod +x rust.sh \
     && ./rust.sh -y --profile minimal \
     && rm rust.sh \
     && . "$HOME/.cargo/env" \
     && rustup component add rust-analyzer \
+    && cp /home/theia/.cargo/bin/rust-analyzer /home/theia/plugins/rust-analyzer/extension/server/rust-analyzer \
     && rm -rf $HOME/.cargo/registry \
     && rm -rf $HOME/.cargo/git \
     && rm -rf $HOME/.rustup/downloads \
