@@ -38,6 +38,7 @@ jobs:
       runner-amd64: "arc-runner-set-stateless"
       runner-arm64: "arc-runner-set-arm64"
       build-arm64: false
+      use-cluster-cache: true
       cache-from: |
         type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache-pr-${{ github.event.number }}
         type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache
@@ -92,6 +93,7 @@ jobs:
       runner-amd64: "arc-runner-set-stateless"
       runner-arm64: "arc-runner-set-arm64"
       build-arm64: false
+      use-cluster-cache: true
       cache-from: |
         type=registry,ref=${{ matrix.image-name }}:build-cache-pr-${{ github.event.number }}
         type=registry,ref=${{ matrix.image-name }}:build-cache
