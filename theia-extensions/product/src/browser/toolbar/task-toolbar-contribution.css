@@ -1,0 +1,81 @@
+/********************************************************************************
+ * Copyright (C) 2022 Ericsson and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+/* Split button container */
+.task-run-split-button {
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+  transition: background-color 0.1s ease;
+}
+
+/* Subtle hover on entire split button container */
+.task-run-split-button:hover {
+  background-color: var(--theia-toolbar-hoverBackground);
+}
+
+/* Base action item styling */
+.task-run-split-button .action-item {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.1s ease;
+  height: 100%;
+  align-self: stretch;
+}
+
+/* More prominent hover on individual buttons */
+.task-run-split-button .action-item:hover {
+  background-color: var(--theia-toolbar-activeBackground, rgba(90, 93, 94, 0.31));
+}
+
+/* Main run button */
+.task-run-split-button .run-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* Chevron dropdown button - smaller than main button */
+.task-run-split-button .chevron-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 3px;
+  min-width: auto;
+}
+
+/* Smaller chevron icon */
+.task-run-split-button .chevron-button .chevron {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Disabled state */
+.task-run-split-button.disabled {
+  opacity: 0.5;
+}
+
+.task-run-split-button.disabled .action-item {
+  cursor: not-allowed;
+}
+
+.task-run-split-button.disabled .action-item:hover {
+  background-color: transparent;
+}
