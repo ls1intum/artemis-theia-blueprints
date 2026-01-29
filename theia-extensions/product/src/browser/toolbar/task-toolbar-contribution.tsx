@@ -22,7 +22,7 @@ import { TaskConfigurations } from '@theia/task/lib/browser/task-configurations'
 import { TaskConfigurationManager } from '@theia/task/lib/browser/task-configuration-manager';
 import { TaskConfiguration } from '@theia/task/lib/common';
 import { CommandRegistry } from '@theia/core/lib/common';
-import { ActionMenuNode, GroupImpl, MenuNode } from '@theia/core/lib/common/menu';
+import { CommandMenu, GroupImpl, MenuNode } from '@theia/core/lib/common/menu';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
 import * as React from '@theia/core/shared/react';
 import '../../../src/browser/toolbar/task-toolbar-contribution.css';
@@ -66,8 +66,13 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     }
 
     protected async initializeTasks(): Promise<void> {
-        // wait for workspace to be ready
         await this.workspaceService.ready;
+        
+        const roots = await this.workspaceService.roots;
+        if (!roots || roots.length === 0) {
+            return;
+        }
+        
         await this.refreshTasks();
     }
 
@@ -136,9 +141,6 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         return undefined;
     }
 
-    /**
-     * Render the split button component
-     */
     protected renderSplitButton(widget?: Widget): React.ReactNode {
         const hasTasks = this.cachedTasks.length > 0;
         const taskToRun = this.getTaskToRun();
@@ -183,9 +185,6 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         );
     }
 
-    /**
-     * Generate tooltip text based on current state
-     */
     protected getTooltip(taskToRun: TaskConfiguration | undefined, hasTasks: boolean): string {
         if (!hasTasks) {
             return nls.localize('theia/task-toolbar/noTasks', 'No tasks available');
@@ -196,9 +195,6 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         return nls.localize('theia/task-toolbar/runTask', 'Run Task');
     }
 
-    /**
-     * runs last task if available, otherwise the first task
-     */
     protected async handleRunTask(e: React.MouseEvent<HTMLElement>): Promise<void> {
         e.preventDefault();
         e.stopPropagation();
@@ -209,6 +205,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         const token = this.taskService.startUserAction(); 
         await this.taskService.runTaskByLabel(token, taskToRun.label);
     }
+
     protected handleShowAllTasks(e: React.MouseEvent<HTMLElement>, widget?: Widget): void {
         e.preventDefault();
         e.stopPropagation();
@@ -225,6 +222,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
             context: e.currentTarget
         });
     }
+
     /**
      * Build a dynamic menu with all available tasks
      */
@@ -263,4 +261,5 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         // Create a menu node that runs the task
         return customNode;
     }
+
 }
