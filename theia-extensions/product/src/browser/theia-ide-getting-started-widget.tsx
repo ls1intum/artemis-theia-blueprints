@@ -111,16 +111,7 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
               tabIndex={0}
               onClick={this.doOpenScorpio}
               onKeyDown={this.doOpenScorpioEnter}>
-              {nls.localizeByDefault('Open Exercise')}
-          </a>
-      </div>;
-      const openFileExplorer = requireSingleOpen && <div className='gs-action-container'>
-          <a
-              role={'button'}
-              tabIndex={0}
-              onClick={this.doOpenExplorer}
-              onKeyDown={this.doOpenExplorerEnter}>
-              {nls.localizeByDefault('Open Exercise Files')}
+              {nls.localizeByDefault('Open Problem Statement')}
           </a>
       </div>;
       const openSourceControl = requireSingleOpen && <div className='gs-action-container'>
@@ -145,21 +136,10 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
       return <div className='gs-section'>
           <h3 className='gs-section-header'><i className={codicon('folder-opened')}></i>{nls.localizeByDefault('Start')}</h3>
           {this.isScorpioExtensionInstalled && openScorpio}
-          {openFileExplorer}
           {openSourceControl}
           {showAllTerminals}
       </div>
   }
-
-  /**
-  * Trigger the view explorer command.
-  */
-  protected doOpenExplorer = () => this.commandRegistry.executeCommand(CommandIds.OpenExplorer);
-  protected doOpenExplorerEnter = (e: React.KeyboardEvent) => {
-      if (this.isEnterKey(e)) {
-          this.doOpenExplorer();
-      }
-  };
 
   /**
   * Trigger the view source control manager command.
