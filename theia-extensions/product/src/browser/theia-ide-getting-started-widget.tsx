@@ -23,7 +23,7 @@ import { CommandRegistry, environment, isOSX, nls } from "@theia/core";
 const CommandIds = {
   OpenExplorer: 'workbench.view.explorer',
   OpenScm: 'scmView:toggle',
-  ToggleTerminal: 'workbench.action.terminal.toggleTerminal',
+  ToggleTerminal: 'terminal:new',
   OpenScorpioSidebar: 'artemis-sidebar.focus',
   ScorpioSidebarToggleVisibility: 'plugin-view-container:workbench.view.extension.artemis-sidebar-view:toggle-visibility',
 } as const;
@@ -136,9 +136,9 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
           <a
               role={'button'}
               tabIndex={0}
-              onClick={this.doToggleTerminals}
-              onKeyDown={this.doToggleTerminalsEnter}>
-              {nls.localizeByDefault('Open Terminal View')}
+              onClick={this.doOpenTerminal}
+              onKeyDown={this.doOpenTerminalEnter}>
+              {nls.localizeByDefault('Open new Terminal')}
           </a>
       </div>;
 
@@ -172,12 +172,12 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
   };
 
   /**
-  * Trigger the toggle terminal command.
+  * Trigger the open terminal command.
   */
-  protected doToggleTerminals = () => this.commandRegistry.executeCommand(CommandIds.ToggleTerminal);
-  protected doToggleTerminalsEnter = (e: React.KeyboardEvent) => {
+  protected doOpenTerminal = () => this.commandRegistry.executeCommand(CommandIds.ToggleTerminal);
+  protected doOpenTerminalEnter = (e: React.KeyboardEvent) => {
       if (this.isEnterKey(e)) {
-          this.doToggleTerminals();
+          this.doOpenTerminal();
       }
   }
 
