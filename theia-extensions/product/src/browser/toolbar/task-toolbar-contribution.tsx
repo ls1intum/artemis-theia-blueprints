@@ -66,13 +66,6 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     }
 
     protected async initializeTasks(): Promise<void> {
-        // Wait for workspace roots to be available first
-        const roots = await this.workspaceService.roots;
-        if (!roots || roots.length === 0) {
-            console.log('No workspace roots available yet, will rely on onWorkspaceChanged event');
-            return;
-        }
-
         // wait for workspace to be ready
         await this.workspaceService.ready;
         await this.refreshTasks();
