@@ -1,0 +1,40 @@
+# Theia IDE - Oh My Zsh Configuration
+# This file is copied into all language-specific Docker images
+
+# Path to Oh My Zsh installation
+export ZSH="$HOME/.oh-my-zsh"
+
+# Theme configuration
+ZSH_THEME="robbyrussell"
+
+# Plugins configuration
+# Note: plugins can be found in ~/.oh-my-zsh/plugins/
+plugins=(
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
+
+# Oh My Zsh initialization
+source $ZSH/oh-my-zsh.sh
+
+# User configuration
+
+# History settings
+HISTSIZE=1000
+SAVEHIST=1000
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+
+# Autosuggestion settings
+# Gray suggestions from history - press RIGHT ARROW or END to accept
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+# Syntax highlighting settings
+# Commands are highlighted in green if valid, red if invalid
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
+
+# Enable colored output for common commands
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
