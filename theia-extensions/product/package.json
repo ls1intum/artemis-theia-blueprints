@@ -10,6 +10,7 @@
     "@theia/vsx-registry": "1.62.2",
     "@theia/workspace": "1.62.2",
     "@theia/task": "1.62.2",
+    "@theia/plugin-ext": "1.62.2",
     "inversify": "^6.0.1"
   },
   "devDependencies": {
