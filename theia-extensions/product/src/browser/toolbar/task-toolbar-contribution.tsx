@@ -53,18 +53,15 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     protected cachedTasks: TaskConfiguration[] = [];
     @postConstruct()
     protected init(): void {
-        // Listen for task configuration changes - this is the reliable signal that tasks are ready
         this.taskConfigurationManager.onDidChangeTaskConfig(() => {
             this.refreshTasks();
         });
 
-        // Also listen for workspace changes to handle workspace switches
-        this.workspaceService.onWorkspaceChanged(() => {
+        this.workspaceService.onWorkspaceChanged(async () => {
+            await this.workspaceService.ready;
             this.refreshTasks();
         });
 
-        // Initial load with retry mechanism because TaskConfigurationManager uses a 500ms debounce
-        // The tasks may not be available immediately, so we retry with exponential backoff
         this.initializeTasks();
     }
 
@@ -77,9 +74,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         }
 
         // wait for workspace to be ready
-        const delay = 1600;
-        await new Promise(resolve => setTimeout(resolve, delay));
-
+        await this.workspaceService.ready;
         await this.refreshTasks();
     }
 
@@ -88,6 +83,8 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
      * A new token is requested each time to ensure fresh data from task providers.
      */
     protected async refreshTasks(): Promise<void> {
+        // delay to refresh after workspace debounce
+        await new Promise(resolve => setTimeout(resolve, 600));
         try {
             const token = this.taskService.startUserAction();
             this.cachedTasks = await this.taskConfigurations.getTasks(token);
@@ -171,20 +168,18 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
 
         return (
             <div key="task-run-toolbar-button" className={containerClasses}>
-                {/* Main button - runs last/first task */}
                 <button
                     className={runButtonClasses}
                     title={tooltip}
-                    onClick={e => this.handleMainButtonClick(e)}
+                    onClick={e => this.handleRunTask(e)}
                     disabled={!isEnabled}
                 />
                 
-                {/* Separator and dropdown chevron - shows task list */}
                 {hasTasks && (
                     <>
                         <button
                             className="action-item chevron-button"
-                            onClick={e => this.handleDropdownClick(e, widget)}
+                            onClick={e => this.handleShowAllTasks(e, widget)}
                             title={nls.localize('theia/task/selectTask', 'Select task to run')}
                         >
                             <span className={`${codicon('chevron-down')} chevron`} />
@@ -194,6 +189,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
             </div>
         );
     }
+
     /**
      * Generate tooltip text based on current state
      */
@@ -206,10 +202,11 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         }
         return nls.localize('theia/task-toolbar/runTask', 'Run Task');
     }
+
     /**
-     * Handle click on the main button - run last/first task
+     * runs last task if available, otherwise the first task
      */
-    protected async handleMainButtonClick(e: React.MouseEvent<HTMLElement>): Promise<void> {
+    protected async handleRunTask(e: React.MouseEvent<HTMLElement>): Promise<void> {
         e.preventDefault();
         e.stopPropagation();
         const taskToRun = this.getTaskToRun();
@@ -219,10 +216,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         const token = this.taskService.startUserAction(); 
         await this.taskService.runTaskByLabel(token, taskToRun.label);
     }
-    /**
-     * Handle click on the dropdown chevron - show task list
-     */
-    protected handleDropdownClick(e: React.MouseEvent<HTMLElement>, widget?: Widget): void {
+    protected handleShowAllTasks(e: React.MouseEvent<HTMLElement>, widget?: Widget): void {
         e.preventDefault();
         e.stopPropagation();
         if (this.cachedTasks.length === 0) {
