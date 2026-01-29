@@ -12,6 +12,15 @@ import { CommonMenus } from '@theia/core/lib/browser/common-frontend-contributio
 import { Command, CommandContribution, CommandRegistry } from '@theia/core/lib/common/command';
 import { MenuContribution, MenuModelRegistry, MenuPath } from '@theia/core/lib/common/menu';
 import { WindowService } from '@theia/core/lib/browser/window/window-service';
+import { ContributionFilterRegistry, FilterContribution } from '@theia/core/lib/common';
+import { KeybindingContribution } from '@theia/core/lib/browser/keybinding';
+import { WidgetFactory, FrontendApplicationContribution, FrontendApplication, WidgetManager } from '@theia/core/lib/browser';
+import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
+import { OutlineViewContribution } from '@theia/outline-view/lib/browser/outline-view-contribution';
+import { OutlineViewService } from '@theia/outline-view/lib/browser/outline-view-service';
+import { OutlineBreadcrumbsContribution } from '@theia/outline-view/lib/browser/outline-breadcrumbs-contribution';
+import { VSXExtensionsContribution } from '@theia/vsx-registry/lib/browser/vsx-extensions-contribution';
+import { ScmContribution } from '@theia/scm/lib/browser/scm-contribution';
 
 export namespace TheiaIDEMenus {
     export const THEIA_IDE_HELP: MenuPath = [...CommonMenus.HELP, 'theia-ide'];
@@ -23,6 +32,88 @@ export namespace TheiaIDECommands {
         category: CATEGORY,
         label: 'Report Issue'
     };
+}
+
+/**
+ * Filter to remove unwanted view contributions (Outline, VSX Extensions marketplace) from the UI.
+ * This uses Theia's official Contribution Filter API to prevent these widgets from being registered.
+ *
+ * Filter predicates return TRUE to KEEP a contribution, FALSE to REMOVE it.
+ */
+@injectable()
+export class ViewsFilter implements FilterContribution {
+    private static readonly FILTERED_CONTRIBUTIONS = new Set<Function>([
+        OutlineViewService,
+        OutlineViewContribution,
+        OutlineBreadcrumbsContribution,
+        VSXExtensionsContribution,
+        ScmContribution
+    ]);
+
+    private static readonly FILTERED_WIDGET_IDS = new Set<string>([
+        'outline-view',
+        'vsx-extensions-view-container',
+        'scm-view-container'
+    ]);
+
+    registerContributionFilters(registry: ContributionFilterRegistry): void {
+        const filter = (contrib: Object) => {
+            return !ViewsFilter.FILTERED_CONTRIBUTIONS.has(contrib.constructor);
+        };
+
+        // Filter contributions - must specify exact types since '*' doesn't always work
+        registry.addFilters([CommandContribution], [filter]);
+        registry.addFilters([MenuContribution], [filter]);
+        registry.addFilters([KeybindingContribution], [filter]);
+        registry.addFilters([FrontendApplicationContribution], [filter]);
+        registry.addFilters([TabBarToolbarContribution], [filter]);
+
+        // Remove the actual widget factories/view containers
+        registry.addFilters([WidgetFactory], [
+            factory => !ViewsFilter.FILTERED_WIDGET_IDS.has((factory as WidgetFactory).id)
+        ]);
+    }
+}
+
+/**
+ * Runtime protection against unwanted features.
+ * Provides additional defense-in-depth by blocking widgets at runtime.
+ *
+ * Use this for:
+ * - Additional protection against restored workspace layouts
+ * - Ensuring widgets filtered at contribution level don't slip through
+ */
+@injectable()
+export class DisabledFeaturesContribution implements FrontendApplicationContribution {
+    private static readonly DISABLED_WIDGET_IDS = new Set<string>([
+        'outline-view',
+        'vsx-extensions-view-container',
+        'scm-view-container',
+        'scm-view'
+    ]);
+
+    constructor(
+        @inject(WidgetManager) protected readonly widgetManager: WidgetManager
+    ) { }
+
+    initialize(): void {
+        this.widgetManager.onWillCreateWidget(event => {
+            if (DisabledFeaturesContribution.DISABLED_WIDGET_IDS.has(event.factoryId)) {
+                event.waitUntil(Promise.reject(new Error(`Widget '${event.factoryId}' is disabled by product configuration.`)));
+            }
+        });
+    }
+
+    async onDidInitializeLayout(app: FrontendApplication): Promise<void> {
+        // Close any widgets that slipped through (e.g., from restored workspace layout)
+        for (const factoryId of DisabledFeaturesContribution.DISABLED_WIDGET_IDS) {
+            try {
+                await app.shell.closeWidget(factoryId);
+            } catch {
+                // Ignore - widget might not exist
+            }
+        }
+    }
 }
 
 @injectable()
