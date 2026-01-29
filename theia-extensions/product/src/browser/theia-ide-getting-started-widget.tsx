@@ -36,7 +36,7 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
 
   @inject(CommandRegistry)
   protected readonly commandRegistry: CommandRegistry;
-  
+
 
   protected async doInit(): Promise<void> {
     super.doInit();
@@ -120,7 +120,7 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
               tabIndex={0}
               onClick={this.doOpenScm}
               onKeyDown={this.doOpenScmEnter}>
-              {nls.localizeByDefault('Open Source Control View')}
+              {nls.localizeByDefault('Open Version Control')}
           </a>
       </div>;
       const showAllTerminals = requireSingleOpen && <div className='gs-action-container'>
