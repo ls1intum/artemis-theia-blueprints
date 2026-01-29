@@ -243,6 +243,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         }
         return menu;
     }
+
     /**
      * Create a menu node for a single task
      */
@@ -250,19 +251,23 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         const taskLabel = task.label;
         const taskService = this.taskService;
         
-        // Create a custom menu node that runs the task
-        return {
+        const customNode: CommandMenu = {
             id: `task-run-${taskLabel}`,
-            label: taskLabel,
             sortString: taskLabel,
-            // icon: codicon('play'),
+            label: taskLabel, 
+            icon: undefined,
             isVisible: () => true,
             isEnabled: () => true,
             isToggled: () => false,
-            run: async (): Promise<void> => {
-                const token = taskService.startUserAction();
-                await taskService.runTaskByLabel(token, taskLabel);
+
+            run: async () => {
+                await this.taskService.runTaskByLabel(
+                    taskService.startUserAction(),
+                    taskLabel
+                );
             }
-        } as unknown as ActionMenuNode;
+        };
+        // Create a menu node that runs the task
+        return customNode;
     }
 }
