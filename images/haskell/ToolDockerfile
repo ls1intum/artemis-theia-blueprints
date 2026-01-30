@@ -65,7 +65,7 @@ RUN if [ -n "$APT_HTTP_PROXY" ]; then \
       echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
     fi \
     && apt-get update && \
-    apt-get install -y --no-install-recommends wget apt-transport-https bash ca-certificates && \
+    apt-get install -y --no-install-recommends bash zsh wget apt-transport-https ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/home/theia
@@ -113,10 +113,10 @@ RUN if [ -n "$APT_HTTP_PROXY" ]; then \
         llvm \
         libnuma-dev \
     && rm -rf /var/lib/apt/lists/*
-    
+
 # We install stack as the main CLI tool.
 # It bundles the creation of new projects (`stack new`), building (`stack build`) and finally running (`stack exec`) Haskell projects.
-RUN bash -c "curl -sSL https://get.haskellstack.org/ | sh" \
+RUN sh -c "curl -sSL https://get.haskellstack.org/ | sh" \
     && stack setup \
     && stack ghc \
     --package QuickCheck \
@@ -134,7 +134,7 @@ RUN bash -c "curl -sSL https://get.haskellstack.org/ | sh" \
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
-ENV SHELL=/bin/bash \
+ENV SHELL=/bin/zsh \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
@@ -142,6 +142,14 @@ ENV USE_LOCAL_GIT=true
 
 # Switch to Theia user
 USER theia
+
+# Install Oh My Zsh and plugins with pinned versions
+RUN git clone --depth 1 --branch master https://github.com/ohmyzsh/ohmyzsh.git ${HOME}/.oh-my-zsh && \
+    git clone --depth 1 --branch v0.7.1 https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+    git clone --depth 1 --branch 0.8.0 https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+# Copy centralized zsh configuration
+COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
 WORKDIR /home/theia/applications/browser
 
 # Launch the backend application via node
