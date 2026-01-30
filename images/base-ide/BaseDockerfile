@@ -28,11 +28,14 @@ RUN if [ -n "${HTTPS_PROXY:-$https_proxy}" ]; then \
     fi \
     && rm -f /tmp/squid-proxy-ca.crt
 
-# Configure HTTPS proxy for yarn/node (for extension downloads)
+# Configure HTTPS proxy for yarn/node (for extension downloads from open-vsx.org)
 ENV HTTPS_PROXY=${HTTPS_PROXY:-$https_proxy}
 ENV https_proxy=${HTTPS_PROXY:-$https_proxy}
 ENV HTTP_PROXY=${HTTPS_PROXY:-$https_proxy}
 ENV http_proxy=${HTTPS_PROXY:-$https_proxy}
+# Exclude internal services from proxy - yarn should hit Verdaccio directly
+ENV NO_PROXY=localhost,127.0.0.1,.svc.cluster.local,.cluster.local
+ENV no_proxy=localhost,127.0.0.1,.svc.cluster.local,.cluster.local
 # Node.js respects NODE_EXTRA_CA_CERTS for custom CA certificates
 ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 
