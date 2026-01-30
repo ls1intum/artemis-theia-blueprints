@@ -55,6 +55,7 @@ jobs:
       ghcr-mirror: "http://registry-mirror-ghcr.registry-mirror.svc.cluster.local:5000"
       npm-registry: "http://verdaccio.verdaccio.svc.cluster.local:4873"
       apt-proxy: "http://apt-cacher-ng.apt-cacher-ng.svc.cluster.local:3142"
+      https-proxy: "http://squid.squid.svc.cluster.local:3128"
       cache-from: |
         type=registry,ref=ghcr.io/ls1intum/theia/base:${{ needs.determine-tag.outputs.cache_tag }}
         type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache
@@ -108,6 +109,7 @@ jobs:
       ghcr-mirror: "http://registry-mirror-ghcr.registry-mirror.svc.cluster.local:5000"
       npm-registry: "http://verdaccio.verdaccio.svc.cluster.local:4873"
       apt-proxy: "http://apt-cacher-ng.apt-cacher-ng.svc.cluster.local:3142"
+      https-proxy: "http://squid.squid.svc.cluster.local:3128"
       cache-from: |
         type=registry,ref=ghcr.io/${{ matrix.image-name }}:${{ needs.determine-tag.outputs.cache_tag }}
         type=registry,ref=ghcr.io/${{ matrix.image-name }}:build-cache
