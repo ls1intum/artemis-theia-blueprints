@@ -2,7 +2,11 @@
 FROM node:22-bullseye AS install-deps
 
 # Install build prerequisites only once and clean up afterwards
-RUN apt-get update \
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+    fi \
+    && apt-get update \
     && apt-get install -y --no-install-recommends libxkbfile-dev libsecret-1-dev jq \
     && rm -rf /var/lib/apt/lists/*
 
@@ -23,7 +27,9 @@ RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json.merg
 RUN cp package.json.merged package.json
 
 # Install all workspace dependencies needed for the build
+ARG NPM_REGISTRY
 RUN yarn config set network-timeout 600000 -g \
+    && if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi \
     && yarn install
 
 # Build the browser application and download plugins
@@ -73,7 +79,11 @@ RUN yarn install --production --frozen-lockfile --ignore-scripts --network-timeo
 FROM node:22-bullseye-slim AS base-ide
 
 # Install only the libraries required at runtime
-RUN apt-get update \
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+    fi \
+    && apt-get update \
     && apt-get install -y --no-install-recommends libsecret-1-0 libxkbfile1 \
     && rm -rf /var/lib/apt/lists/*
 

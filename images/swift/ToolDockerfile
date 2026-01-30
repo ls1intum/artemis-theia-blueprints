@@ -16,7 +16,11 @@ WORKDIR /home/theia
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Install jq for JSON merging
-RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+    fi \
+    && apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
 
 # Copy required configuration files
 COPY --from=base-ide /home/theia/package.json ./package.json.base
@@ -35,14 +39,20 @@ COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 # Remove unnecessary files for the browser application
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
-RUN yarn --pure-lockfile && \
+ARG NPM_REGISTRY
+RUN if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi \
+    && yarn --pure-lockfile && \
     yarn download:plugins
 
 # Prepare Swift Application
 # Adapted from https://github.com/ls1intum/artemis-swift-swiftlint-docker/blob/main/Dockerfile
 FROM ${BUILDER_IMAGE} AS builder
 
-RUN apt-get update && apt-get install -y \
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+    fi \
+    && apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     libxml2-dev \
     && rm -r /var/lib/apt/lists/*
@@ -72,7 +82,11 @@ COPY --from=plugin-image /usr/local/lib/node_modules/ /home/theia/node_modules/
 COPY --from=plugin-image /home/theia/node_modules/ /home/theia/node_modules/
 
 # Required by Swift
-RUN apt-get update && apt-get install -y \
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+    fi \
+    && apt-get update && apt-get install -y \
     libcurl4 \
     libxml2 \
     && rm -r /var/lib/apt/lists/*
@@ -109,7 +123,11 @@ COPY --from=builder /executables/* /usr/bin
 RUN ln -s /home/theia/node_modules /home/theia/applications/browser/node_modules.asar
 
 # Install required tools for terminal usage inside the IDE
-RUN apt-get update && \
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+    fi \
+    && apt-get update && \
     apt-get install -y --no-install-recommends bash ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
