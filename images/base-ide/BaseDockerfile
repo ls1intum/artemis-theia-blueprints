@@ -5,15 +5,36 @@ FROM node:22-bullseye AS install-deps
 ARG APT_HTTP_PROXY
 RUN if [ -n "$APT_HTTP_PROXY" ]; then \
       echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
     fi \
     && apt-get update \
-    && apt-get install -y --no-install-recommends libxkbfile-dev libsecret-1-dev jq \
+    && apt-get install -y --no-install-recommends libxkbfile-dev libsecret-1-dev jq ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /home/theia
 
 # Configure to skip download of puppeteer
 ENV PUPPETEER_SKIP_DOWNLOAD=true
+
+# Install proxy CA certificate for SSL-bump proxy caching (only when using HTTPS_PROXY)
+ARG HTTPS_PROXY
+ARG https_proxy
+COPY certs/squid-proxy-ca.crt /tmp/squid-proxy-ca.crt
+RUN if [ -n "${HTTPS_PROXY:-$https_proxy}" ]; then \
+      cp /tmp/squid-proxy-ca.crt /usr/local/share/ca-certificates/squid-proxy-ca.crt \
+      && update-ca-certificates \
+      && echo "Proxy CA certificate installed for SSL-bump proxy"; \
+    fi \
+    && rm -f /tmp/squid-proxy-ca.crt
+
+# Configure HTTPS proxy for yarn/node (for extension downloads)
+ENV HTTPS_PROXY=${HTTPS_PROXY:-$https_proxy}
+ENV https_proxy=${HTTPS_PROXY:-$https_proxy}
+ENV HTTP_PROXY=${HTTPS_PROXY:-$https_proxy}
+ENV http_proxy=${HTTPS_PROXY:-$https_proxy}
+# Node.js respects NODE_EXTRA_CA_CERTS for custom CA certificates
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 
 # Copy only dependency manifests
 COPY lerna.json ./
@@ -82,6 +103,8 @@ FROM node:22-bullseye-slim AS base-ide
 ARG APT_HTTP_PROXY
 RUN if [ -n "$APT_HTTP_PROXY" ]; then \
       echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
     fi \
     && apt-get update \
     && apt-get install -y --no-install-recommends libsecret-1-0 libxkbfile1 \
