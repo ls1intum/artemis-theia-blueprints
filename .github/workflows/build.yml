@@ -187,6 +187,12 @@ jobs:
           - docker-file: images/rust/ToolDockerfile
             docker-context: "."
             image-name: ls1intum/theia/rust
+          - docker-file: images/languageserver/java/Dockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/langserver-java
+          - docker-file: images/languageserver/rust/Dockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/langserver-rust
 
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
     with:
