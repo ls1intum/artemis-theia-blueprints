@@ -45,7 +45,6 @@ jobs:
     needs: check-base-changes
     outputs:
       base_tag: ${{ steps.set-tag.outputs.base_tag }}
-      base_tag_for_tools: ${{ steps.set-tag.outputs.base_tag_for_tools }}
       sha_tag: ${{ steps.set-tag.outputs.sha_tag }}
       cache_tag: ${{ steps.set-tag.outputs.cache_tag }}
     steps:
@@ -63,25 +62,13 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             BASE_TAG="pr-${{ github.event.pull_request.number }}"
             CACHE_TAG="build-cache-pr-${{ github.event.pull_request.number }}"
-            
-            # Check if PR tag exists in registry, otherwise fall back to latest
-            if docker manifest inspect ghcr.io/ls1intum/theia/base:${BASE_TAG} >/dev/null 2>&1; then
-              echo "✅ PR tag ${BASE_TAG} exists in registry, tool images will use it"
-              echo "base_tag_for_tools=${BASE_TAG}" >> "$GITHUB_OUTPUT"
-            else
-              echo "⚠️ PR tag ${BASE_TAG} does not exist in registry (base skipped or not built yet)"
-              echo "Tool images will fall back to: latest"
-              echo "base_tag_for_tools=latest" >> "$GITHUB_OUTPUT"
-            fi
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             BASE_TAG="latest"
             CACHE_TAG="build-cache"
-            echo "base_tag_for_tools=latest" >> "$GITHUB_OUTPUT"
           else
             # For workflow_dispatch or push on feature branches
             BASE_TAG="${SAFE_REF_NAME}"
             CACHE_TAG="build-cache-${SAFE_REF_NAME}"
-            echo "base_tag_for_tools=${BASE_TAG}" >> "$GITHUB_OUTPUT"
           fi
           
           echo "base_tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
@@ -116,10 +103,59 @@ jobs:
       cache-to: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/ls1intum/theia/base:{0},mode=max', needs.determine-tag.outputs.cache_tag) || '' }}
     secrets: inherit
 
-  build-and-push:
+  determine-tool-tag:
+    runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
     needs:
       - determine-tag
       - build-and-push-base
+      - check-base-changes
+    # Always run this job, even if build-and-push-base was skipped
+    if: always()
+    outputs:
+      base_tag_for_tools: ${{ steps.set-tool-tag.outputs.base_tag_for_tools }}
+    steps:
+      - name: Determine base tag for tool images
+        id: set-tool-tag
+        run: |
+          BASE_TAG="${{ needs.determine-tag.outputs.base_tag }}"
+          
+          # If base was built and pushed, use the PR/branch tag
+          if [[ "${{ needs.build-and-push-base.result }}" == "success" ]]; then
+            echo "✅ Base image was built and pushed, tool images will use: ${BASE_TAG}"
+            echo "base_tag_for_tools=${BASE_TAG}" >> "$GITHUB_OUTPUT"
+          # If base build was skipped but base was changed, check registry
+          elif [[ "${{ needs.check-base-changes.outputs.base-changed }}" == "true" ]] && [[ "${{ needs.build-and-push-base.result }}" == "skipped" ]]; then
+            # This shouldn't happen due to workflow conditions, but handle it safely
+            echo "⚠️ Base changed but build was skipped - checking registry"
+            if docker manifest inspect ghcr.io/ls1intum/theia/base:${BASE_TAG} > /dev/null 2>&1; then
+              echo "✅ Tag ${BASE_TAG} exists in registry"
+              echo "base_tag_for_tools=${BASE_TAG}" >> "$GITHUB_OUTPUT"
+            else
+              echo "⚠️ Tag ${BASE_TAG} not found, falling back to latest"
+              echo "base_tag_for_tools=latest" >> "$GITHUB_OUTPUT"
+            fi
+          # Base was not changed, check if tag exists in registry
+          else
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              # For PRs where base didn't change, check registry
+              if docker manifest inspect ghcr.io/ls1intum/theia/base:${BASE_TAG} > /dev/null 2>&1; then
+                echo "✅ PR tag ${BASE_TAG} exists in registry (from previous build)"
+                echo "base_tag_for_tools=${BASE_TAG}" >> "$GITHUB_OUTPUT"
+              else
+                echo "ℹ️ Base unchanged and PR tag not in registry, using latest"
+                echo "base_tag_for_tools=latest" >> "$GITHUB_OUTPUT"
+              fi
+            else
+              # For master/main or branches, use the determined tag
+              echo "ℹ️ Base unchanged, using tag: ${BASE_TAG}"
+              echo "base_tag_for_tools=${BASE_TAG}" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+  build-and-push:
+    needs:
+      - determine-tag
+      - determine-tool-tag
     strategy:
       fail-fast: false
       matrix:
@@ -152,7 +188,7 @@ jobs:
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
       build-args: |
-        BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag_for_tools }}
+        BASE_IDE_TAG=${{ needs.determine-tool-tag.outputs.base_tag_for_tools }}
       tags: |
         ${{ needs.determine-tag.outputs.base_tag }}
         ${{ needs.determine-tag.outputs.sha_tag }}
