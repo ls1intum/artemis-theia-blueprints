@@ -116,7 +116,7 @@ jobs:
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
       build-args: |
-        BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
+        BASE_IDE_TAG=${{ needs.build-and-push-base.result == 'success' && needs.determine-tag.outputs.base_tag || 'latest' }}
       tags: |
         ${{ needs.determine-tag.outputs.base_tag }}
         ${{ needs.determine-tag.outputs.sha_tag }}
