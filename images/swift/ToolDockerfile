@@ -16,8 +16,8 @@ WORKDIR /home/theia
 # Configure to skip download of puppeteer
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
-# Install jq for JSON merging
-RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
+# Install jq for JSON merging and python3 for node-gyp (required by @theia/cli native dependencies)
+RUN apt-get update && apt-get install -y --no-install-recommends jq python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 # Copy required configuration files
 COPY --from=base-ide /home/theia/package.json ./package.json.base
