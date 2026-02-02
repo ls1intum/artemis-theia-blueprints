@@ -13,7 +13,7 @@ on:
 jobs:
   # Check if base-ide related files have changed
   check-base-changes:
-    runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     outputs:
       base-changed: ${{ steps.filter.outputs.base }}
     steps:
@@ -41,7 +41,7 @@ jobs:
               - 'tsconfig.json'
 
   determine-tag:
-    runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     needs: check-base-changes
     outputs:
       base_tag: ${{ steps.set-tag.outputs.base_tag }}
@@ -79,10 +79,8 @@ jobs:
     needs:
       - determine-tag
       - check-base-changes
-    if: |
-      needs.check-base-changes.outputs.base-changed == 'true' || 
-      github.event_name == 'workflow_dispatch' ||
-      github.ref == 'refs/heads/master'
+    # Performance Test #1: Always build base (no conditional skip)
+    if: always()
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
     with:
       docker-file: images/base-ide/BaseDockerfile
@@ -92,19 +90,12 @@ jobs:
         ${{ needs.determine-tag.outputs.base_tag }}
         ${{ needs.determine-tag.outputs.sha_tag }}
       network: "host"
-      runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
-      runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
-      docker-hub-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://registry-mirror.registry-mirror.svc.cluster.local:5000' || '' }}
-      ghcr-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://registry-mirror-ghcr.registry-mirror.svc.cluster.local:5000' || '' }}
-      npm-registry: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://verdaccio.verdaccio.svc.cluster.local:4873' || '' }}
-      apt-proxy: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://apt-cacher-ng.apt-cacher-ng.svc.cluster.local:3142' || '' }}
-      https-proxy: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://squid.squid.svc.cluster.local:3129' || '' }}
-      cache-from: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/ls1intum/theia/base:{0}{1}type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache{1}', needs.determine-tag.outputs.cache_tag, '\n') || '' }}
-      cache-to: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/ls1intum/theia/base:{0},mode=max', needs.determine-tag.outputs.cache_tag) || '' }}
+      runner-amd64: ubuntu-24.04
+      runner-arm64: ubuntu-24.04-arm
     secrets: inherit
 
   determine-tool-tag:
-    runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     needs:
       - determine-tag
       - build-and-push-base
@@ -193,13 +184,6 @@ jobs:
         ${{ needs.determine-tag.outputs.base_tag }}
         ${{ needs.determine-tag.outputs.sha_tag }}
       network: "host"
-      runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
-      runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
-      docker-hub-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://registry-mirror.registry-mirror.svc.cluster.local:5000' || '' }}
-      ghcr-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://registry-mirror-ghcr.registry-mirror.svc.cluster.local:5000' || '' }}
-      npm-registry: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://verdaccio.verdaccio.svc.cluster.local:4873' || '' }}
-      apt-proxy: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://apt-cacher-ng.apt-cacher-ng.svc.cluster.local:3142' || '' }}
-      https-proxy: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://squid.squid.svc.cluster.local:3129' || '' }}
-      cache-from: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/{0}:{1}{2}type=registry,ref=ghcr.io/{0}:build-cache{2}', matrix.image-name, needs.determine-tag.outputs.cache_tag, '\n') || '' }}
-      cache-to: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/{0}:{1},mode=max', matrix.image-name, needs.determine-tag.outputs.cache_tag) || '' }}
+      runner-amd64: ubuntu-24.04
+      runner-arm64: ubuntu-24.04-arm
     secrets: inherit
