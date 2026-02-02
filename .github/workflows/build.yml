@@ -14,20 +14,69 @@ jobs:
   # Determine base tag (pr-<nr> or latest)
   determine-tag:
     runs-on: ubuntu-latest
+    needs: check-base-changes
     outputs:
       base_tag: ${{ steps.set-tag.outputs.base_tag }}
+      base_tag_for_tools: ${{ steps.set-tag.outputs.base_tag_for_tools }}
     steps:
-      - name: Set BASE_IDE_TAG
+      - name: Set BASE_IDE_TAG with smart fallback
         id: set-tag
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "base_tag=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+            PR_TAG="pr-${{ github.event.pull_request.number }}"
+            echo "base_tag=${PR_TAG}" >> "$GITHUB_OUTPUT"
+            
+            # Check if PR tag exists in registry, otherwise fall back to latest
+            if docker manifest inspect ghcr.io/ls1intum/theia/base:${PR_TAG} >/dev/null 2>&1; then
+              echo "✅ PR tag ${PR_TAG} exists in registry, tool images will use it"
+              echo "base_tag_for_tools=${PR_TAG}" >> "$GITHUB_OUTPUT"
+            else
+              echo "⚠️ PR tag ${PR_TAG} does not exist in registry (base skipped or not built yet)"
+              echo "Tool images will fall back to: latest"
+              echo "base_tag_for_tools=latest" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "base_tag=latest" >> "$GITHUB_OUTPUT"
+            echo "base_tag_for_tools=latest" >> "$GITHUB_OUTPUT"
           fi
 
+  # Check if base-ide related files have changed
+  check-base-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      base-changed: ${{ steps.filter.outputs.base }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for base-ide changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            base:
+              - 'images/base-ide/**'
+              - 'package.json'
+              - 'yarn.lock'
+              - 'lerna.json'
+              - 'applications/browser/package.json'
+              - 'applications/browser/**/*.ts'
+              - 'applications/browser/**/*.tsx'
+              - 'theia-extensions/product/package.json'
+              - 'theia-extensions/product/**/*.ts'
+              - 'theia-extensions/product/**/*.tsx'
+              - 'configs/**'
+              - 'scripts/**'
+              - 'tsconfig.json'
+
   build-and-push-base:
-    needs: determine-tag
+    needs: 
+      - determine-tag
+      - check-base-changes
+    if: |
+      needs.check-base-changes.outputs.base-changed == 'true' || 
+      github.event_name == 'workflow_dispatch' ||
+      github.ref == 'refs/heads/master'
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
     with:
       docker-file: images/base-ide/BaseDockerfile
@@ -80,6 +129,6 @@ jobs:
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
       build-args: |
-        BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
+        BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag_for_tools }}
       network: "host"
     secrets: inherit
