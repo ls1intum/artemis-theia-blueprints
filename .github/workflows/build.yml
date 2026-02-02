@@ -156,6 +156,8 @@ jobs:
     needs:
       - determine-tag
       - determine-tool-tag
+    # Always run tool builds even if base was skipped (conditional builds)
+    if: always() && needs.determine-tool-tag.result == 'success'
     strategy:
       fail-fast: false
       matrix:
