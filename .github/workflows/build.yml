@@ -15,38 +15,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Check if base-ide related files have changed
-  check-base-changes:
-    runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
-    outputs:
-      base-changed: ${{ steps.filter.outputs.base }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check for base-ide changes
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            base:
-              - 'images/base-ide/**'
-              - 'package.json'
-              - 'yarn.lock'
-              - 'lerna.json'
-              - 'applications/browser/package.json'
-              - 'applications/browser/**/*.ts'
-              - 'applications/browser/**/*.tsx'
-              - 'theia-extensions/product/package.json'
-              - 'theia-extensions/product/**/*.ts'
-              - 'theia-extensions/product/**/*.tsx'
-              - 'configs/**'
-              - 'scripts/**'
-              - 'tsconfig.json'
-
   determine-tag:
     runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
-    needs: check-base-changes
     outputs:
       base_tag: ${{ steps.set-tag.outputs.base_tag }}
       sha_tag: ${{ steps.set-tag.outputs.sha_tag }}
@@ -80,13 +50,7 @@ jobs:
           echo "cache_tag=${CACHE_TAG}" >> "$GITHUB_OUTPUT"
 
   build-and-push-base:
-    needs:
-      - determine-tag
-      - check-base-changes
-    if: |
-      needs.check-base-changes.outputs.base-changed == 'true' || 
-      github.event_name == 'workflow_dispatch' ||
-      github.ref == 'refs/heads/master'
+    needs: determine-tag
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
     with:
       docker-file: images/base-ide/BaseDockerfile
@@ -110,12 +74,7 @@ jobs:
   build-and-push:
     needs:
       - determine-tag
-      - check-base-changes
       - build-and-push-base
-    # Run if base build succeeded or was skipped (but not if failed or cancelled)
-    if: |
-      needs.build-and-push-base.result == 'success' || 
-      needs.build-and-push-base.result == 'skipped'
     strategy:
       fail-fast: false
       matrix:
@@ -141,15 +100,6 @@ jobs:
           - docker-file: images/rust/ToolDockerfile
             docker-context: "."
             image-name: ls1intum/theia/rust
-          - docker-file: images/languageserver/java/Dockerfile
-            docker-context: "."
-            image-name: ls1intum/theia/langserver-java
-          - docker-file: images/languageserver/rust/Dockerfile
-            docker-context: "."
-            image-name: ls1intum/theia/langserver-rust
-          - docker-file: images/theia-no-ls/ToolDockerfile
-            docker-context: "."
-            image-name: ls1intum/theia/theia-no-ls
 
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
     with:
@@ -157,7 +107,7 @@ jobs:
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
       build-args: |
-        BASE_IDE_TAG=${{ needs.build-and-push-base.result == 'success' && needs.determine-tag.outputs.base_tag || 'latest' }}
+        BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
       tags: |
         ${{ needs.determine-tag.outputs.base_tag }}
         ${{ needs.determine-tag.outputs.sha_tag }}
