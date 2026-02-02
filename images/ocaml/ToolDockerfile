@@ -13,7 +13,7 @@ ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
 FROM ${BASE_IMAGE} AS base-ide
 
 # Parallel stage: Install system dependencies (runs concurrently with plugin-image)
-FROM node:22-bullseye-slim AS apt-deps
+FROM ubuntu:24.04 AS apt-deps
 
 WORKDIR /home/theia
 
