@@ -47,7 +47,7 @@ jobs:
         ${{ needs.determine-tag.outputs.sha_tag }}
       network: "host"
       runner-amd64: arc-runner-set-stateless
-      runner-arm64: arc-runner-set-stateless-arm
+      runner-arm64: arc-runner-set-arm64
     secrets: inherit
 
   build-and-push:
@@ -92,5 +92,5 @@ jobs:
         ${{ needs.determine-tag.outputs.sha_tag }}
       network: "host"
       runner-amd64: arc-runner-set-stateless
-      runner-arm64: arc-runner-set-stateless-arm
+      runner-arm64: arc-runner-set-arm64
     secrets: inherit
