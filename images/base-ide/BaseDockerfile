@@ -53,6 +53,11 @@ COPY scripts/ ./scripts/
 RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json.merged
 RUN cp package.json.merged package.json
 
+# Copy npm/yarn registry config files
+# Note: .npmrc exists in repo root with network-timeout setting
+# Workflow overwrites .npmrc and creates .yarnrc when npm-registry input is provided
+COPY .npmrc .yarnrc* ./
+
 # Install all workspace dependencies needed for the build (using lockfile for speed + reproducibility)
 ARG NPM_REGISTRY
 RUN yarn config set network-timeout 600000 -g \
