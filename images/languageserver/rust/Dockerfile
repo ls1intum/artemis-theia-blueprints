@@ -1,7 +1,7 @@
 FROM alpine:3.22
 
-# Standard LS port - configurable via env
 ENV LS_PORT=5000
+ENV WORKSPACE_PATH=/home/project
 
 RUN apk add --no-cache socat rust-analyzer
 
@@ -13,4 +13,4 @@ WORKDIR /home/project
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "echo '[LS-RUST] Starting Rust Language Server on port ${LS_PORT:-5000}' && socat TCP-LISTEN:${LS_PORT:-5000},reuseaddr,fork EXEC:rust-analyzer"]
+CMD sh -c 'echo "[LS-RUST] Starting Rust Language Server on port ${LS_PORT:-5000} with workspace ${WORKSPACE_PATH:-/home/project}" && cd ${WORKSPACE_PATH:-/home/project} && socat TCP-LISTEN:${LS_PORT:-5000},reuseaddr,fork EXEC:rust-analyzer'
