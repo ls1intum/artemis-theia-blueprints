@@ -47,9 +47,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     protected readonly workspaceService: WorkspaceService;
     protected readonly onDidChangeEmitter = new Emitter<void>();
     protected readonly onDidChange: Event<void> = this.onDidChangeEmitter.event;
-    /**
-     * Cached list of available tasks
-     */
+
     protected cachedTasks: TaskConfiguration[] = [];
     @postConstruct()
     protected init(): void {
@@ -65,14 +63,27 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         this.initializeTasks();
     }
 
+    registerToolbarItems(registry: TabBarToolbarRegistry): void {
+        registry.registerItem(this.createTaskRunToolbarItem());
+    }
+
+    protected createTaskRunToolbarItem(): ReactTabBarToolbarAction {
+        return {
+            id: 'task-run-toolbar-button',
+            group: 'navigation',
+            priority: 0, // After "Run or Debug..." button (priority 1)
+            onDidChange: this.onDidChange,
+            isVisible: (widget?: Widget) => this.isEditorWidget(widget),
+            render: (widget?: Widget) => this.renderSplitButton(widget)
+        };
+    }
+
     protected async initializeTasks(): Promise<void> {
         await this.workspaceService.ready;
-        
         const roots = await this.workspaceService.roots;
         if (!roots || roots.length === 0) {
             return;
         }
-        
         await this.refreshTasks();
     }
 
@@ -91,24 +102,6 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
             this.cachedTasks = [];
         }
         this.onDidChangeEmitter.fire();
-    }
-
-    registerToolbarItems(registry: TabBarToolbarRegistry): void {
-        registry.registerItem(this.createTaskRunToolbarItem());
-    }
-
-    /**
-     * Create the React-based toolbar item for running tasks
-     */
-    protected createTaskRunToolbarItem(): ReactTabBarToolbarAction {
-        return {
-            id: 'task-run-toolbar-button',
-            group: 'navigation',
-            priority: 0, // After "Run or Debug..." button (priority 1)
-            onDidChange: this.onDidChange,
-            isVisible: (widget?: Widget) => this.isEditorWidget(widget),
-            render: (widget?: Widget) => this.renderSplitButton(widget)
-        };
     }
 
     /**
@@ -132,22 +125,22 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
                 return matchingTask;
             }
         }
-        
+
         // Priority 2: First task from tasks.json
         if (this.cachedTasks.length > 0) {
             return this.cachedTasks[0];
         }
-        
+
         return undefined;
     }
 
     protected renderSplitButton(widget?: Widget): React.ReactNode {
         const hasTasks = this.cachedTasks.length > 0;
         const taskToRun = this.getTaskToRun();
-        
+
         const tooltip = this.getTooltip(taskToRun, hasTasks);
         const isEnabled = hasTasks;
-        
+
         const containerClasses = [
             'task-run-split-button',
             'theia-tab-bar-toolbar-item',
@@ -169,7 +162,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
                     onClick={e => this.handleRunTask(e)}
                     disabled={!isEnabled}
                 />
-                
+
                 {hasTasks && (
                     <>
                         <button
@@ -202,7 +195,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         if (!taskToRun) {
             return;
         }
-        const token = this.taskService.startUserAction(); 
+        const token = this.taskService.startUserAction();
         await this.taskService.runTaskByLabel(token, taskToRun.label);
     }
 
@@ -241,11 +234,11 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     protected createTaskMenuNode(task: TaskConfiguration): MenuNode {
         const taskLabel = task.label;
         const taskService = this.taskService;
-        
+
         const customNode: CommandMenu = {
             id: `task-run-${taskLabel}`,
             sortString: taskLabel,
-            label: taskLabel, 
+            label: taskLabel,
             icon: undefined,
             isVisible: () => true,
             isEnabled: () => true,
@@ -263,3 +256,4 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     }
 
 }
+
