@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 # Load the base-ide image, only copy from here
+# Performance Test #1: Baseline (no optimizations, GitHub runners, no cache)
 ARG BASE_IDE_TAG=latest
 ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
 FROM ${BASE_IMAGE} AS base-ide
