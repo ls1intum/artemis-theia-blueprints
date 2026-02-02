@@ -93,7 +93,7 @@ jobs:
         ${{ needs.determine-tag.outputs.sha_tag }}
       network: "host"
       runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
-      runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
+      runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless-arm' || 'ubuntu-24.04-arm' }}
       docker-hub-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://registry-mirror.registry-mirror.svc.cluster.local:5000' || '' }}
       ghcr-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://registry-mirror-ghcr.registry-mirror.svc.cluster.local:5000' || '' }}
       npm-registry: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://verdaccio.verdaccio.svc.cluster.local:4873' || '' }}
@@ -196,7 +196,7 @@ jobs:
         ${{ needs.determine-tag.outputs.sha_tag }}
       network: "host"
       runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
-      runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
+      runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless-arm' || 'ubuntu-24.04-arm' }}
       docker-hub-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://registry-mirror.registry-mirror.svc.cluster.local:5000' || '' }}
       ghcr-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://registry-mirror-ghcr.registry-mirror.svc.cluster.local:5000' || '' }}
       npm-registry: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://verdaccio.verdaccio.svc.cluster.local:4873' || '' }}
