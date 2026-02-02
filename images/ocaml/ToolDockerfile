@@ -18,10 +18,9 @@ FROM ubuntu:24.04 AS apt-deps
 WORKDIR /home/theia
 
 # Create theia user and directories
-RUN adduser --system --group theia --uid 101 && \
+RUN useradd --system --create-home --user-group --uid 101 theia && \
     chmod g+rw /home && \
-    mkdir -p /home/theia /home/project && \
-    chown -R theia:theia /home/theia && \
+    mkdir -p /home/project && \
     chown -R theia:theia /home/project
 
 ENV HOME=/home/theia

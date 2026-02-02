@@ -18,10 +18,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     curl adduser build-essential bash git ca-certificates
 
 # Create theia user and directories (after adduser is installed)
-RUN adduser --system --group theia --uid 101 && \
+RUN useradd --system --create-home --user-group --uid 101 theia && \
     chmod g+rw /home && \
-    mkdir -p /home/theia /home/project && \
-    chown -R theia:theia /home/theia && \
+    mkdir -p /home/project && \
     chown -R theia:theia /home/project
 
 # Parallel stage: Plugin download (runs concurrently with apt-deps)

@@ -90,10 +90,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Create theia user and directories
 # Application will be copied to /home/theia
 # Default workspace is located at /home/project
-RUN adduser --system --group theia --uid 1001 && \
+RUN useradd --system --create-home --user-group --uid 1001 theia && \
     chmod g+rw /home && \
-    mkdir -p /home/theia /home/project && \
-    chown -R theia:theia /home/theia && \
+    mkdir -p /home/project && \
     chown -R theia:theia /home/project
 
 ENV HOME=/home/theia
