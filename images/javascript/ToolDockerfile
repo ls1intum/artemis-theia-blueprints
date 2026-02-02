@@ -62,6 +62,10 @@ RUN yarn download:plugins
 # Final stage: Assemble the application
 FROM apt-deps AS final-ide
 
+# Copy Node.js from plugin-image (required for Theia runtime)
+COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
+COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
+
 # Switch to Theia user
 USER theia
 ENV HOME=/home/theia

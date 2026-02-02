@@ -22,7 +22,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get install -y --no-install-recommends \
     wget apt-transport-https bash ca-certificates curl gcc g++ make xz-utils \
     zlib1g-dev git gnupg netbase libffi-dev libgmp-dev libgmp10 \
-    libncurses-dev libncurses5 libtinfo5 perl tar llvm libnuma-dev
+    libncurses-dev libncurses6 libtinfo6 perl tar llvm libnuma-dev
 
 # Install Haskell Stack (system-wide, before switching to theia user)
 RUN bash -c "curl -sSL https://get.haskellstack.org/ | sh"
@@ -67,6 +67,10 @@ RUN yarn download:plugins
 
 # Final stage: Assemble the application
 FROM apt-deps AS final-ide
+
+# Copy Node.js from plugin-image (required for Theia runtime)
+COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
+COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
 
 ENV HOME=/home/theia
 WORKDIR /home/theia
