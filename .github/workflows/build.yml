@@ -15,38 +15,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Check if base-ide related files have changed
-  check-base-changes:
-    runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
-    outputs:
-      base-changed: ${{ steps.filter.outputs.base }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check for base-ide changes
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            base:
-              - 'images/base-ide/**'
-              - 'package.json'
-              - 'yarn.lock'
-              - 'lerna.json'
-              - 'applications/browser/package.json'
-              - 'applications/browser/**/*.ts'
-              - 'applications/browser/**/*.tsx'
-              - 'theia-extensions/product/package.json'
-              - 'theia-extensions/product/**/*.ts'
-              - 'theia-extensions/product/**/*.tsx'
-              - 'configs/**'
-              - 'scripts/**'
-              - 'tsconfig.json'
-
   determine-tag:
     runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
-    needs: check-base-changes
     outputs:
       base_tag: ${{ steps.set-tag.outputs.base_tag }}
       sha_tag: ${{ steps.set-tag.outputs.sha_tag }}
@@ -80,13 +50,7 @@ jobs:
           echo "cache_tag=${CACHE_TAG}" >> "$GITHUB_OUTPUT"
 
   build-and-push-base:
-    needs:
-      - determine-tag
-      - check-base-changes
-    if: |
-      needs.check-base-changes.outputs.base-changed == 'true' || 
-      github.event_name == 'workflow_dispatch' ||
-      github.ref == 'refs/heads/master'
+    needs: determine-tag
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
     with:
       docker-file: images/base-ide/BaseDockerfile
@@ -107,61 +71,10 @@ jobs:
       cache-to: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/ls1intum/theia/base:{0},mode=max', needs.determine-tag.outputs.cache_tag) || '' }}
     secrets: inherit
 
-  determine-tool-tag:
-    runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
-    needs:
-      - determine-tag
-      - build-and-push-base
-      - check-base-changes
-    # Always run this job, even if build-and-push-base was skipped
-    if: always()
-    outputs:
-      base_tag_for_tools: ${{ steps.set-tool-tag.outputs.base_tag_for_tools }}
-    steps:
-      - name: Determine base tag for tool images
-        id: set-tool-tag
-        run: |
-          BASE_TAG="${{ needs.determine-tag.outputs.base_tag }}"
-          
-          # If base was built and pushed, use the PR/branch tag
-          if [[ "${{ needs.build-and-push-base.result }}" == "success" ]]; then
-            echo "✅ Base image was built and pushed, tool images will use: ${BASE_TAG}"
-            echo "base_tag_for_tools=${BASE_TAG}" >> "$GITHUB_OUTPUT"
-          # If base build was skipped but base was changed, check registry
-          elif [[ "${{ needs.check-base-changes.outputs.base-changed }}" == "true" ]] && [[ "${{ needs.build-and-push-base.result }}" == "skipped" ]]; then
-            # This shouldn't happen due to workflow conditions, but handle it safely
-            echo "⚠️ Base changed but build was skipped - checking registry"
-            if docker manifest inspect ghcr.io/ls1intum/theia/base:${BASE_TAG} > /dev/null 2>&1; then
-              echo "✅ Tag ${BASE_TAG} exists in registry"
-              echo "base_tag_for_tools=${BASE_TAG}" >> "$GITHUB_OUTPUT"
-            else
-              echo "⚠️ Tag ${BASE_TAG} not found, falling back to latest"
-              echo "base_tag_for_tools=latest" >> "$GITHUB_OUTPUT"
-            fi
-          # Base was not changed, check if tag exists in registry
-          else
-            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-              # For PRs where base didn't change, check registry
-              if docker manifest inspect ghcr.io/ls1intum/theia/base:${BASE_TAG} > /dev/null 2>&1; then
-                echo "✅ PR tag ${BASE_TAG} exists in registry (from previous build)"
-                echo "base_tag_for_tools=${BASE_TAG}" >> "$GITHUB_OUTPUT"
-              else
-                echo "ℹ️ Base unchanged and PR tag not in registry, using latest"
-                echo "base_tag_for_tools=latest" >> "$GITHUB_OUTPUT"
-              fi
-            else
-              # For master/main or branches, use the determined tag
-              echo "ℹ️ Base unchanged, using tag: ${BASE_TAG}"
-              echo "base_tag_for_tools=${BASE_TAG}" >> "$GITHUB_OUTPUT"
-            fi
-          fi
-
   build-and-push:
     needs:
       - determine-tag
-      - determine-tool-tag
-    # Always run tool builds even if base was skipped (conditional builds)
-    if: always() && needs.determine-tool-tag.result == 'success'
+      - build-and-push-base
     strategy:
       fail-fast: false
       matrix:
@@ -194,7 +107,7 @@ jobs:
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
       build-args: |
-        BASE_IDE_TAG=${{ needs.determine-tool-tag.outputs.base_tag_for_tools }}
+        BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
       tags: |
         ${{ needs.determine-tag.outputs.base_tag }}
         ${{ needs.determine-tag.outputs.sha_tag }}
