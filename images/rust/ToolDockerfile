@@ -1,10 +1,31 @@
+# syntax=docker/dockerfile:1
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
 ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
 FROM ${BASE_IMAGE} AS base-ide
 
-# Load the plugin image, only copy from here
-FROM node:22-bullseye AS plugin-image
+# Parallel stage: Install system dependencies (runs concurrently with plugin-image)
+FROM ubuntu:24.04 AS apt-deps
+
+WORKDIR /home/theia
+
+# Install all system dependencies with BuildKit cache mounts (including adduser)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && \
+    apt-get upgrade -y --autoremove && \
+    apt-get install -y --no-install-recommends \
+    curl adduser build-essential bash git ca-certificates
+
+# Create theia user and directories (after adduser is installed)
+RUN adduser --system --group theia --uid 101 && \
+    chmod g+rw /home && \
+    mkdir -p /home/project && \
+    chown -R theia:theia /home/theia && \
+    chown -R theia:theia /home/project
+
+# Parallel stage: Plugin download (runs concurrently with apt-deps)
+FROM node:22-bullseye-slim AS plugin-image
 
 WORKDIR /home/theia
 
@@ -23,74 +44,37 @@ COPY --from=base-ide /home/theia/package.json ./package.json.base
 COPY images/rust/package.json.patch ./package.json.patch
 
 # Merge the base package.json with the rust-specific patch using jq
-RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json
-RUN rm package.json.base package.json.patch
+RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json && \
+    rm package.json.base package.json.patch
 
-# Copy scripts and dependencies from base-ide needed for yarn commands
+# Copy from base-ide: scripts, configs, existing plugins, and production node_modules
 COPY --from=base-ide /home/theia/scripts /home/theia/scripts
 COPY --from=base-ide /home/theia/configs /home/theia/configs
 COPY --from=base-ide /home/theia/tsconfig.json /home/theia/tsconfig.json
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
+COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 
-# Remove unnecessary files for the browser application
-# Download plugins and build application production mode
-# Use yarn autoclean to remove unnecessary files from package dependencies
+# Install ONLY @theia/cli (needed for download:plugins command)
 ARG NPM_REGISTRY
 RUN if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi \
-    && yarn --pure-lockfile --network-timeout 1000000 && \
-    yarn download:plugins
+    && yarn add -W @theia/cli@1.62.2 --network-timeout 1000000
 
-# Assemble the application
-FROM ubuntu:24.04 AS final-ide
+# Download language-specific plugins
+RUN yarn download:plugins
 
-WORKDIR /home/theia
+# Final stage: Assemble the application
+FROM apt-deps AS final-ide
 
-# Copy node from plugin-image as it is required for Theia 
+# Copy node binary from plugin-image (required for Theia runtime)
 COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
-COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
-COPY --from=plugin-image /usr/local/lib/node_modules/ /home/theia/node_modules/
-COPY --from=plugin-image /home/theia/node_modules/ /home/theia/node_modules/
-
-# Make sure all sources are up to date
-ARG APT_HTTP_PROXY
-RUN if [ -n "$APT_HTTP_PROXY" ]; then \
-      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
-    fi \
-    && apt update && \
-    apt upgrade -y --autoremove && \
-    apt install -y --no-install-recommends \
-    curl adduser build-essential && \
-    apt clean && rm -rf /var/lib/apt/lists/*
-
-# Create theia user and directories
-# Application will be copied to /home/theia
-# Default workspace is located at /home/project
-RUN adduser --system --group theia --uid 101
-RUN chmod g+rw /home && \
-    mkdir -p /home/project && \
-    chown -R theia:theia /home/theia && \
-    chown -R theia:theia /home/project
-
-# Install required tools for terminal usage inside the IDE
-ARG APT_HTTP_PROXY
-RUN if [ -n "$APT_HTTP_PROXY" ]; then \
-      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
-    fi \
-    && apt-get update && \
-    apt-get install -y --no-install-recommends bash zsh curl git ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/home/theia
 WORKDIR /home/theia
 
-# Copy application from builder-stage
+# Copy application from base-ide (includes prod node_modules)
 COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 
-# Copy additional plugins
+# Copy additional plugins (language-specific extensions)
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
 # Copy project settings (includes .theia/settings.json with file exclusions)
@@ -99,7 +83,7 @@ COPY images/rust/project /home/project
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
-ENV SHELL=/bin/zsh \
+ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
@@ -107,14 +91,6 @@ ENV USE_LOCAL_GIT=true
 
 # Switch to Theia user
 USER theia
-
-# Install Oh My Zsh and plugins with pinned versions
-RUN git clone --depth 1 --branch master https://github.com/ohmyzsh/ohmyzsh.git ${HOME}/.oh-my-zsh && \
-    git clone --depth 1 --branch v0.7.1 https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
-    git clone --depth 1 --branch 0.8.0 https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-
-# Copy centralized zsh configuration
-COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
 
 # Install Rust with minimal profile and cleanup
 # Replace bundled rust-analyzer server with rustup version to ensure
@@ -135,7 +111,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs --output rust.sh \
 ENV PATH=/home/theia/.cargo/bin:$PATH
 
 # Ensure the environment is set correctly when switching to the user "theia"
-RUN echo 'source $HOME/.cargo/env' >> /home/theia/.zshrc
+RUN echo 'source $HOME/.cargo/env' >> /home/theia/.bashrc
 
 WORKDIR /home/theia/applications/browser
 
