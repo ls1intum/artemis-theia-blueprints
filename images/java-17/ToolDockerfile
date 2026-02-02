@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+# Performance Test #4: ARC runners with pull-through caches only (no registry cache)
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
 ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
