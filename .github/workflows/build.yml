@@ -19,6 +19,9 @@ jobs:
       base_tag: ${{ steps.set-tag.outputs.base_tag }}
       base_tag_for_tools: ${{ steps.set-tag.outputs.base_tag_for_tools }}
     steps:
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      
       - name: Set BASE_IDE_TAG with smart fallback
         id: set-tag
         run: |

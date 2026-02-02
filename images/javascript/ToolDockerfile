@@ -38,7 +38,7 @@ COPY --from=base-ide /home/theia/package.json ./package.json.base
 COPY images/javascript/package.json.patch ./package.json.patch
 
 # Merge the base package.json with the javascript-specific patch using jq
-RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json && \
+RUN jq -s '.[0] * .[1]' package.json.base package.json.patch > package.json && \
     rm package.json.base package.json.patch
 
 # Copy from base-ide: scripts, configs, existing plugins, and production node_modules
@@ -70,7 +70,7 @@ COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plu
 
 # Copy the project configuration files
 COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
-COPY images/javascript/project /home/project
+COPY --chown=theia:theia images/javascript/project /home/project
 
 EXPOSE 3000
 

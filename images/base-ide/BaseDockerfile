@@ -33,7 +33,7 @@ RUN yarn config set network-timeout 600000 -g \
 # This step relies on package.json and scripts/, so it can be cached before source code changes
 RUN yarn download:plugins
 
-# Build the browser application and download plugins
+# Build the browser application (plugins already downloaded in install-deps)
 FROM install-deps AS build-stage
 
 # Include the full repository for building
