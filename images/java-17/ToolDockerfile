@@ -10,7 +10,7 @@ FROM node:22-bullseye-slim AS apt-deps
 # Create theia user and directories first (doesn't need apt)
 RUN adduser --system --group theia --uid 101 && \
     chmod g+rw /home && \
-    mkdir -p /home/project && \
+    mkdir -p /home/theia /home/project && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 

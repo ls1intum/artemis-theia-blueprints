@@ -12,7 +12,7 @@ WORKDIR /home/theia
 # Create theia user and directories
 RUN adduser --system --group theia --uid 101 && \
     chmod g+rw /home && \
-    mkdir -p /home/project && \
+    mkdir -p /home/theia /home/project && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
