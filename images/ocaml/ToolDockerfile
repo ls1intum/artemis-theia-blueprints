@@ -42,7 +42,11 @@ WORKDIR /home/theia
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Install jq for JSON merging
-RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+    fi \
+    && apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
 
 # Copy required configuration files
 COPY --from=base-ide /home/theia/package.json ./package.json.base
@@ -60,7 +64,9 @@ COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 
 # Install ONLY @theia/cli (needed for download:plugins command)
-RUN yarn add -W @theia/cli@1.62.2 --network-timeout 1000000
+ARG NPM_REGISTRY
+RUN if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi \
+    && yarn add -W @theia/cli@1.62.2 --network-timeout 1000000
 
 # Download language-specific plugins
 RUN yarn download:plugins
