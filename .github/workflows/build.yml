@@ -56,6 +56,9 @@ jobs:
         id: set-tag
         run: |
           SHORT_SHA=$(git rev-parse --short=7 HEAD)
+          REF_NAME="${{ github.ref_name }}"
+          # Sanitize ref name for Docker tag compatibility (lowercase, replace invalid chars with -)
+          SAFE_REF_NAME=$(echo "$REF_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
           
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             BASE_TAG="pr-${{ github.event.pull_request.number }}"
@@ -76,8 +79,8 @@ jobs:
             echo "base_tag_for_tools=latest" >> "$GITHUB_OUTPUT"
           else
             # For workflow_dispatch or push on feature branches
-            BASE_TAG="${{ github.ref_name }}"
-            CACHE_TAG="build-cache-${{ github.ref_name }}"
+            BASE_TAG="${SAFE_REF_NAME}"
+            CACHE_TAG="build-cache-${SAFE_REF_NAME}"
             echo "base_tag_for_tools=${BASE_TAG}" >> "$GITHUB_OUTPUT"
           fi
           
