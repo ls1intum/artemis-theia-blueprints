@@ -93,6 +93,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 RUN useradd --system --create-home --user-group --uid 1001 theia && \
     chmod g+rw /home && \
     mkdir -p /home/project && \
+    chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
 ENV HOME=/home/theia

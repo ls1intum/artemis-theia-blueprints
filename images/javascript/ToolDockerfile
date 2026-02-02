@@ -13,6 +13,7 @@ WORKDIR /home/theia
 RUN useradd --system --create-home --user-group --uid 101 theia && \
     chmod g+rw /home && \
     mkdir -p /home/project && \
+    chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
 # Install all system dependencies with BuildKit cache mounts

@@ -11,6 +11,7 @@ FROM ubuntu:24.04 AS apt-deps
 RUN useradd --system --create-home --user-group --uid 101 theia && \
     chmod g+rw /home && \
     mkdir -p /home/project && \
+    chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
 # Install required tools with BuildKit cache mounts
