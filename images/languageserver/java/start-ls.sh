@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e
 
-# Use standard port, configurable via env
+# Use standard port and workspace path, configurable via env
 SERVER_PORT=${LS_PORT:-5000}
+WORKSPACE=${WORKSPACE_PATH:-/home/project}
 
 LAUNCHER_JAR=$(find /opt/jdt-ls/plugins -name "org.eclipse.equinox.launcher_*.jar" | head -n 1)
 
@@ -24,10 +25,10 @@ exec java \
   --add-opens=java.base/java.lang=ALL-UNNAMED \
   -jar "${LAUNCHER_JAR}" \
   -configuration /opt/jdt-ls/config_linux \
-  -data /opt/workspace
+  -data ${WORKSPACE}
 EOF
 
 chmod +x /tmp/run-jdt.sh
 
-echo "[LS-JAVA] Starting Java Language Server on port ${SERVER_PORT}"
+echo "[LS-JAVA] Starting Java Language Server on port ${SERVER_PORT} with workspace ${WORKSPACE}"
 exec socat TCP-LISTEN:${SERVER_PORT},reuseaddr,fork EXEC:/tmp/run-jdt.sh
