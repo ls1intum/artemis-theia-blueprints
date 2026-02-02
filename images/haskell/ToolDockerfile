@@ -41,7 +41,7 @@ ARG APT_HTTP_PROXY
 RUN if [ -n "$APT_HTTP_PROXY" ]; then \
       echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
     fi \
-    && apt-get update && apt-get install -y --no-install-recommends jq python3 make g++ && rm -rf /var/lib/apt/lists/*
+    && apt-get update && apt-get install -y --no-install-recommends jq python3 make g++ liblzma-dev && rm -rf /var/lib/apt/lists/*
 
 # Copy required configuration files
 COPY --from=base-ide /home/theia/package.json ./package.json.base
