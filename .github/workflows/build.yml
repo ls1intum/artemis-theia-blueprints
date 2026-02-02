@@ -67,8 +67,8 @@ jobs:
       npm-registry: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://verdaccio.verdaccio.svc.cluster.local:4873' || '' }}
       apt-proxy: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://apt-cacher-ng.apt-cacher-ng.svc.cluster.local:3142' || '' }}
       https-proxy: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://squid.squid.svc.cluster.local:3129' || '' }}
-      cache-from: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/ls1intum/theia/base:{0}{1}type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache{1}', needs.determine-tag.outputs.cache_tag, '\n') || '' }}
-      cache-to: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/ls1intum/theia/base:{0},mode=max', needs.determine-tag.outputs.cache_tag) || '' }}
+      cache-from: ''
+      cache-to: ''
     secrets: inherit
 
   build-and-push:
@@ -119,6 +119,6 @@ jobs:
       npm-registry: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://verdaccio.verdaccio.svc.cluster.local:4873' || '' }}
       apt-proxy: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://apt-cacher-ng.apt-cacher-ng.svc.cluster.local:3142' || '' }}
       https-proxy: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://squid.squid.svc.cluster.local:3129' || '' }}
-      cache-from: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/{0}:{1}{2}type=registry,ref=ghcr.io/{0}:build-cache{2}', matrix.image-name, needs.determine-tag.outputs.cache_tag, '\n') || '' }}
-      cache-to: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/{0}:{1},mode=max', matrix.image-name, needs.determine-tag.outputs.cache_tag) || '' }}
+      cache-from: ''
+      cache-to: ''
     secrets: inherit
