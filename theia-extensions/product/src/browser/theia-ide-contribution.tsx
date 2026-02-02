@@ -20,7 +20,6 @@ import { OutlineViewContribution } from '@theia/outline-view/lib/browser/outline
 import { OutlineViewService } from '@theia/outline-view/lib/browser/outline-view-service';
 import { OutlineBreadcrumbsContribution } from '@theia/outline-view/lib/browser/outline-breadcrumbs-contribution';
 import { VSXExtensionsContribution } from '@theia/vsx-registry/lib/browser/vsx-extensions-contribution';
-import { ScmContribution } from '@theia/scm/lib/browser/scm-contribution';
 
 export namespace TheiaIDEMenus {
     export const THEIA_IDE_HELP: MenuPath = [...CommonMenus.HELP, 'theia-ide'];
@@ -47,19 +46,15 @@ export class ViewsFilter implements FilterContribution {
         OutlineViewContribution,
         OutlineBreadcrumbsContribution,
         VSXExtensionsContribution,
-        ScmContribution
     ]);
 
     private static readonly FILTERED_WIDGET_IDS = new Set<string>([
         'outline-view',
         'vsx-extensions-view-container',
-        'scm-view-container'
     ]);
 
     registerContributionFilters(registry: ContributionFilterRegistry): void {
-        const filter = (contrib: Object) => {
-            return !ViewsFilter.FILTERED_CONTRIBUTIONS.has(contrib.constructor);
-        };
+        const filter = (contrib: Object) => !ViewsFilter.FILTERED_CONTRIBUTIONS.has(contrib.constructor);
 
         // Filter contributions - must specify exact types since '*' doesn't always work
         registry.addFilters([CommandContribution], [filter]);
@@ -88,8 +83,6 @@ export class DisabledFeaturesContribution implements FrontendApplicationContribu
     private static readonly DISABLED_WIDGET_IDS = new Set<string>([
         'outline-view',
         'vsx-extensions-view-container',
-        'scm-view-container',
-        'scm-view'
     ]);
 
     constructor(
@@ -123,7 +116,6 @@ export class TheiaIDEContribution implements CommandContribution, MenuContributi
     protected readonly windowService: WindowService;
 
     static REPORT_ISSUE_URL = 'https://github.com/ls1intum/artemis-theia-blueprints/issues';
-
 
     registerCommands(commandRegistry: CommandRegistry): void {
         commandRegistry.registerCommand(TheiaIDECommands.REPORT_ISSUE, {
