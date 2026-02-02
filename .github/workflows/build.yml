@@ -13,7 +13,7 @@ on:
 jobs:
   # Check if base-ide related files have changed
   check-base-changes:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
     outputs:
       base-changed: ${{ steps.filter.outputs.base }}
     steps:
@@ -41,7 +41,7 @@ jobs:
               - 'tsconfig.json'
 
   determine-tag:
-    runs-on: arc-runner-set-stateless
+    runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
     needs: check-base-changes
     outputs:
       base_tag: ${{ steps.set-tag.outputs.base_tag }}
