@@ -13,28 +13,41 @@ on:
 jobs:
   # Determine base tag (pr-<nr> or latest)
   determine-tag:
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set-stateless
     outputs:
       base_tag: ${{ steps.set-tag.outputs.base_tag }}
+      sha_tag: ${{ steps.set-tag.outputs.sha_tag }}
     steps:
+      - name: Checkout for SHA access
+        uses: actions/checkout@v4
+
       - name: Set BASE_IDE_TAG
         id: set-tag
         run: |
+          SHORT_SHA=$(git rev-parse --short=7 HEAD)
+          
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "base_tag=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+            BASE_TAG="pr-${{ github.event.pull_request.number }}"
           else
-            echo "base_tag=latest" >> "$GITHUB_OUTPUT"
+            BASE_TAG="latest"
           fi
+          
+          echo "base_tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "sha_tag=${BASE_TAG}-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
 
   build-and-push-base:
     needs: determine-tag
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
     with:
       docker-file: images/base-ide/BaseDockerfile
-      image-name: ghcr.io/ls1intum/theia/base
+      image-name: ls1intum/theia/base
       docker-context: .
-      tags: ${{ needs.determine-tag.outputs.base_tag }}
+      tags: |
+        ${{ needs.determine-tag.outputs.base_tag }}
+        ${{ needs.determine-tag.outputs.sha_tag }}
       network: "host"
+      runner-amd64: arc-runner-set-stateless
+      runner-arm64: arc-runner-set-stateless-arm
     secrets: inherit
 
   build-and-push:
@@ -47,39 +60,37 @@ jobs:
         include:
           - docker-file: images/c/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/c
+            image-name: ls1intum/theia/c
           - docker-file: images/haskell/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/haskell
+            image-name: ls1intum/theia/haskell
           - docker-file: images/java-17/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/java-17
+            image-name: ls1intum/theia/java-17
           - docker-file: images/javascript/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/javascript
+            image-name: ls1intum/theia/javascript
           - docker-file: images/ocaml/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/ocaml
+            image-name: ls1intum/theia/ocaml
           - docker-file: images/python/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/python
+            image-name: ls1intum/theia/python
           - docker-file: images/rust/ToolDockerfile
             docker-context: "."
-            image-name: ghcr.io/ls1intum/theia/rust
-          # - docker-file: images/swift/ToolDockerfile
-          #   docker-context: '.'
-          #   image-name: ghcr.io/ls1intum/theia/swift
-          #   build-args: |
-          #     "BUILDER_IMAGE=swift:5.9.2-focal"
-          #     "RUNTIME_IMAGE=swift:5.9.2-focal"
-          #     "SWIFTLINT_VERSION=0.54.0"
+            image-name: ls1intum/theia/rust
 
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
     with:
       docker-file: ${{ matrix.docker-file }}
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
       build-args: |
         BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
+      tags: |
+        ${{ needs.determine-tag.outputs.base_tag }}
+        ${{ needs.determine-tag.outputs.sha_tag }}
       network: "host"
+      runner-amd64: arc-runner-set-stateless
+      runner-arm64: arc-runner-set-stateless-arm
     secrets: inherit
