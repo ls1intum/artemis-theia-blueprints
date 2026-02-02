@@ -9,6 +9,14 @@ FROM ubuntu:20.04 AS apt-deps
 
 WORKDIR /home/theia
 
+# Configure APT proxy if provided
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
+    fi
+
 # Install all system dependencies with BuildKit cache mounts (including adduser)
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \

@@ -16,6 +16,14 @@ RUN useradd --system --create-home --user-group --uid 101 theia && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
+# Configure APT proxy if provided
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
+    fi
+
 # Install all system dependencies with BuildKit cache mounts
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \

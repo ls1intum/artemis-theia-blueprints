@@ -43,6 +43,14 @@ RUN yarn download:plugins
 # Adapted from https://github.com/ls1intum/artemis-swift-swiftlint-docker/blob/main/Dockerfile
 FROM ${BUILDER_IMAGE} AS builder
 
+# Configure APT proxy if provided
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
+    fi
+
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y \
@@ -69,6 +77,14 @@ WORKDIR /home/theia
 
 # Copy node from plugin-image as it is required for Theia
 COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
+
+# Configure APT proxy if provided
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
+    fi
 
 # Required by Swift with BuildKit cache
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
