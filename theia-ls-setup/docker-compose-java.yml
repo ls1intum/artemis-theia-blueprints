@@ -10,13 +10,14 @@ services:
       - app-net
     environment:
       - LS_JAVA_HOST=java-language-server
-      - LS_JAVA_PORT=5556
+      - LS_JAVA_PORT=5000
 
   java-ls:
     image: ghcr.io/ls1intum/theia/langserver-java:latest
     container_name: java-language-server
     environment:
-      - SERVER_PORT=5556
+      - LS_PORT=5000
+      - WORKSPACE_PATH=/home/project
     volumes:
       - project-data:/home/project
     networks:
