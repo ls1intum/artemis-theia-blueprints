@@ -146,3 +146,4 @@ docker run -p=3000:3000 --rm theia-ide
 ```
 
 and connect to <http://localhost:3000/>
+
