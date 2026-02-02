@@ -21,7 +21,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Create theia user and directories (after adduser is installed)
 RUN adduser --system --group theia --uid 101 && \
     chmod g+rw /home && \
-    mkdir -p /home/project && \
+    mkdir -p /home/theia /home/project && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
