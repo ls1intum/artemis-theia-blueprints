@@ -17,13 +17,15 @@ RUN useradd --system --create-home --user-group --uid 101 theia && \
     chown -R theia:theia /home/project
 
 # Install all system dependencies with BuildKit cache mounts
+# Note: GHC 9.6 (LTS 22) supports LLVM 14-15
+# Ubuntu 24.04 provides LLVM 14-20, we use LLVM 14 for compatibility
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && \
     apt-get install -y --no-install-recommends \
     wget apt-transport-https bash ca-certificates curl gcc g++ make xz-utils \
     zlib1g-dev git gnupg netbase libffi-dev libgmp-dev libgmp10 \
-    libncurses-dev libncurses6 libtinfo6 perl tar llvm libnuma-dev
+    libncurses-dev libncurses6 libtinfo6 perl tar llvm-14 llvm-14-dev llvm-14-runtime libnuma-dev
 
 # Install Haskell Stack (system-wide, before switching to theia user)
 RUN bash -c "curl -sSL https://get.haskellstack.org/ | sh"
@@ -80,6 +82,8 @@ COPY --chown=theia:theia images/haskell/project /home/project
 
 # Install and configure Haskell Stack
 ENV STACK_ROOT=/stack_cache
+# Point GHC to LLVM 12 tools (compatible with GHC 9.0.2)
+ENV PATH="/usr/lib/llvm-12/bin:${PATH}"
 RUN mkdir -p $STACK_ROOT
 COPY images/haskell/stack-config/config.yaml $STACK_ROOT/config.yaml
 COPY images/haskell/stack-config/global-project/stack.yaml $STACK_ROOT/global-project/stack.yaml
