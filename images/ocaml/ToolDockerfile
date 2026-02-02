@@ -53,7 +53,7 @@ COPY --from=base-ide /home/theia/package.json ./package.json.base
 COPY images/ocaml/package.json.patch ./package.json.patch
 
 # Merge the base package.json with the ocaml-specific patch using jq
-RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json && \
+RUN jq -s '.[0] * .[1]' package.json.base package.json.patch > package.json && \
     rm package.json.base package.json.patch
 
 # Copy from base-ide: scripts, configs, existing plugins, and production node_modules
@@ -100,7 +100,7 @@ COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
 # Copy project settings (includes .theia/settings.json with file exclusions)
-COPY images/ocaml/project /home/project
+COPY --chown=theia:theia images/ocaml/project /home/project
 
 EXPOSE 3000
 
