@@ -23,7 +23,7 @@ import { CommandRegistry, environment, isOSX, nls } from "@theia/core";
 const CommandIds = {
   OpenExplorer: 'workbench.view.explorer',
   OpenScm: 'scmView:toggle',
-  ToggleTerminal: 'workbench.action.terminal.toggleTerminal',
+  ToggleTerminal: 'terminal:new',
   OpenScorpioSidebar: 'artemis-sidebar.focus',
   ScorpioSidebarToggleVisibility: 'plugin-view-container:workbench.view.extension.artemis-sidebar-view:toggle-visibility',
 } as const;
@@ -36,7 +36,7 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
 
   @inject(CommandRegistry)
   protected readonly commandRegistry: CommandRegistry;
-  
+
 
   protected async doInit(): Promise<void> {
     super.doInit();
@@ -111,16 +111,7 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
               tabIndex={0}
               onClick={this.doOpenScorpio}
               onKeyDown={this.doOpenScorpioEnter}>
-              {nls.localizeByDefault('Open Exercise')}
-          </a>
-      </div>;
-      const openFileExplorer = requireSingleOpen && <div className='gs-action-container'>
-          <a
-              role={'button'}
-              tabIndex={0}
-              onClick={this.doOpenExplorer}
-              onKeyDown={this.doOpenExplorerEnter}>
-              {nls.localizeByDefault('Open Exercise Files')}
+              {nls.localizeByDefault('Open Problem Statement')}
           </a>
       </div>;
       const openSourceControl = requireSingleOpen && <div className='gs-action-container'>
@@ -129,37 +120,26 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
               tabIndex={0}
               onClick={this.doOpenScm}
               onKeyDown={this.doOpenScmEnter}>
-              {nls.localizeByDefault('Open Source Control View')}
+              {nls.localizeByDefault('Open Version Control')}
           </a>
       </div>;
       const showAllTerminals = requireSingleOpen && <div className='gs-action-container'>
           <a
               role={'button'}
               tabIndex={0}
-              onClick={this.doToggleTerminals}
-              onKeyDown={this.doToggleTerminalsEnter}>
-              {nls.localizeByDefault('Open Terminal View')}
+              onClick={this.doOpenTerminal}
+              onKeyDown={this.doOpenTerminalEnter}>
+              {nls.localizeByDefault('Open new Terminal')}
           </a>
       </div>;
 
       return <div className='gs-section'>
           <h3 className='gs-section-header'><i className={codicon('folder-opened')}></i>{nls.localizeByDefault('Start')}</h3>
           {this.isScorpioExtensionInstalled && openScorpio}
-          {openFileExplorer}
           {openSourceControl}
           {showAllTerminals}
       </div>
   }
-
-  /**
-  * Trigger the view explorer command.
-  */
-  protected doOpenExplorer = () => this.commandRegistry.executeCommand(CommandIds.OpenExplorer);
-  protected doOpenExplorerEnter = (e: React.KeyboardEvent) => {
-      if (this.isEnterKey(e)) {
-          this.doOpenExplorer();
-      }
-  };
 
   /**
   * Trigger the view source control manager command.
@@ -172,12 +152,12 @@ export class TheiaIDEGettingStartedWidget extends GettingStartedWidget {
   };
 
   /**
-  * Trigger the toggle terminal command.
+  * Trigger the open terminal command.
   */
-  protected doToggleTerminals = () => this.commandRegistry.executeCommand(CommandIds.ToggleTerminal);
-  protected doToggleTerminalsEnter = (e: React.KeyboardEvent) => {
+  protected doOpenTerminal = () => this.commandRegistry.executeCommand(CommandIds.ToggleTerminal);
+  protected doOpenTerminalEnter = (e: React.KeyboardEvent) => {
       if (this.isEnterKey(e)) {
-          this.doToggleTerminals();
+          this.doOpenTerminal();
       }
   }
 

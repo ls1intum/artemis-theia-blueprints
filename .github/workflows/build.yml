@@ -15,6 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Determine base tag (pr-<nr>, release version, or latest)
   determine-tag:
     runs-on: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-latest' }}
     outputs:
@@ -36,6 +37,9 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             BASE_TAG="pr-${{ github.event.pull_request.number }}"
             CACHE_TAG="build-cache-pr-${{ github.event.pull_request.number }}"
+          elif [[ "${{ github.event_name }}" == "release" ]]; then
+            BASE_TAG="${{ github.ref_name }}"
+            CACHE_TAG="build-cache-${SAFE_REF_NAME}"
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             BASE_TAG="latest"
             CACHE_TAG="build-cache"
