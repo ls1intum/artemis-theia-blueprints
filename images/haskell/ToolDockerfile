@@ -41,12 +41,11 @@ RUN rm -f /etc/apt/apt.conf.d/01proxy
 # Install Haskell Stack with pinned version and SHA256 verification
 ARG STACK_VERSION=3.1.1
 RUN curl -sSL "https://github.com/commercialhaskell/stack/releases/download/v${STACK_VERSION}/stack-${STACK_VERSION}-linux-x86_64.tar.gz" -o stack.tar.gz && \
-    curl -sSL "https://github.com/commercialhaskell/stack/releases/download/v${STACK_VERSION}/stack-${STACK_VERSION}-linux-x86_64.tar.gz.sha256" -o stack.tar.gz.sha256 && \
-    sha256sum -c stack.tar.gz.sha256 && \
+    echo "d096125ea3d987a55d17f7d4f8599ee2fd96bd2d0f033566e28ddfe248f730f9  stack.tar.gz" | sha256sum -c && \
     tar xzf stack.tar.gz && \
     cp stack-${STACK_VERSION}-linux-x86_64/stack /usr/local/bin/stack && \
     chmod +x /usr/local/bin/stack && \
-    rm -rf stack.tar.gz stack.tar.gz.sha256 stack-${STACK_VERSION}-linux-x86_64
+    rm -rf stack.tar.gz stack-${STACK_VERSION}-linux-x86_64
 
 # Parallel stage: Plugin download (runs concurrently with apt-deps)
 FROM node:22-bullseye AS plugin-image
