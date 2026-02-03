@@ -25,6 +25,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get install -y --no-install-recommends \
     curl adduser build-essential bash git ca-certificates
 
+# Clean up APT proxy config if it was set
+RUN rm -f /etc/apt/apt.conf.d/01proxy
+
 # Create theia user and directories (after adduser is installed)
 RUN useradd --system --create-home --user-group --uid 101 theia && \
     chmod g+rw /home && \

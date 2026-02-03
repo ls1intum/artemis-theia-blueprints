@@ -26,6 +26,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get install -y --no-install-recommends \
     adduser findutils bzip2 e2fsprogs sudo bash gcc clang clangd git gdb make ca-certificates
 
+# Clean up APT proxy config if it was set
+RUN rm -f /etc/apt/apt.conf.d/01proxy
+
 # Create theia user and directories (after adduser is installed)
 RUN useradd --system --create-home --user-group --uid 101 theia && \
     chmod g+rw /home && \

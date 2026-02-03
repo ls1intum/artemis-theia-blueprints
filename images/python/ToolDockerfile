@@ -26,6 +26,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     adduser python3 python3-pip bash git python-is-python3 ca-certificates && \
     pip3 install -U pytest
 
+# Clean up APT proxy config if it was set
+RUN rm -f /etc/apt/apt.conf.d/01proxy
+
 # Create theia user and directories (after adduser is installed)
 RUN useradd --system --create-home --user-group --uid 101 theia && \
     chmod g+rw /home && \

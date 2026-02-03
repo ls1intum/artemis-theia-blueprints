@@ -96,6 +96,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     bash \
     ca-certificates
 
+# Clean up APT proxy config if it was set
+RUN rm -f /etc/apt/apt.conf.d/01proxy
+
 # Create theia user and directories
 # Application will be copied to /home/theia
 # Default workspace is located at /home/project
