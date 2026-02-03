@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Determine base tag (pr-<nr> or latest)
+  # Determine base tag (pr-<nr>, release version, or latest)
   determine-tag:
     runs-on: ubuntu-latest
     outputs:
@@ -22,6 +22,8 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "base_tag=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "base_tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           else
             echo "base_tag=latest" >> "$GITHUB_OUTPUT"
           fi
@@ -81,5 +83,6 @@ jobs:
       docker-context: ${{ matrix.docker-context }}
       build-args: |
         BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
+      tags: ${{ needs.determine-tag.outputs.base_tag }}
       network: "host"
     secrets: inherit
