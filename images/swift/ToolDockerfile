@@ -21,7 +21,7 @@ COPY --from=base-ide /home/theia/package.json ./package.json.base
 COPY images/swift/package.json.patch ./package.json.patch
 
 # Merge the base package.json with the swift-specific patch using Node.js
-RUN node -e "const fs=require('fs'); const base=JSON.parse(fs.readFileSync('package.json.base')); const patch=JSON.parse(fs.readFileSync('package.json.patch')); fs.writeFileSync('package.json', JSON.stringify({...base, ...patch}, null, 2));" && \
+RUN node -e "const fs=require('fs'); const deepMerge=(t,s)=>{const o={...t}; for(const k in s){o[k]=s[k]!==null&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]?deepMerge(t[k],s[k]):s[k]} return o}; const base=JSON.parse(fs.readFileSync('package.json.base')); const patch=JSON.parse(fs.readFileSync('package.json.patch')); fs.writeFileSync('package.json', JSON.stringify(deepMerge(base,patch), null, 2));" && \
     rm package.json.base package.json.patch
 
 # Copy from base-ide: scripts, configs, existing plugins, and production node_modules

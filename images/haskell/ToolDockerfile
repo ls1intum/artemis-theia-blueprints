@@ -38,8 +38,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Clean up APT proxy config if it was set
 RUN rm -f /etc/apt/apt.conf.d/01proxy
 
-# Install Haskell Stack (system-wide, before switching to theia user)
-RUN bash -c "curl -sSL https://get.haskellstack.org/ | sh"
+# Install Haskell Stack with pinned version and SHA256 verification
+ARG STACK_VERSION=3.1.1
+RUN curl -sSL "https://github.com/commercialhaskell/stack/releases/download/v${STACK_VERSION}/stack-${STACK_VERSION}-linux-x86_64.tar.gz" -o stack.tar.gz && \
+    curl -sSL "https://github.com/commercialhaskell/stack/releases/download/v${STACK_VERSION}/stack-${STACK_VERSION}-linux-x86_64.tar.gz.sha256" -o stack.tar.gz.sha256 && \
+    sha256sum -c stack.tar.gz.sha256 && \
+    tar xzf stack.tar.gz && \
+    cp stack-${STACK_VERSION}-linux-x86_64/stack /usr/local/bin/stack && \
+    chmod +x /usr/local/bin/stack && \
+    rm -rf stack.tar.gz stack.tar.gz.sha256 stack-${STACK_VERSION}-linux-x86_64
 
 # Parallel stage: Plugin download (runs concurrently with apt-deps)
 FROM node:22-bullseye AS plugin-image
@@ -53,8 +60,12 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 COPY --from=base-ide /home/theia/package.json ./package.json.base
 COPY images/haskell/package.json.patch ./package.json.patch
 
-# Merge the base package.json with the haskell-specific patch using Node.js
-RUN node -e "const fs=require('fs'); const base=JSON.parse(fs.readFileSync('package.json.base')); const patch=JSON.parse(fs.readFileSync('package.json.patch')); fs.writeFileSync('package.json', JSON.stringify({...base, ...patch}, null, 2));" && \
+# Merge the base package.json with the haskell-specific patch using Node.js (deep merge)
+RUN node -e "const fs=require('fs'); \
+const deepMerge=(t,s)=>{const o={...t}; for(const k in s){o[k]=s[k]!==null&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]?deepMerge(t[k],s[k]):s[k]} return o}; \
+const base=JSON.parse(fs.readFileSync('package.json.base')); \
+const patch=JSON.parse(fs.readFileSync('package.json.patch')); \
+fs.writeFileSync('package.json', JSON.stringify(deepMerge(base,patch), null, 2));" && \
     rm package.json.base package.json.patch
 
 # Copy from base-ide: scripts, configs, existing plugins, and production node_modules

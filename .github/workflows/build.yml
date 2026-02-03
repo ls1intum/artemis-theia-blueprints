@@ -38,7 +38,7 @@ jobs:
             BASE_TAG="pr-${{ github.event.pull_request.number }}"
             CACHE_TAG="build-cache-pr-${{ github.event.pull_request.number }}"
           elif [[ "${{ github.event_name }}" == "release" ]]; then
-            BASE_TAG="${{ github.ref_name }}"
+            BASE_TAG="${SAFE_REF_NAME}"
             CACHE_TAG="build-cache-${SAFE_REF_NAME}"
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             BASE_TAG="latest"
