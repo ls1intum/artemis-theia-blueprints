@@ -143,7 +143,7 @@ This array lists extension IDs to exclude from the base image. This is useful wh
 
 The C variant excludes Python, Java, TypeScript, and many other language extensions since they're not needed for C development.
 
-**Note**: The list of excluded ids is best established by building and checking an image with an empty exlude list. There, you can see the extension browser to review all images.
+**Note**: The list of excluded ids is best established by building and checking an image with an empty exclude list. There, you can see the extension browser to review all images.
 
 ### 5. Optionally Include .theia/settings.json
 
