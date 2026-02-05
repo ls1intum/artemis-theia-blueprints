@@ -1,0 +1,34 @@
+// Remote Build Cache Configuration
+// Requires REMOTE_CACHE_ENABLED=true AND REMOTE_CACHE_URL to be set
+
+settingsEvaluated { settings ->
+    def cacheEnabled = System.getenv('REMOTE_CACHE_ENABLED')?.toLowerCase() == 'true'
+    def cacheUrl = System.getenv('REMOTE_CACHE_URL')
+    def cachePush = System.getenv('REMOTE_CACHE_PUSH')?.toLowerCase() != 'false'
+    
+    if (cacheEnabled && cacheUrl?.trim()) {
+        // Enable build cache via start parameters
+        settings.gradle.startParameter.buildCacheEnabled = true
+        
+        settings.buildCache {
+            local {
+                enabled = false
+            }
+            remote(HttpBuildCache) {
+                url = cacheUrl
+                push = cachePush
+                enabled = true
+
+                // Currently untrusted servers are allowed. When the Cache server allows for tls, this attributes will be removed.
+                allowUntrustedServer = true
+                allowInsecureProtocol = true
+            }
+        }
+        
+        println "[Build Cache] Remote cache ENABLED"
+        println "[Build Cache] Push: ${cachePush}"
+    } else if (cacheEnabled && !cacheUrl?.trim()) {
+        println "[Build Cache] WARNING: Cache enabled but no URL configured"
+        println "[Build Cache] Set REMOTE_CACHE_URL to activate remote caching"
+    }
+}
