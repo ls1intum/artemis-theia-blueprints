@@ -1,9 +1,53 @@
+# syntax=docker/dockerfile:1
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
 ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
 FROM ${BASE_IMAGE} AS base-ide
 
-# Load the plugin image, only copy from here
+# Parallel stage: Install system dependencies (runs concurrently with plugin-image)
+FROM ubuntu:24.04 AS apt-deps
+
+WORKDIR /home/theia
+
+# Create theia user and directories
+RUN useradd --system --create-home --user-group --uid 101 theia && \
+    chmod g+rw /home && \
+    mkdir -p /home/project && \
+    chown -R theia:theia /home/theia && \
+    chown -R theia:theia /home/project
+
+# Configure APT proxy if provided
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
+    fi
+
+# Install all system dependencies with BuildKit cache mounts
+# Note: GHC 9.6 (LTS 22) supports LLVM 14-15
+# Ubuntu 24.04 provides LLVM 14-20, we use LLVM 14 for compatibility
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+    wget apt-transport-https bash ca-certificates curl gcc g++ make xz-utils \
+    zlib1g-dev git gnupg netbase libffi-dev libgmp-dev libgmp10 \
+    libncurses-dev libncurses6 libtinfo6 perl tar llvm-14 llvm-14-dev llvm-14-runtime libnuma-dev
+
+# Clean up APT proxy config if it was set
+RUN rm -f /etc/apt/apt.conf.d/01proxy
+
+# Install Haskell Stack with pinned version and SHA256 verification
+ARG STACK_VERSION=3.1.1
+RUN curl -sSL "https://github.com/commercialhaskell/stack/releases/download/v${STACK_VERSION}/stack-${STACK_VERSION}-linux-x86_64.tar.gz" -o stack.tar.gz && \
+    echo "d096125ea3d987a55d17f7d4f8599ee2fd96bd2d0f033566e28ddfe248f730f9  stack.tar.gz" | sha256sum -c && \
+    tar xzf stack.tar.gz && \
+    cp stack-${STACK_VERSION}-linux-x86_64/stack /usr/local/bin/stack && \
+    chmod +x /usr/local/bin/stack && \
+    rm -rf stack.tar.gz stack-${STACK_VERSION}-linux-x86_64
+
+# Parallel stage: Plugin download (runs concurrently with apt-deps)
 FROM node:22-bullseye AS plugin-image
 
 WORKDIR /home/theia
@@ -11,99 +55,62 @@ WORKDIR /home/theia
 # Configure to skip download of puppeteer
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
-# Install jq for JSON merging
-RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
-
 # Copy required configuration files
 COPY --from=base-ide /home/theia/package.json ./package.json.base
 COPY images/haskell/package.json.patch ./package.json.patch
 
-# Merge the base package.json with the haskell-specific patch using jq
-RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json
-RUN rm package.json.base package.json.patch
+# Merge the base package.json with the haskell-specific patch using Node.js (deep merge)
+RUN node -e "const fs=require('fs'); \
+const deepMerge=(t,s)=>{const o={...t}; for(const k in s){o[k]=s[k]!==null&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]?deepMerge(t[k],s[k]):s[k]} return o}; \
+const base=JSON.parse(fs.readFileSync('package.json.base')); \
+const patch=JSON.parse(fs.readFileSync('package.json.patch')); \
+fs.writeFileSync('package.json', JSON.stringify(deepMerge(base,patch), null, 2));" && \
+    rm package.json.base package.json.patch
 
-# Copy scripts and dependencies from base-ide needed for yarn commands
+# Copy from base-ide: scripts, configs, existing plugins, and production node_modules
 COPY --from=base-ide /home/theia/scripts /home/theia/scripts
 COPY --from=base-ide /home/theia/configs /home/theia/configs
 COPY --from=base-ide /home/theia/tsconfig.json /home/theia/tsconfig.json
 COPY --from=base-ide /home/theia/plugins /home/theia/plugins
+COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 
-# Install dependencies and download plugins for the browser application
-# Use yarn autoclean to remove unnecessary files from package dependencies
-RUN yarn --pure-lockfile --network-timeout 1000000 && \
-    yarn download:plugins
+# Install ONLY @theia/cli (needed for download:plugins command)
+ARG NPM_REGISTRY
+RUN if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi \
+    && yarn add -W @theia/cli@1.62.2 --network-timeout 1000000
 
-# Assemble the application
-FROM node:22-bullseye-slim AS final-ide
+# Download language-specific plugins
+RUN yarn download:plugins
 
-WORKDIR /home/theia
+# Final stage: Assemble the application
+FROM apt-deps AS final-ide
 
-# Copy node from plugin-image as it is required for Theia 
+# Copy Node.js from plugin-image (required for Theia runtime)
 COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
 COPY --from=plugin-image /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
-COPY --from=plugin-image /usr/local/lib/node_modules/ /home/theia/node_modules/
-COPY --from=plugin-image /home/theia/node_modules/ /home/theia/node_modules/
-
-# Create theia user and directories
-# Application will be copied to /home/theia
-# Default workspace is located at /home/project
-RUN adduser --system --group theia --uid 101
-RUN chmod g+rw /home && \
-    mkdir -p /home/project && \
-    chown -R theia:theia /home/theia && \
-    chown -R theia:theia /home/project
-    
-# Install required tools for terminal usage inside the IDE
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends bash wget apt-transport-https zsh ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/home/theia
 WORKDIR /home/theia
 
-# Copy application from builder-stage
+# Copy application from base-ide (includes prod node_modules)
 COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 
-# Copy additional plugins
+# Copy additional plugins (language-specific extensions)
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
 # Copy project settings (includes .theia/settings.json with file exclusions)
-COPY images/haskell/project /home/project
+COPY --chown=theia:theia images/haskell/project /home/project
 
-# Install and copy Haskell dependencies
+# Install and configure Haskell Stack
 ENV STACK_ROOT=/stack_cache
+# Point GHC to LLVM 14 tools (compatible with GHC 9.6.6)
+ENV PATH="/usr/lib/llvm-14/bin:${PATH}"
 RUN mkdir -p $STACK_ROOT
 COPY images/haskell/stack-config/config.yaml $STACK_ROOT/config.yaml
 COPY images/haskell/stack-config/global-project/stack.yaml $STACK_ROOT/global-project/stack.yaml
 
-# Install Haskell dependencies and build tools
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        curl \
-        gcc \
-        g++ \
-        make \
-        xz-utils \
-        zlib1g-dev \
-        git \
-        gnupg \
-        netbase \
-        libffi-dev \
-        libgmp-dev \
-        libgmp10 \
-        libncurses-dev \
-        libncurses5 \
-        libtinfo5 \
-        perl \
-        tar \
-        llvm \
-        libnuma-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# We install stack as the main CLI tool.
-# It bundles the creation of new projects (`stack new`), building (`stack build`) and finally running (`stack exec`) Haskell projects.
-RUN sh -c "curl -sSL https://get.haskellstack.org/ | sh" \
-    && stack setup \
+# Setup GHC and common packages (runs as root for global install)
+RUN stack setup \
     && stack ghc \
     --package QuickCheck \
     --package quickcheck-assertions \
@@ -120,7 +127,7 @@ RUN sh -c "curl -sSL https://get.haskellstack.org/ | sh" \
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
-ENV SHELL=/bin/zsh \
+ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
@@ -128,14 +135,6 @@ ENV USE_LOCAL_GIT=true
 
 # Switch to Theia user
 USER theia
-
-# Install Oh My Zsh and plugins with pinned versions
-RUN git clone --depth 1 --branch master https://github.com/ohmyzsh/ohmyzsh.git ${HOME}/.oh-my-zsh && \
-    git clone --depth 1 --branch v0.7.1 https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
-    git clone --depth 1 --branch 0.8.0 https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-
-# Copy centralized zsh configuration
-COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
 WORKDIR /home/theia/applications/browser
 
 # Launch the backend application via node
