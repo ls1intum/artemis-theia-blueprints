@@ -1,6 +1,6 @@
   {
   "private": true,
-  "version": "1.62.200",
+  "version": "1.68.200",
   "license": "MIT",
   "author": "Rob Moran <github@thegecko.org>",
   "homepage": "https://github.com/eclipse-theia/theia-ide#readme",
@@ -13,7 +13,7 @@
   },
   "engines": {
     "yarn": ">=1.7.0 <2",
-    "node": ">=12.14.1"
+    "node": ">=20"
   },
   "devDependencies": {
     "@eclipse-dash/nodejs-wrapper": "^0.0.1",
@@ -61,9 +61,9 @@
   },
   "theiaPluginsDir": "plugins",
   "theiaPlugins": {
-    "eclipse-theia.builtin-extension-pack": "https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.95.3/file/eclipse-theia.builtin-extension-pack-1.95.3.vsix",
-    "vscjava.vscode-java-pack": "https://open-vsx.org/api/vscjava/vscode-java-pack/0.29.0/file/vscjava.vscode-java-pack-0.29.0.vsix",
-    "vscjava.vscode-java-dependency": "https://open-vsx.org/api/vscjava/vscode-java-dependency/0.24.1/file/vscjava.vscode-java-dependency-0.24.1.vsix"
+    "vscode-builtin-extensions": "https://github.com/eclipse-theia/vscode-builtin-extensions/releases/download/1.104.0/vscode-builtin-extensions-1.104.0.tar.gz",
+    "vscjava.vscode-java-pack": "https://open-vsx.org/api/vscjava/vscode-java-pack/0.30.5/file/vscjava.vscode-java-pack-0.30.5.vsix",
+    "vscjava.vscode-java-dependency": "https://open-vsx.org/api/vscjava/vscode-java-dependency/0.27.0/file/vscjava.vscode-java-dependency-0.27.0.vsix"
   },
   "theiaPluginsExcludeIds": [
     "ms-vscode.js-debug-companion",
@@ -82,9 +82,9 @@
     "@types/puppeteer": "^5.4.0",
     "@yarnpkg/parsers": "3.0.0-rc.44",
     "**/multer": "1.4.4-lts.1",
-    "**/nan": "2.20.0",
+    "**/nan": "2.23.0",
     "**/cpu-features": "0.0.9",
     "**/perfect-scrollbar": "1.5.5",
-    "**/node-abi": "3.71.0"
+    "**/node-abi": "4.14.0"
   }
 }
