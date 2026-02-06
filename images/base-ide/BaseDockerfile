@@ -102,6 +102,11 @@ FROM node:22-bullseye-slim AS prod-deps
 
 WORKDIR /home/theia
 
+# Yarn needs git for dependencies that reference git URLs.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy package manifests (including yarn.lock for frozen-lockfile)
 COPY --from=build-stage /home/theia/package.json /home/theia/lerna.json /home/theia/yarn.lock ./
 COPY --from=build-stage /home/theia/applications/browser/package.json applications/browser/
