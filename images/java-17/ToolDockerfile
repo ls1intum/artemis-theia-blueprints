@@ -60,7 +60,7 @@ COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 # This is much faster than full yarn install since we already have prod node_modules
 ARG NPM_REGISTRY
 RUN if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi \
-    && yarn add -W @theia/cli@1.62.2 --network-timeout 1000000
+    && yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
 # Download language-specific plugins
 RUN yarn download:plugins
