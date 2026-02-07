@@ -18,10 +18,6 @@ settingsEvaluated { settings ->
                 url = cacheUrl
                 push = cachePush
                 enabled = true
-
-                // Currently untrusted servers are allowed. When the Cache server allows for tls, this attributes will be removed.
-                allowUntrustedServer = true
-                allowInsecureProtocol = true
             }
         }
         
