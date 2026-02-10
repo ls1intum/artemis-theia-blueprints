@@ -6,10 +6,6 @@ settingsEvaluated { settings ->
     def cacheUrl = System.getenv('BUILD_CACHE_URL')
     def cachePush = System.getenv('BUILD_CACHE_PUSH')?.toLowerCase() == 'true'
 
-    def dependencyCacheEnabled = System.getenv('DEPENDENCY_CACHE_ENABLED')?.toLowerCase() == 'true'
-    def dependencyCacheUrl = System.getenv('DEPENDENCY_CACHE_URL')
-
-
     // Gradle Build Cache Configuration
     if (cacheEnabled && cacheUrl?.trim()) {
         // Enable build cache via start parameters
@@ -32,25 +28,25 @@ settingsEvaluated { settings ->
         println "[Build Cache] WARNING: Cache enabled but no URL configured"
         println "[Build Cache] Set BUILD_CACHE_URL to activate remote caching"
     }
+}
 
-    // Dependency Cache Configuration
+// Dependency Cache Configuration
+def dependencyCacheEnabled = System.getenv('DEPENDENCY_CACHE_ENABLED')?.toLowerCase() == 'true'
+def dependencyCacheUrl = System.getenv('DEPENDENCY_CACHE_URL')
 
-    if (dependencyCacheEnabled && dependencyCacheUrl?.trim()) {
-
-        settings.dependencyResolutionManagement {
-            repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-            repositories {
-                maven {
-                    url = dependencyCacheUrl
-                    allowInsecureProtocol = true
-                }
-            }
+if (dependencyCacheEnabled && dependencyCacheUrl?.trim()) {
+    allprojects {
+        repositories {
+            addFirst(maven {
+                name = 'Dependency Cache'
+                url = dependencyCacheUrl
+                allowInsecureProtocol = true
+            })
         }
-
-        println "[Dependency Cache] Remote cache ENABLED"
-    } else if (dependencyCacheEnabled && !dependencyCacheUrl?.trim()) {
-        println "[Dependency Cache] WARNING: Cache enabled but no URL configured"
-        println "[Dependency Cache] Set DEPENDENCY_CACHE_URL to activate remote caching"
     }
 
+    println "[Dependency Cache] Proxy ENABLED"
+} else if (dependencyCacheEnabled && !dependencyCacheUrl?.trim()) {
+    println "[Dependency Cache] WARNING: Cache enabled but no URL configured"
+    println "[Dependency Cache] Set DEPENDENCY_CACHE_URL to activate remote caching"
 }
