@@ -1,6 +1,5 @@
 {
   "theiaPlugins": {
-    "scorpio": "https://open-vsx.org/api/tum-aet/artemis-scorpio/1.0.9/file/tum-aet.artemis-scorpio-1.0.9.vsix",
     "ocaml-platform": "https://open-vsx.org/api/ocamllabs/ocaml-platform/1.18.1/file/ocamllabs.ocaml-platform-1.18.1.vsix"
   },
   "theiaPluginsExcludeIds": [
