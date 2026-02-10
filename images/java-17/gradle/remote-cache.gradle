@@ -1,20 +1,20 @@
 // Remote Build Cache Configuration
-// Requires REMOTE_CACHE_ENABLED=true AND REMOTE_CACHE_URL to be set
+// Requires BUILD_CACHE_ENABLED=true AND BUILD_CACHE_URL to be set
 
 settingsEvaluated { settings ->
-    def cacheEnabled = System.getenv('REMOTE_CACHE_ENABLED')?.toLowerCase() == 'true'
-    def cacheUrl = System.getenv('REMOTE_CACHE_URL')
-    def cachePush = System.getenv('REMOTE_CACHE_PUSH')?.toLowerCase() != 'false'
+    def cacheEnabled = System.getenv('BUILD_CACHE_ENABLED')?.toLowerCase() == 'true'
+    def cacheUrl = System.getenv('BUILD_CACHE_URL')
+    def cachePush = System.getenv('BUILD_CACHE_PUSH')?.toLowerCase() != 'false'
 
-    def reposiliteCacheEnabled = System.getenv('REPOSILITE_CACHE_ENABLED')?.toLowerCase() == 'true'
-    def reposiliteCacheUrl = System.getenv('REPOSILITE_CACHE_URL')
-    
+    def dependencyCacheEnabled = System.getenv('DEPENDENCY_CACHE_ENABLED')?.toLowerCase() == 'true'
+    def dependencyCacheUrl = System.getenv('DEPENDENCY_CACHE_URL')
+
 
     // Gradle Build Cache Configuration
     if (cacheEnabled && cacheUrl?.trim()) {
         // Enable build cache via start parameters
         settings.gradle.startParameter.buildCacheEnabled = true
-        
+
         settings.buildCache {
             local {
                 enabled = false
@@ -25,32 +25,32 @@ settingsEvaluated { settings ->
                 enabled = true
             }
         }
-        
+
         println "[Build Cache] Remote cache ENABLED"
         println "[Build Cache] Push: ${cachePush}"
     } else if (cacheEnabled && !cacheUrl?.trim()) {
         println "[Build Cache] WARNING: Cache enabled but no URL configured"
-        println "[Build Cache] Set REMOTE_CACHE_URL to activate remote caching"
+        println "[Build Cache] Set BUILD_CACHE_URL to activate remote caching"
     }
 
-    // Reposilite Dependency Cache Configuration
+    // Dependency Cache Configuration
 
-    if (reposiliteCacheEnabled && reposiliteCacheUrl?.trim()) {
-        
+    if (dependencyCacheEnabled && dependencyCacheUrl?.trim()) {
+
         settings.dependencyResolutionManagement {
             repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
             repositories {
                 maven {
-                    url = reposiliteCacheUrl
+                    url = dependencyCacheUrl
                     allowInsecureProtocol = true
                 }
             }
         }
-        
-        println "[Reposilite Cache] Remote cache ENABLED"
-    } else if (reposiliteCacheEnabled && !reposiliteCacheUrl?.trim()) {
-        println "[Reposilite Cache] WARNING: Cache enabled but no URL configured"
-        println "[Reposilite Cache] Set REPOSILITE_CACHE_URL to activate remote caching"
+
+        println "[Dependency Cache] Remote cache ENABLED"
+    } else if (dependencyCacheEnabled && !dependencyCacheUrl?.trim()) {
+        println "[Dependency Cache] WARNING: Cache enabled but no URL configured"
+        println "[Dependency Cache] Set DEPENDENCY_CACHE_URL to activate remote caching"
     }
 
 }
