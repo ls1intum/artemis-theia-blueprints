@@ -46,6 +46,8 @@ export default new ContainerModule((bind, _unbind, isBound, rebind) => {
     // Register runtime feature disabler for additional protection
     bind(DisabledFeaturesContribution).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(DisabledFeaturesContribution);
+
+    // Task run toolbar button
     bind(TaskToolbarContribution).toSelf().inSingletonScope();
     bind(TabBarToolbarContribution).toService(TaskToolbarContribution);
 });

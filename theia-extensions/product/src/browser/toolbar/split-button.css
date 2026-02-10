@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 /* Split button container */
-.task-run-split-button {
+.split-button {
   display: flex;
   align-items: center;
   border-radius: 3px;
@@ -23,12 +23,12 @@
 }
 
 /* Subtle hover on entire split button container */
-.task-run-split-button:hover {
+.split-button:hover {
   background-color: var(--theia-toolbar-hoverBackground);
 }
 
 /* Base action item styling */
-.task-run-split-button .action-item {
+.split-button .action-item {
   border: none;
   background: transparent;
   padding: 0;
@@ -40,20 +40,19 @@
 }
 
 /* More prominent hover on individual buttons */
-.task-run-split-button .action-item:hover {
+.split-button .action-item:hover {
   background-color: var(--theia-toolbar-activeBackground, rgba(90, 93, 94, 0.31));
 }
 
-/* Main run button */
-.task-run-split-button .run-button {
+/* Main button */
+.split-button .main-button {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-
 /* Chevron dropdown button - smaller than main button */
-.task-run-split-button .chevron-button {
+.split-button .chevron-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,20 +61,20 @@
 }
 
 /* Smaller chevron icon */
-.task-run-split-button .chevron-button .chevron {
+.split-button .chevron-button .chevron {
   font-size: 12px;
   line-height: 1;
 }
 
 /* Disabled state */
-.task-run-split-button.disabled {
+.split-button.disabled {
   opacity: 0.5;
 }
 
-.task-run-split-button.disabled .action-item {
+.split-button.disabled .action-item {
   cursor: not-allowed;
 }
 
-.task-run-split-button.disabled .action-item:hover {
+.split-button.disabled .action-item:hover {
   background-color: transparent;
 }

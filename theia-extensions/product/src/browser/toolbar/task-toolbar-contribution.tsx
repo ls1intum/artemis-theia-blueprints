@@ -13,7 +13,7 @@ import {
     TabBarToolbarRegistry
 } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { ReactTabBarToolbarAction } from '@theia/core/lib/browser/shell/tab-bar-toolbar/tab-bar-toolbar-types';
-import { codicon, Widget } from '@theia/core/lib/browser';
+import { Widget } from '@theia/core/lib/browser';
 import { ContextMenuRenderer, Anchor } from '@theia/core/lib/browser/context-menu-renderer';
 import { Emitter, Event, MenuPath, nls } from '@theia/core';
 import { EditorWidget } from '@theia/editor/lib/browser';
@@ -21,16 +21,13 @@ import { TaskService } from '@theia/task/lib/browser/task-service';
 import { TaskConfigurations } from '@theia/task/lib/browser/task-configurations';
 import { TaskConfigurationManager } from '@theia/task/lib/browser/task-configuration-manager';
 import { TaskConfiguration } from '@theia/task/lib/common';
-import { CommandRegistry } from '@theia/core/lib/common';
 import { CommandMenu, GroupImpl, MenuNode } from '@theia/core/lib/common/menu';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
 import * as React from '@theia/core/shared/react';
-import '../../../src/browser/toolbar/task-toolbar-contribution.css';
+import { SplitButton } from './split-button';
 
-/**
- * Menu path for the task run dropdown
- */
 export const TASK_RUN_TOOLBAR_MENU: MenuPath = ['task-toolbar', 'run'];
+
 @injectable()
 export class TaskToolbarContribution implements TabBarToolbarContribution {
     @inject(TaskService)
@@ -39,16 +36,16 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     protected readonly taskConfigurations: TaskConfigurations;
     @inject(TaskConfigurationManager)
     protected readonly taskConfigurationManager: TaskConfigurationManager;
-    @inject(CommandRegistry)
-    protected readonly commandRegistry: CommandRegistry;
     @inject(ContextMenuRenderer)
     protected readonly contextMenuRenderer: ContextMenuRenderer;
     @inject(WorkspaceService)
     protected readonly workspaceService: WorkspaceService;
+
     protected readonly onDidChangeEmitter = new Emitter<void>();
     protected readonly onDidChange: Event<void> = this.onDidChangeEmitter.event;
 
     protected cachedTasks: TaskConfiguration[] = [];
+
     @postConstruct()
     protected init(): void {
         this.taskConfigurationManager.onDidChangeTaskConfig(() => {
@@ -64,17 +61,17 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     }
 
     registerToolbarItems(registry: TabBarToolbarRegistry): void {
-        registry.registerItem(this.createTaskRunToolbarItem());
+        registry.registerItem(this.createToolbarItem());
     }
 
-    protected createTaskRunToolbarItem(): ReactTabBarToolbarAction {
+    protected createToolbarItem(): ReactTabBarToolbarAction {
         return {
             id: 'task-run-toolbar-button',
             group: 'navigation',
-            priority: 0, // After "Run or Debug..." button (priority 1)
+            priority: 0,
             onDidChange: this.onDidChange,
-            isVisible: (widget?: Widget) => this.isEditorWidget(widget),
-            render: (widget?: Widget) => this.renderSplitButton(widget)
+            isVisible: (widget?: Widget) => widget instanceof EditorWidget,
+            render: (widget?: Widget) => this.render(widget)
         };
     }
 
@@ -105,18 +102,10 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     }
 
     /**
-     * Check if the widget is an editor widget
-     */
-    protected isEditorWidget(widget?: Widget): boolean {
-        return widget instanceof EditorWidget;
-    }
-
-    /**
      * Get the task that should be executed when clicking the main button.
      * Priority: Last executed task > First task in list
      */
     protected getTaskToRun(): TaskConfiguration | undefined {
-        // Priority 1: Last executed task (if still available)
         const lastTaskInfo = this.taskService.getLastTask();
         if (lastTaskInfo.resolvedTask) {
             const lastTaskLabel = lastTaskInfo.resolvedTask.label;
@@ -126,7 +115,6 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
             }
         }
 
-        // Priority 2: First task from tasks.json
         if (this.cachedTasks.length > 0) {
             return this.cachedTasks[0];
         }
@@ -134,47 +122,21 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         return undefined;
     }
 
-    protected renderSplitButton(widget?: Widget): React.ReactNode {
+    protected render(widget?: Widget): React.ReactNode {
         const hasTasks = this.cachedTasks.length > 0;
         const taskToRun = this.getTaskToRun();
 
-        const tooltip = this.getTooltip(taskToRun, hasTasks);
-        const isEnabled = hasTasks;
-
-        const containerClasses = [
-            'task-run-split-button',
-            'theia-tab-bar-toolbar-item',
-            isEnabled ? 'enabled' : 'disabled',
-            hasTasks ? 'menu' : ''
-        ].filter(Boolean).join(' ');
-
-        const runButtonClasses = [
-            codicon('play'),
-            'action-item',
-            'run-button'
-        ].join(' ');
-
         return (
-            <div key="task-run-toolbar-button" className={containerClasses}>
-                <button
-                    className={runButtonClasses}
-                    title={tooltip}
-                    onClick={e => this.handleRunTask(e)}
-                    disabled={!isEnabled}
-                />
-
-                {hasTasks && (
-                    <>
-                        <button
-                            className="action-item chevron-button"
-                            onClick={e => this.handleShowAllTasks(e, widget)}
-                            title={nls.localize('theia/task/selectTask', 'Select task to run')}
-                        >
-                            <span className={`${codicon('chevron-down')} chevron`} />
-                        </button>
-                    </>
-                )}
-            </div>
+            <SplitButton
+                buttonKey="task-run-toolbar-button"
+                icon="play"
+                tooltip={this.getTooltip(taskToRun, hasTasks)}
+                menuTooltip={nls.localize('theia/task/selectTask', 'Select task to run')}
+                enabled={hasTasks}
+                showMenu={hasTasks}
+                onRun={e => this.handleRunTask(e)}
+                onShowMenu={e => this.handleShowAllTasks(e, widget)}
+            />
         );
     }
 
@@ -216,21 +178,14 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         });
     }
 
-    /**
-     * Build a dynamic menu with all available tasks
-     */
     protected buildTaskMenu(): GroupImpl {
         const menu = new GroupImpl(TASK_RUN_TOOLBAR_MENU[0]);
         for (const task of this.cachedTasks) {
-            const menuNode = this.createTaskMenuNode(task);
-            menu.addNode(menuNode);
+            menu.addNode(this.createTaskMenuNode(task));
         }
         return menu;
     }
 
-    /**
-     * Create a menu node for a single task
-     */
     protected createTaskMenuNode(task: TaskConfiguration): MenuNode {
         const taskLabel = task.label;
         const taskService = this.taskService;
@@ -243,7 +198,6 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
             isVisible: () => true,
             isEnabled: () => true,
             isToggled: () => false,
-
             run: async () => {
                 await this.taskService.runTaskByLabel(
                     taskService.startUserAction(),
@@ -251,9 +205,6 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
                 );
             }
         };
-        // Create a menu node that runs the task
         return customNode;
     }
-
 }
-
