@@ -6,18 +6,20 @@ import {
 import { ReactTabBarToolbarAction } from '@theia/core/lib/browser/shell/tab-bar-toolbar/tab-bar-toolbar-types';
 import { Widget } from '@theia/core/lib/browser';
 import { ContextMenuRenderer, Anchor } from '@theia/core/lib/browser/context-menu-renderer';
+import { BrowserMenuNodeFactory } from '@theia/core/lib/browser/menu/browser-menu-node-factory';
 import { Emitter, Event, MenuPath, nls } from '@theia/core';
 import { EditorWidget } from '@theia/editor/lib/browser';
 import { TaskService } from '@theia/task/lib/browser/task-service';
 import { TaskConfigurations } from '@theia/task/lib/browser/task-configurations';
 import { TaskConfigurationManager } from '@theia/task/lib/browser/task-configuration-manager';
 import { TaskConfiguration } from '@theia/task/lib/common';
-import { CommandMenu, GroupImpl, MenuNode } from '@theia/core/lib/common/menu';
+import { CommandMenu, MenuNode } from '@theia/core/lib/common/menu';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
 import * as React from '@theia/core/shared/react';
 import { SplitButton } from './split-button';
 
 export const TASK_RUN_TOOLBAR_MENU: MenuPath = ['task-toolbar', 'run'];
+const TASK_REFRESH_DELAY_MS = 600;
 
 @injectable()
 export class TaskToolbarContribution implements TabBarToolbarContribution {
@@ -31,6 +33,8 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     protected readonly contextMenuRenderer: ContextMenuRenderer;
     @inject(WorkspaceService)
     protected readonly workspaceService: WorkspaceService;
+    @inject(BrowserMenuNodeFactory)
+    protected readonly menuNodeFactory: BrowserMenuNodeFactory;
 
     protected readonly onDidChangeEmitter = new Emitter<void>();
     protected readonly onDidChange: Event<void> = this.onDidChangeEmitter.event;
@@ -81,7 +85,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
      */
     protected async refreshTasks(): Promise<void> {
         // delay to refresh after workspace debounce
-        await new Promise(resolve => setTimeout(resolve, 600));
+        await new Promise(resolve => setTimeout(resolve, TASK_REFRESH_DELAY_MS));
         try {
             const token = this.taskService.startUserAction();
             this.cachedTasks = await this.taskConfigurations.getTasks(token);
@@ -158,28 +162,36 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         if (this.cachedTasks.length === 0) {
             return;
         }
-        const menu = this.buildTaskMenu();
+        const menuGroups = this.buildTaskMenu();
         const anchor: Anchor = { x: e.clientX, y: e.clientY };
         this.contextMenuRenderer.render({
             menuPath: TASK_RUN_TOOLBAR_MENU,
-            menu,
+            menu: {
+                children: menuGroups,
+                isEmpty: () => menuGroups.length === 0,
+                isVisible: () => true,
+                id: 'task-run-toolbar-menu-groups',
+                sortString: '0'
+            },
             anchor,
             args: [widget],
             context: e.currentTarget
         });
     }
 
-    protected buildTaskMenu(): GroupImpl {
-        const menu = new GroupImpl(TASK_RUN_TOOLBAR_MENU[0]);
+    protected buildTaskMenu(): MenuNode[] {
+        // const menu = new GroupImpl(TASK_RUN_TOOLBAR_MENU[0]);
+        const menu: MenuNode[] = [];
+        const menuGroup = this.menuNodeFactory.createGroup('default');
         for (const task of this.cachedTasks) {
-            menu.addNode(this.createTaskMenuNode(task));
+            menuGroup.addNode(this.createTaskMenuNode(task));
         }
+        menu.push(menuGroup);
         return menu;
     }
 
     protected createTaskMenuNode(task: TaskConfiguration): MenuNode {
         const taskLabel = task.label;
-        const taskService = this.taskService;
 
         const customNode: CommandMenu = {
             id: `task-run-${taskLabel}`,
@@ -191,7 +203,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
             isToggled: () => false,
             run: async () => {
                 await this.taskService.runTaskByLabel(
-                    taskService.startUserAction(),
+                    this.taskService.startUserAction(),
                     taskLabel
                 );
             }
