@@ -126,9 +126,10 @@ export class TheiaIDEContribution implements CommandContribution, MenuContributi
     static REPORT_ISSUE_URL = 'https://github.com/ls1intum/artemis-theia-blueprints/issues';
 
     @postConstruct()
-    protected async init(): Promise<void> {
-        await this.hostedPluginSupport.didStart;
-        this.tabBarToolbarRegistry.unregisterItem('plugin_editor/title/run');
+    protected init(): void {
+        this.hostedPluginSupport.didStart.then(() => {
+          this.tabBarToolbarRegistry.unregisterItem('plugin_editor/title/run');
+        });
     }
 
     registerCommands(commandRegistry: CommandRegistry): void {
