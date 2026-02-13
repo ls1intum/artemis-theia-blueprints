@@ -1,0 +1,66 @@
+/* Split button container */
+.split-button {
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+  transition: background-color 0.1s ease;
+}
+
+/* Subtle hover on entire split button container */
+.split-button:hover {
+  background-color: var(--theia-toolbar-hoverBackground);
+}
+
+/* Base action item styling */
+.split-button .action-item {
+  color: var(--theia-icon-foreground);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 3px;
+  border: 1px solid var(--theia-button-border);
+  transition: background-color 0.1s ease;
+  height: 100%;
+  align-self: stretch;
+}
+
+/* More prominent hover on individual buttons */
+.split-button .action-item:hover {
+  background-color: var(--theia-toolbar-activeBackground, rgb(90 93 94 / 31%));
+}
+
+/* Main button */
+.split-button .main-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 3px;
+}
+
+/* Chevron dropdown button - smaller than main button */
+.split-button .chevron-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 3px;
+  min-width: auto;
+}
+
+/* Smaller chevron icon */
+.split-button .chevron-button .chevron {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Disabled state */
+.split-button.disabled {
+  opacity: 0.5;
+}
+
+.split-button.disabled .action-item {
+  cursor: not-allowed;
+}
+
+.split-button.disabled .action-item:hover {
+  background-color: transparent;
+}
