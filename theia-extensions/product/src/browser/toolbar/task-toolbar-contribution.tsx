@@ -12,7 +12,7 @@ import { EditorWidget } from '@theia/editor/lib/browser';
 import { TaskService } from '@theia/task/lib/browser/task-service';
 import { TaskConfigurations } from '@theia/task/lib/browser/task-configurations';
 import { TaskConfigurationManager } from '@theia/task/lib/browser/task-configuration-manager';
-import { TaskConfiguration } from '@theia/task/lib/common';
+import { TaskConfiguration, TaskWatcher } from '@theia/task/lib/common';
 import { CommandMenu, MenuNode } from '@theia/core/lib/common/menu';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
 import * as React from '@theia/core/shared/react';
@@ -29,6 +29,8 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     protected readonly taskConfigurations: TaskConfigurations;
     @inject(TaskConfigurationManager)
     protected readonly taskConfigurationManager: TaskConfigurationManager;
+    @inject(TaskWatcher)
+    protected readonly taskWatcher: TaskWatcher;
     @inject(ContextMenuRenderer)
     protected readonly contextMenuRenderer: ContextMenuRenderer;
     @inject(WorkspaceService)
@@ -49,6 +51,10 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
 
         this.workspaceService.onWorkspaceChanged(async () => {
             await this.workspaceService.ready;
+            this.refreshTasks();
+        });
+
+        this.taskWatcher.onTaskCreated(() => {
             this.refreshTasks();
         });
 
