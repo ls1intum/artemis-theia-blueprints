@@ -26,7 +26,7 @@
 
 /* More prominent hover on individual buttons */
 .split-button .action-item:hover {
-  background-color: var(--theia-toolbar-activeBackground, rgba(90, 93, 94, 0.31));
+  background-color: var(--theia-toolbar-activeBackground, rgba(90, 93, 94 / 31%));
 }
 
 /* Main button */
@@ -34,6 +34,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2px 3px;
 }
 
 /* Chevron dropdown button - smaller than main button */
