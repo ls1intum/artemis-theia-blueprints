@@ -42,6 +42,7 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
     protected readonly onDidChange: Event<void> = this.onDidChangeEmitter.event;
 
     protected cachedTasks: TaskConfiguration[] = [];
+    protected refreshTimer: ReturnType<typeof setTimeout> | undefined;
 
     @postConstruct()
     protected init(): void {
@@ -82,24 +83,27 @@ export class TaskToolbarContribution implements TabBarToolbarContribution {
         if (!roots || roots.length === 0) {
             return;
         }
-        await this.refreshTasks();
+        this.refreshTasks();
     }
 
     /**
      * Refresh the cached tasks list and notify listeners.
      * A new token is requested each time to ensure fresh data from task providers.
      */
-    protected async refreshTasks(): Promise<void> {
-        // delay to refresh after workspace debounce
-        await new Promise(resolve => setTimeout(resolve, TASK_REFRESH_DELAY_MS));
-        try {
-            const token = this.taskService.startUserAction();
-            this.cachedTasks = await this.taskConfigurations.getTasks(token);
-        } catch (error) {
-            console.error('Failed to refresh tasks:', error);
-            this.cachedTasks = [];
+    protected refreshTasks(): void {
+        if (this.refreshTimer) {
+            clearTimeout(this.refreshTimer);
         }
-        this.onDidChangeEmitter.fire();
+        this.refreshTimer = setTimeout(async () => {
+          try {
+              const token = this.taskService.startUserAction();
+              this.cachedTasks = await this.taskConfigurations.getTasks(token);
+          } catch (error) {
+              console.error('Failed to refresh tasks:', error);
+              this.cachedTasks = [];
+          }
+          this.onDidChangeEmitter.fire();
+      }, TASK_REFRESH_DELAY_MS);
     }
 
     /**
