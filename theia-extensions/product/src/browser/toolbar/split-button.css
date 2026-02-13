@@ -13,11 +13,12 @@
 
 /* Base action item styling */
 .split-button .action-item {
-  border: none;
+  color: var(--theia-icon-foreground);
   background: transparent;
   padding: 0;
   cursor: pointer;
   border-radius: 3px;
+  border: 1px solid var(--theia-button-border);
   transition: background-color 0.1s ease;
   height: 100%;
   align-self: stretch;
