@@ -3,9 +3,9 @@ FROM alpine:3.22
 ENV LS_PORT=5000
 ENV WORKSPACE_PATH=/home/project
 
-RUN apk add --no-cache socat rust-analyzer
+RUN apk add --no-cache socat rust-analyzer rust cargo
 
-RUN addgroup -S app && adduser -S app -G app
+RUN addgroup -g 101 -S app && adduser -u 101 -S app -G app
 RUN mkdir -p /home/project && chown -R app:app /home/project
 
 USER app
