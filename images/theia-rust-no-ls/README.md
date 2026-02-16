@@ -42,8 +42,10 @@ This image provides a **swappable language server architecture** for Rust develo
 
 ### Language Server Container (Default: rust-analyzer)
 - rust-analyzer (official Rust language server)
+- **Full Rust toolchain** (rustc, cargo) - required by rust-analyzer
 - Exposed via TCP on port 5000
 - **Swappable**: Replace with any LSP-compliant Rust server
+- Runs as UID 101 (matches Theia user for shared volume access)
 
 ## 🚀 Usage
 
@@ -187,6 +189,46 @@ docker exec theia-rust-ide ls -la /home/project
 # Should see: Cargo.toml, src/, etc.
 ```
 
+**Note**: rust-analyzer requires a valid Cargo.toml to initialize the workspace.
+
+### Permission errors (Cargo.lock write failures)
+
+**Symptom**: Language server logs show "Permission denied" when writing Cargo.lock
+
+**Cause**: UID mismatch between IDE and LS containers
+
+**Solution**: Both containers must run as the same UID (101). Verify:
+```bash
+# Check IDE container user
+docker exec theia-rust-ide id
+# Should show: uid=101(theia) gid=101(theia)
+
+# Check LS container user  
+docker exec rust-language-server id
+# Should show: uid=101(app) gid=101(app)
+```
+
+If UIDs don't match, the language server won't be able to create `Cargo.lock` or `target/` directories.
+
+### "Failed to load workspaces" error
+
+**Symptom**: rust-analyzer shows "Failed to load workspaces" in logs
+
+**Possible causes:**
+1. **Missing cargo**: rust-analyzer needs `cargo` to run `cargo metadata`
+   ```bash
+   docker exec rust-language-server cargo --version
+   # Should output: cargo 1.87.0 or similar
+   ```
+
+2. **Invalid Cargo.toml**: Check your Cargo.toml syntax
+   ```bash
+   docker exec rust-language-server cargo metadata --manifest-path /home/project/Cargo.toml
+   # Should output valid JSON, not errors
+   ```
+
+3. **Permission issues**: See section above about UID mismatch
+
 ## 🎯 When to Use This Image
 
 **Use `theia-rust-no-ls` when:**
@@ -213,6 +255,30 @@ This image is designed for **research and experimentation**. The swappable archi
 - Prototyping custom tooling
 
 **For production use**, consider a standard embedded setup with well-tested extensions.
+
+## ⚠️ Important Requirements
+
+### Language Server Must Include:
+1. **Full Rust toolchain**: rust-analyzer requires `cargo` and `rustc` to analyze projects
+2. **Matching UID**: Language server must run as UID 101 to access shared workspace volume
+3. **LSP-compliant protocol**: Must implement Language Server Protocol correctly
+4. **TCP socket**: Must listen on configured port (default 5000) and handle stdin/stdout over socket
+
+### Example Dockerfile for Custom Rust LS:
+```dockerfile
+FROM alpine:3.22
+
+RUN apk add --no-cache socat rust-analyzer rust cargo
+
+# Critical: Use UID 101 to match Theia container
+RUN addgroup -g 101 -S app && adduser -u 101 -S app -G app
+
+USER app
+WORKDIR /home/project
+
+EXPOSE 5000
+CMD socat TCP-LISTEN:5000,reuseaddr,fork EXEC:rust-analyzer
+```
 
 ## 📚 Technical References
 
