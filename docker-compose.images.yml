@@ -1,0 +1,104 @@
+services:
+  base-ide:
+    image: theia-base:local
+    build:
+      context: .
+      dockerfile: images/base-ide/BaseDockerfile
+    ports:
+      - "3000:3000"
+
+  c:
+    image: theia-c:local
+    build:
+      context: .
+      dockerfile: images/c/ToolDockerfile
+      args:
+        BASE_IMAGE: theia-base:local
+    depends_on:
+      - base-ide
+    ports:
+      - "3001:3000"
+
+  haskell:
+    image: theia-haskell:local
+    build:
+      context: .
+      dockerfile: images/haskell/ToolDockerfile
+      args:
+        BASE_IMAGE: theia-base:local
+    depends_on:
+      - base-ide
+    ports:
+      - "3002:3000"
+
+  java-17:
+    image: theia-java-17:local
+    build:
+      context: .
+      dockerfile: images/java-17/ToolDockerfile
+      args:
+        BASE_IMAGE: theia-base:local
+    depends_on:
+      - base-ide
+    ports:
+      - "3003:3000"
+
+  javascript:
+    image: theia-javascript:local
+    build:
+      context: .
+      dockerfile: images/javascript/ToolDockerfile
+      args:
+        BASE_IMAGE: theia-base:local
+    depends_on:
+      - base-ide
+    ports:
+      - "3004:3000"
+
+  ocaml:
+    image: theia-ocaml:local
+    build:
+      context: .
+      dockerfile: images/ocaml/ToolDockerfile
+      args:
+        BASE_IMAGE: theia-base:local
+    depends_on:
+      - base-ide
+    ports:
+      - "3005:3000"
+
+  python:
+    image: theia-python:local
+    build:
+      context: .
+      dockerfile: images/python/ToolDockerfile
+      args:
+        BASE_IMAGE: theia-base:local
+    depends_on:
+      - base-ide
+    ports:
+      - "3006:3000"
+
+  rust:
+    image: theia-rust:local
+    build:
+      context: .
+      dockerfile: images/rust/ToolDockerfile
+      args:
+        BASE_IMAGE: theia-base:local
+    depends_on:
+      - base-ide
+    ports:
+      - "3007:3000"
+
+  swift:
+    image: theia-swift:local
+    build:
+      context: .
+      dockerfile: images/swift/ToolDockerfile
+      args:
+        BASE_IMAGE: theia-base:local
+    depends_on:
+      - base-ide
+    ports:
+      - "3008:3000"

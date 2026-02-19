@@ -1,14 +1,14 @@
 {
   "private": true,
   "name": "theia-ide-product-ext",
-  "version": "1.62.200",
+  "version": "1.68.200",
   "description": "Eclipse Theia IDE Product Branding",
   "dependencies": {
-    "@theia/core": "1.62.2",
-    "@theia/getting-started": "1.62.2",
-    "@theia/outline-view": "1.62.2",
-    "@theia/vsx-registry": "1.62.2",
-    "@theia/workspace": "1.62.2",
+    "@theia/core": "1.68.2",
+    "@theia/getting-started": "1.68.2",
+    "@theia/outline-view": "1.68.2",
+    "@theia/vsx-registry": "1.68.2",
+    "@theia/workspace": "1.68.2",
     "inversify": "^6.0.1"
   },
   "devDependencies": {
