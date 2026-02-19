@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+# Use standard port and workspace path, configurable via env
+SERVER_PORT=${LS_PORT:-5000}
+WORKSPACE=${WORKSPACE_PATH:-/home/project}
+
+LAUNCHER_JAR=$(find /opt/jdt-ls/plugins -name "org.eclipse.equinox.launcher_*.jar" | head -n 1)
+
+if [ -z "$LAUNCHER_JAR" ] || [ ! -f "$LAUNCHER_JAR" ]; then
+  echo "[LS-JAVA] ERROR: Could not find Eclipse Equinox launcher JAR" >&2
+  exit 1
+fi
+
+cat <<EOF > /tmp/run-jdt.sh
+#!/bin/bash
+exec java \
+  -Declipse.application=org.eclipse.jdt.ls.core.id1 \
+  -Dosgi.bundles.defaultStartLevel=4 \
+  -Declipse.product=org.eclipse.jdt.ls.core.product \
+  -Dlog.level=ALL \
+  -Xmx1G \
+  --add-modules=ALL-SYSTEM \
+  --add-opens=java.base/java.util=ALL-UNNAMED \
+  --add-opens=java.base/java.lang=ALL-UNNAMED \
+  -jar "${LAUNCHER_JAR}" \
+  -configuration /opt/jdt-ls/config_linux \
+  -data ${WORKSPACE}
+EOF
+
+chmod +x /tmp/run-jdt.sh
+
+echo "[LS-JAVA] Starting Java Language Server on port ${SERVER_PORT} with workspace ${WORKSPACE}"
+exec socat TCP-LISTEN:${SERVER_PORT},reuseaddr,fork EXEC:/tmp/run-jdt.sh
