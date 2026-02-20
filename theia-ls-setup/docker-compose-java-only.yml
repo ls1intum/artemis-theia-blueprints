@@ -1,6 +1,6 @@
 services:
   theia:
-    image: ghcr.io/ls1intum/theia/theia-java-no-ls:latest
+    image: ghcr.io/ls1intum/theia/java-17-no-ls:latest
     container_name: theia-java-ide
     ports:
       - "3000:3000"

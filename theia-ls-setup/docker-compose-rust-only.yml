@@ -1,6 +1,6 @@
 services:
   theia:
-    image: ghcr.io/ls1intum/theia/theia-rust-no-ls:latest
+    image: ghcr.io/ls1intum/theia/rust-no-ls:latest
     container_name: theia-rust-ide
     ports:
       - "3000:3000"

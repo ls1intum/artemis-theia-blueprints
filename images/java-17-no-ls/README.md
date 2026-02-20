@@ -79,7 +79,7 @@ const requireStandardServer = (serverMode !== ServerMode.lightWeight) &&
 
 ## 📦 What's Included
 
-### IDE Container (`theia-java-no-ls`)
+### IDE Container (`java-17-no-ls`)
 - Theia IDE (browser-based)
 - Java 17 JDK (for compilation and execution)
 - Maven (for dependency management)
@@ -129,7 +129,7 @@ docker run -d \
   -e SYNTAXLS_CLIENT_PORT=0 \
   -v project-data:/home/project \
   --network theia-net \
-  ghcr.io/ls1intum/theia/theia-java-no-ls:latest
+  ghcr.io/ls1intum/theia/java-17-no-ls:latest
 ```
 
 ## 🔄 Swapping Language Servers
@@ -186,9 +186,9 @@ docker build -t ghcr.io/ls1intum/theia/base \
   -f images/base-ide/BaseDockerfile .
 
 # Build this image
-docker build -t ghcr.io/ls1intum/theia/theia-java-no-ls \
+docker build -t ghcr.io/ls1intum/theia/java-17-no-ls \
   --build-arg BASE_IDE_TAG=latest \
-  -f images/theia-java-no-ls/ToolDockerfile .
+  -f images/java-17-no-ls/ToolDockerfile .
 
 # Build language server (JDT-LS)
 docker build -t ghcr.io/ls1intum/theia/langserver-java \
@@ -252,7 +252,7 @@ docker exec java-language-server ls -la /home/project
 
 ## 🎯 When to Use This Image
 
-**Use `theia-java-no-ls` when:**
+**Use `java-17-no-ls` when:**
 - ✅ **Experimenting with different Java language servers**
 - ✅ Research comparing JDT-LS vs alternatives
 - ✅ Testing custom/minimal language server implementations

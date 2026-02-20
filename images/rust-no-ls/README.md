@@ -33,7 +33,7 @@ This image provides a **swappable language server architecture** for Rust develo
 
 ## 📦 What's Included
 
-### IDE Container (`theia-rust-no-ls`)
+### IDE Container (`rust-no-ls`)
 - Theia IDE (browser-based)
 - Rust toolchain (rustc, cargo, rustup)
 - Git, SSH, Bash
@@ -83,7 +83,7 @@ docker run -d \
   -e LS_RUST_PORT=5000 \
   -v project-data:/home/project \
   --network rust-net \
-  ghcr.io/ls1intum/theia/theia-rust-no-ls:latest
+  ghcr.io/ls1intum/theia/rust-no-ls:latest
 ```
 
 ## 🔄 Swapping Language Servers
@@ -138,9 +138,9 @@ docker build -t ghcr.io/ls1intum/theia/base \
   -f images/base-ide/BaseDockerfile .
 
 # Build this image
-docker build -t ghcr.io/ls1intum/theia/theia-rust-no-ls \
+docker build -t ghcr.io/ls1intum/theia/rust-no-ls \
   --build-arg BASE_IDE_TAG=latest \
-  -f images/theia-rust-no-ls/ToolDockerfile .
+  -f images/rust-no-ls/ToolDockerfile .
 
 # Build language server (rust-analyzer)
 docker build -t ghcr.io/ls1intum/theia/langserver-rust \
@@ -235,7 +235,7 @@ If UIDs don't match, the language server won't be able to create `Cargo.lock` or
 
 ## 🎯 When to Use This Image
 
-**Use `theia-rust-no-ls` when:**
+**Use `rust-no-ls` when:**
 - ✅ **Experimenting with different Rust language servers**
 - ✅ Research comparing rust-analyzer vs alternatives
 - ✅ Testing custom/minimal language server implementations
