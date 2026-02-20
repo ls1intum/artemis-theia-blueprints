@@ -121,6 +121,12 @@ jobs:
           - docker-file: images/theia-no-ls/ToolDockerfile
             docker-context: "."
             image-name: ls1intum/theia/theia-no-ls
+          - docker-file: images/theia-java-no-ls/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/theia-java-no-ls
+          - docker-file: images/theia-rust-no-ls/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/theia-rust-no-ls
 
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
     with:
