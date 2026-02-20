@@ -11,7 +11,7 @@ This image provides a **swappable language server architecture** for Java develo
 
 ## 🏗️ Architecture Overview
 
-```
+```text
 ┌─────────────────────────────────────┐
 │   Theia IDE Container               │
 │                                     │
@@ -109,11 +109,15 @@ Then open: http://localhost:3000
 # Create shared volume
 docker volume create project-data
 
+# Create network
+docker network create theia-net
+
 # Start language server (JDT-LS)
 docker run -d \
   --name java-language-server \
   -e LS_PORT=5000 \
   -v project-data:/home/project \
+  --network theia-net \
   ghcr.io/ls1intum/theia/langserver-java:latest
 
 # Start IDE
@@ -124,7 +128,7 @@ docker run -d \
   -e LS_JAVA_PORT=5000 \
   -e SYNTAXLS_CLIENT_PORT=0 \
   -v project-data:/home/project \
-  --link java-language-server \
+  --network theia-net \
   ghcr.io/ls1intum/theia/theia-java-no-ls:latest
 ```
 
@@ -273,7 +277,7 @@ This image is designed for **research and experimentation**. The "Debug Mismatch
 
 ## 📚 Technical References
 
-- **theia-lsp extension**: `/Users/nikolas/BA Workdir/theia-lsp-extension/`
+- **theia-lsp extension**: [nikolashack.theia-lsp](https://open-vsx.org/extension/nikolashack/theia-lsp)
 - **redhat.java source**: https://github.com/redhat-developer/vscode-java
 - **JDT-LS documentation**: https://github.com/eclipse-jdtls/eclipse.jdt.ls
 - **LSP Specification**: https://microsoft.github.io/language-server-protocol/

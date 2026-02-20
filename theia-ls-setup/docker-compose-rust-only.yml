@@ -11,6 +11,8 @@ services:
     environment:
       - LS_RUST_HOST=rust-language-server
       - LS_RUST_PORT=5000
+    depends_on:
+      - rust-ls
 
   rust-ls:
     image: ghcr.io/ls1intum/theia/langserver-rust:latest

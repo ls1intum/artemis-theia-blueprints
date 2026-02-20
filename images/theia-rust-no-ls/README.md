@@ -11,7 +11,7 @@ This image provides a **swappable language server architecture** for Rust develo
 
 ## 🏗️ Architecture Overview
 
-```
+```text
 ┌─────────────────────────────────────┐
 │   Theia IDE Container               │
 │                                     │
@@ -64,11 +64,15 @@ Then open: http://localhost:3000
 # Create shared volume
 docker volume create project-data
 
+# Create network
+docker network create rust-net
+
 # Start language server (rust-analyzer)
 docker run -d \
   --name rust-language-server \
   -e LS_PORT=5000 \
   -v project-data:/home/project \
+  --network rust-net \
   ghcr.io/ls1intum/theia/langserver-rust:latest
 
 # Start IDE
@@ -78,7 +82,7 @@ docker run -d \
   -e LS_RUST_HOST=rust-language-server \
   -e LS_RUST_PORT=5000 \
   -v project-data:/home/project \
-  --link rust-language-server \
+  --network rust-net \
   ghcr.io/ls1intum/theia/theia-rust-no-ls:latest
 ```
 
@@ -282,6 +286,6 @@ CMD socat TCP-LISTEN:5000,reuseaddr,fork EXEC:rust-analyzer
 
 ## 📚 Technical References
 
-- **theia-lsp extension**: `/Users/nikolas/BA Workdir/theia-lsp-extension/`
+- **theia-lsp extension**: [nikolashack.theia-lsp](https://open-vsx.org/extension/nikolashack/theia-lsp)
 - **rust-analyzer**: https://rust-analyzer.github.io/
 - **LSP Specification**: https://microsoft.github.io/language-server-protocol/
