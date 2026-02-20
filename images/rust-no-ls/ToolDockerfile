@@ -51,7 +51,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Copy required configuration files
 COPY --from=base-ide /home/theia/package.json ./package.json.base
-COPY images/theia-rust-no-ls/package.json.patch ./package.json.patch
+COPY images/rust-no-ls/package.json.patch ./package.json.patch
 
 # Merge the base package.json with the patch using Node.js
 RUN node -e "const fs=require('fs'); const deepMerge=(t,s)=>{const o={...t}; for(const k in s){o[k]=s[k]!==null&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]?deepMerge(t[k],s[k]):s[k]} return o}; const base=JSON.parse(fs.readFileSync('package.json.base')); const patch=JSON.parse(fs.readFileSync('package.json.patch')); fs.writeFileSync('package.json', JSON.stringify(deepMerge(base,patch), null, 2));" && \
@@ -96,7 +96,7 @@ COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
 # Copy the project configuration files with Rust-specific settings
-COPY --chown=theia:theia images/theia-rust-no-ls/project /home/project
+COPY --chown=theia:theia images/rust-no-ls/project /home/project
 
 EXPOSE 3000
 
