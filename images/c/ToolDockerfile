@@ -88,7 +88,7 @@ COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 # Copy additional plugins (language-specific extensions)
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
-# Copy project settings (includes .theia/settings.json with file exclusions)
+# Copy project settings (includes .vscode/settings.json with file exclusions)
 COPY --chown=theia:theia images/c/project /home/project
 
 EXPOSE 3000

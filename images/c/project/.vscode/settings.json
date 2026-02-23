@@ -5,5 +5,5 @@
         "persisted": true,
         "lost+found": true
     },
-    "telemetry.telemetryLevel": false
+    "telemetry.telemetryLevel": "off"
 }
