@@ -2,148 +2,212 @@
 <div id="theia-logo" align="center">
     <br />
     <img src="https://raw.githubusercontent.com/eclipse-theia/theia-ide/master/theia-extensions/product/src/browser/icons/TheiaIDE.png" alt="Theia Logo" width="300"/>
-    <h3>Eclipse Theia IDE</h3>
+    <h3>EduIDE</h3>
 </div>
 
 <div id="badges" align="center">
 
-The Eclipse Theia IDE is built with this project.\
-Eclipse Theia IDE also serves as a template for building desktop-based products based on the Eclipse Theia platform.
+EduIDE is built with this project.\
+This repository is a fork of the Eclipse Theia IDE project, tailored for computer science education.
 
 </div>
 
-[![Installers](https://img.shields.io/badge/download-installers-blue.svg?style=flat-curved)](https://theia-ide.org//#theiaidedownload)
-[![Build Status](https://ci.eclipse.org/theia/buildStatus/icon?subject=latest&job=Theia2%2Fmaster)](https://ci.eclipse.org/theia/job/Theia2/job/master/)
-<!-- currently we have no working next job because next builds are not published -->
-<!-- [![Build Status](https://ci.eclipse.org/theia/buildStatus/icon?subject=next&job=theia-next%2Fmaster)](https://ci.eclipse.org/theia/job/theia-next/job/master/) -->
+[Main Theia Repository](https://github.com/eclipse-theia/theia) — [Eclipse Theia IDE Repository](https://github.com/eclipse-theia/theia-ide)
 
-[Main Theia Repository](https://github.com/eclipse-theia/theia)
+---
 
-[Visit the Theia website](http://www.theia-ide.org) for more documentation: [Using the Theia IDE](https://theia-ide.org/docs/user_getting_started/), [Packaging Theia as a Desktop Product](https://theia-ide.org/docs/blueprint_documentation/).
+## What is EduIDE?
+
+EduIDE provides **browser-based, language-specific IDE environments** for higher education. Students open a full IDE in their browser — no local installation required — pre-configured with the compiler, language server, linter, and editor settings appropriate for their course.
+
+Instructors select a matching image in [Artemis](https://github.com/ls1intum/Artemis) when creating a programming exercise. EduIDE handles the rest.
+
+### Available images
+
+| Language | Image | Language server & autocomplete |
+| --- | --- | :---: |
+| Java 17 | `ghcr.io/ls1intum/theia/java-17` | ✔️ |
+| Python | `ghcr.io/ls1intum/theia/python` | ✔️ |
+| C | `ghcr.io/ls1intum/theia/c` | ✔️ |
+| JavaScript | `ghcr.io/ls1intum/theia/javascript` | ✔️ |
+| Rust | `ghcr.io/ls1intum/theia/rust` | ✔️ |
+| Swift | `ghcr.io/ls1intum/theia/swift` | ✔️ |
+| OCaml | `ghcr.io/ls1intum/theia/ocaml` | ✔️ |
+| Haskell | `ghcr.io/ls1intum/theia/haskell` | ❌ |
+
+### Architecture overview
+
+All images share a common **two-tier build**:
+
+1. **`base-ide`** — Compiles the Theia application from source, downloads core plugins (Git, Markdown, Scorpio/Artemis integration), and produces a slim runtime layer.
+2. **Language images** — Each starts from the `base-ide` layer, adds a language compiler/runtime (via apt), and downloads language-specific VS Code extensions from [Open VSX](https://open-vsx.org/).
+
+This means Theia is only built once. Adding or updating a language image does not require rebuilding the IDE.
+
+
+## Running locally
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) with BuildKit enabled (Docker Desktop 4.x or Docker Engine 23+)
+- [Docker Compose](https://docs.docker.com/compose/) v2.x
+
+### Option A — Run a pre-built image
+
+Pull and run any language image directly:
+
+```sh
+docker run --rm -p 3000:3000 ghcr.io/ls1intum/theia/java-17:latest
+```
+
+Then open <http://localhost:3000/> in your browser.
+
+### Option B — Build and run locally with Docker Compose
+
+The repository includes `docker-compose.images.yml` which builds all images and wires them together. Language images automatically consume the locally-built `base-ide` via `additional_contexts`.
+
+**Build everything** (base first, then all language images in parallel):
+
+```sh
+docker compose -f docker-compose.images.yml build
+```
+
+**Build a single language image** (base is rebuilt or reused from cache):
+
+```sh
+docker compose -f docker-compose.images.yml build java-17
+```
+
+**Start a specific IDE** and open it in the browser:
+
+```sh
+docker compose -f docker-compose.images.yml up java-17
+# → http://localhost:3003/
+```
+
+Port mapping per service:
+
+| Service | Host port | URL |
+| --- | --- | --- |
+| `base-ide` | 3000 | <http://localhost:3000/> |
+| `c` | 3001 | <http://localhost:3001/> |
+| `haskell` | 3002 | <http://localhost:3002/> |
+| `java-17` | 3003 | <http://localhost:3003/> |
+| `javascript` | 3004 | <http://localhost:3004/> |
+| `ocaml` | 3005 | <http://localhost:3005/> |
+| `python` | 3006 | <http://localhost:3006/> |
+| `rust` | 3007 | <http://localhost:3007/> |
+| `swift` | 3008 | <http://localhost:3008/> |
+
+---
+
+## Contributing
+
+### Repository structure
+
+```text
+images/
+  base-ide/          # Builds Theia from source (BaseDockerfile)
+  <lang>/            # One directory per language (ToolDockerfile)
+    ToolDockerfile
+    package.json.patch              # Plugin overrides merged on top of root package.json
+    project/.vscode/settings.json  # Workspace settings loaded by Theia on startup
+applications/browser/        # Browser target (compiled into base-ide)
+theia-extensions/product/    # Custom branding extension (included in all images)
+scripts/                     # Utility scripts (update-theia-version, make-files-writeable)
+docker-compose.images.yml    # Local build and run
+.github/workflows/build.yml  # CI: builds and pushes all images to GHCR
+```
+
+### Adding a new language image
+
+1. **Create `images/<lang>/`** with three files:
+
+   **`ToolDockerfile`** — copy `images/c/ToolDockerfile` as a starting point and replace the apt packages and plugin download step with your language's tooling.
+
+   **`package.json.patch`** — declare only the plugin overrides. The file is deep-merged with the root `package.json` at build time:
+
+   ```json
+   {
+     "theiaPlugins": {
+       "my-publisher.my-extension": "https://open-vsx.org/api/my-publisher/my-extension/1.0.0/file/..."
+     },
+     "theiaPluginsExcludeIds": [
+       "vscode.php"
+     ]
+   }
+   ```
+
+   Browse plugins at [open-vsx.org](https://open-vsx.org/).
+
+   **`project/.vscode/settings.json`** — workspace settings Theia loads on startup. At minimum include:
+
+   ```json
+   {
+     "extensions.ignoreRecommendations": true,
+     "files.exclude": { "**/.theia": true, "persisted": true, "lost+found": true },
+     "telemetry.telemetryLevel": false
+   }
+   ```
+
+2. **Add the service to `docker-compose.images.yml`** following the existing pattern (include `additional_contexts` so local builds use the locally-built base):
+
+   ```yaml
+   <lang>:
+     image: theia-<lang>:local
+     build:
+       context: .
+       dockerfile: images/<lang>/ToolDockerfile
+       args:
+         BASE_IMAGE: theia-base:local
+       additional_contexts:
+         base-ide: "service:base-ide"
+     depends_on:
+       - base-ide
+     ports:
+       - "30XX:3000"
+   ```
+
+3. **Add a matrix entry to `.github/workflows/build.yml`** under the `build-and-push` job so CI publishes the image.
+
+4. **Test locally** before opening a PR:
+
+   ```sh
+   docker compose -f docker-compose.images.yml build <lang>
+   docker compose -f docker-compose.images.yml up <lang>
+   # open http://localhost:30XX/ and verify the IDE starts and the language tools work
+   ```
+
+### Updating the Theia version
+
+All `@theia/*` packages must stay in sync. Use the provided script:
+
+```sh
+yarn update:theia <new-version>
+# example:
+yarn update:theia 1.69.0
+```
+
+Then rebuild and test locally before pushing.
+
+### CI / CD
+
+The GitHub Actions workflow (`.github/workflows/build.yml`) runs on every pull request, push to `master`, and release:
+
+- **PRs** produce images tagged `pr-<number>` and `pr-<number>-<sha>` — useful for review testing.
+- **`master`** produces `latest` and `latest-<sha>`.
+- **Releases** produce a semver tag and a SHA-tagged variant.
+
+The `base-ide` image is always built first. All language images are built in parallel afterwards, receiving `BASE_IDE_TAG` as a build argument so they pull the matching base.
+
+Arm64 builds are included for all events except PRs (to keep PR feedback fast).
+
+---
 
 ## License
 
-- [MIT](LICENSE)
+[MIT](LICENSE)
 
 ## Trademark
 
-"Theia" is a trademark of the Eclipse Foundation
-<https://www.eclipse.org/theia>
-
-## What is this?
-
-The Eclipse IDE is a modern and open IDE for cloud and desktop. The Theia IDE is based on the [Theia platform](https://theia-ide.org).
-The Theia IDE is available as a [downloadable desktop application](https://theia-ide.org//#theiaidedownload). You can also try the latest version of the Theia IDE online. The online test version is limited to 30 minutes per session and hosted via Theia.cloud. Finally, we provide an [experimental Docker image](#docker) for hosting the Theia IDE online.
-
-The Eclipse Theia IDE also serves as a **template** for building desktop-based products based on the Eclipse Theia platform, as well as to showcase Eclipse Theia capabilities. It is made up of a subset of existing Eclipse Theia features and extensions. [Documentation is available](https://theia-ide.org/docs/composing_applications/) to help you customize and build your own Eclipse Theia-based product.
-
-## Theia IDE vs Theia Blueprint
-
-The Theia IDE has been rebranded from its original name “Theia Blueprint”. You can therefore assume the terms “Theia IDE” and “Theia Blueprint” to be synonymous.
-
-## Development
-
-### Requirements
-
-Please check Theia's [prerequisites](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites), and keep node versions aligned between Theia IDE and that of the referenced Theia version.
-
-### Documentation
-
-Documentation on how to package Theia as a Desktop Product may be found [here](https://theia-ide.org/docs/blueprint_documentation/)
-
-### Repository Structure
-
-- Root level configures mono-repo build with lerna
-- `applications` groups the different app targets
-  - `browser` contains a browser based version of Eclipse Theia IDE that may be packaged as a Docker image
-  - `electron` contains the electron app to package, packaging configuration, and E2E tests for the electron target.
-- `theia-extensions` groups the various custom theia extensions for the Eclipse Theia IDE
-  - `product` contains a Theia extension contributing the product branding (about dialogue and welcome page).
-  - `updater` contains a Theia extension contributing the update mechanism and corresponding UI elements (based on the electron updater).
-  - `launcher` contains a Theia extension contributing, for AppImage applications, the option to create a script that allows to start the Eclipse Theia IDE from the command line by calling the 'theia' command.
-
-### Build
-
-For development and casual testing of the Eclipse Theia IDE, one can build it in "dev" mode. This permits building the IDE on systems with less resources, like a Raspberry Pi 4B with 4GB of RAM.
-
-```sh
-# Build "dev" version of the app. Its quicker, uses less resources, 
-# but the front end app is not "minified"
-yarn && yarn build:dev && yarn download:plugins
-```
-
-Production applications:
-
-```sh
-# Build production version of the Eclipse Theia IDE app
-yarn && yarn build && yarn download:plugins
-```
-
-### Package the Applications
-
-ATM we only produce packages for the Electron application.
-
-```sh
-yarn package:applications
-# or
-yarn electron package
-```
-
-The packaged application is located in `applications/electron/dist`.
-
-### Create a Preview Electron Electron Application (without packaging it)
-
-```sh
-yarn electron package:preview
-```
-
-The packaged application is located in `applications/electron/dist`.
-
-### Running E2E Tests on Electron
-
-The E2E tests basic UI tests of the actual application.
-This is done based on the preview of the packaged application.
-
-```sh
-yarn electron package:preview
-yarn electron test
-```
-
-### Running Browser app
-
-The browser app may be started with
-
-```sh
-yarn browser start
-```
-
-and connect to <http://localhost:3000/>
-
-### Troubleshooting
-
-- [_"Don't expect that you can build app for all platforms on one platform."_](https://www.electron.build/multi-platform-build)
-
-### Reporting Feature Requests and Bugs
-
-The features in the Eclipse Theia IDE are based on Theia and the included extensions/plugins. For bugs in Theia please consider opening an issue in the [Theia project on Github](https://github.com/eclipse-theia/theia/issues/new/choose).
-The Eclipse Theia IDE only packages existing functionality into a product and installers for the product. If you believe there is a mistake in packaging, something needs to be added to the packaging or the installers do not work properly, please [open an issue on Github](https://github.com/eclipse-theia/theia-ide/issues/new/choose) to let us know.
-
-### Docker
-
-The Docker image of the Theia IDE is currently in _experimental state_. It is built from the same sources and packages as the desktop version, but it is not part of the [preview test](https://github.com/eclipse-theia/theia-ide/blob/master/PUBLISHING.md#preview-testing-and-release-process-for-the-theia-ide).
-You can find a prebuilt Docker image of the IDE [here](https://github.com/eclipse-theia/theia-ide/pkgs/container/theia-ide%2Ftheia-ide).
-
-You can also create the Docker image for the Eclipse Theia IDE based on the browser app with the following build command:
-
-```sh
-docker build -t theia-ide -f browser.Dockerfile .
-```
-
-You may then run this with
-
-```sh
-docker run -p=3000:3000 --rm theia-ide
-```
-
-and connect to <http://localhost:3000/>
-# Test memory-backed build cache performance
+"Theia" is a trademark of the Eclipse Foundation — <https://www.eclipse.org/theia>
