@@ -86,7 +86,7 @@
     "@theia/workspace": "1.68.2",
     "fs-extra": "^9.0.1",
     "theia-ide-launcher-ext": "1.68.200",
-    "theia-ide-product-ext": "1.68.200",
+    "theia-ide-product-ext": "1.68.201",
     "theia-ide-updater-ext": "1.68.200"
   },
   "devDependencies": {
