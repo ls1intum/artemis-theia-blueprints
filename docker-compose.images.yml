@@ -14,6 +14,8 @@ services:
       dockerfile: images/c/ToolDockerfile
       args:
         BASE_IMAGE: theia-base:local
+      additional_contexts:
+        base-ide: "service:base-ide"
     depends_on:
       - base-ide
     ports:
@@ -26,6 +28,8 @@ services:
       dockerfile: images/haskell/ToolDockerfile
       args:
         BASE_IMAGE: theia-base:local
+      additional_contexts:
+        base-ide: "service:base-ide"
     depends_on:
       - base-ide
     ports:
@@ -38,6 +42,8 @@ services:
       dockerfile: images/java-17/ToolDockerfile
       args:
         BASE_IMAGE: theia-base:local
+      additional_contexts:
+        base-ide: "service:base-ide"
     depends_on:
       - base-ide
     ports:
@@ -50,6 +56,8 @@ services:
       dockerfile: images/javascript/ToolDockerfile
       args:
         BASE_IMAGE: theia-base:local
+      additional_contexts:
+        base-ide: "service:base-ide"
     depends_on:
       - base-ide
     ports:
@@ -62,6 +70,8 @@ services:
       dockerfile: images/ocaml/ToolDockerfile
       args:
         BASE_IMAGE: theia-base:local
+      additional_contexts:
+        base-ide: "service:base-ide"
     depends_on:
       - base-ide
     ports:
@@ -74,6 +84,8 @@ services:
       dockerfile: images/python/ToolDockerfile
       args:
         BASE_IMAGE: theia-base:local
+      additional_contexts:
+        base-ide: "service:base-ide"
     depends_on:
       - base-ide
     ports:
@@ -86,6 +98,8 @@ services:
       dockerfile: images/rust/ToolDockerfile
       args:
         BASE_IMAGE: theia-base:local
+      additional_contexts:
+        base-ide: "service:base-ide"
     depends_on:
       - base-ide
     ports:
@@ -98,6 +112,8 @@ services:
       dockerfile: images/swift/ToolDockerfile
       args:
         BASE_IMAGE: theia-base:local
+      additional_contexts:
+        base-ide: "service:base-ide"
     depends_on:
       - base-ide
     ports:
