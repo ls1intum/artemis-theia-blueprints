@@ -1,0 +1,121 @@
+name: Build and Push Theia Images (Fallback)
+
+# Fallback workflow using standard GitHub-hosted runners.
+# Use this when the ARC self-hosted runners or cluster-internal services
+# (Verdaccio, APT proxy, registry mirrors) are unavailable or broken.
+# Builds are slower (no caching infra) but do not depend on any
+# cluster-internal services.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # Determine base tag (pr-<nr>, release version, or latest)
+  determine-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      base_tag: ${{ steps.set-tag.outputs.base_tag }}
+      sha_tag: ${{ steps.set-tag.outputs.sha_tag }}
+      cache_tag: ${{ steps.set-tag.outputs.cache_tag }}
+    steps:
+      - name: Checkout for SHA access
+        uses: actions/checkout@v4
+
+      - name: Set tags
+        id: set-tag
+        run: |
+          SHORT_SHA=$(git rev-parse --short=7 HEAD)
+          REF_NAME="${{ github.ref_name }}"
+          # Sanitize ref name for Docker tag compatibility (lowercase, replace invalid chars with -)
+          SAFE_REF_NAME=$(echo "$REF_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_TAG="pr-${{ github.event.pull_request.number }}"
+            CACHE_TAG="build-cache-pr-${{ github.event.pull_request.number }}"
+          elif [[ "${{ github.event_name }}" == "release" ]]; then
+            BASE_TAG="${SAFE_REF_NAME}"
+            CACHE_TAG="build-cache-${SAFE_REF_NAME}"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            BASE_TAG="latest"
+            CACHE_TAG="build-cache"
+          else
+            # For workflow_dispatch or push on feature branches
+            BASE_TAG="${SAFE_REF_NAME}"
+            CACHE_TAG="build-cache-${SAFE_REF_NAME}"
+          fi
+
+          echo "base_tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "sha_tag=${BASE_TAG}-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "cache_tag=${CACHE_TAG}" >> "$GITHUB_OUTPUT"
+
+  build-and-push-base:
+    needs: determine-tag
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
+    with:
+      docker-file: images/base-ide/BaseDockerfile
+      image-name: ls1intum/theia/base
+      docker-context: .
+      tags: |
+        ${{ needs.determine-tag.outputs.base_tag }}
+        ${{ needs.determine-tag.outputs.sha_tag }}
+      network: "host"
+      build-amd64: true
+      build-arm64: false
+      runner-amd64: ubuntu-24.04
+      runner-arm64: ubuntu-24.04-arm
+      cache-from: type=registry,ref=ghcr.io/ls1intum/theia/base:${{ needs.determine-tag.outputs.cache_tag }}
+      cache-to: type=registry,ref=ghcr.io/ls1intum/theia/base:${{ needs.determine-tag.outputs.cache_tag }},mode=max
+    secrets: inherit
+
+  build-and-push:
+    needs:
+      - determine-tag
+      - build-and-push-base
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - docker-file: images/c/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/c
+          - docker-file: images/haskell/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/haskell
+          - docker-file: images/java-17/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/java-17
+          - docker-file: images/javascript/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/javascript
+          - docker-file: images/ocaml/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/ocaml
+          - docker-file: images/python/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/python
+          - docker-file: images/rust/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/rust
+
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/arc-runner-support
+    with:
+      docker-file: ${{ matrix.docker-file }}
+      image-name: ${{ matrix.image-name }}
+      docker-context: ${{ matrix.docker-context }}
+      build-args: |
+        BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
+      tags: |
+        ${{ needs.determine-tag.outputs.base_tag }}
+        ${{ needs.determine-tag.outputs.sha_tag }}
+      network: "host"
+      build-amd64: true
+      build-arm64: false
+      runner-amd64: ubuntu-24.04
+      runner-arm64: ubuntu-24.04-arm
+      cache-from: type=registry,ref=ghcr.io/${{ matrix.image-name }}:${{ needs.determine-tag.outputs.cache_tag }}
+      cache-to: type=registry,ref=ghcr.io/${{ matrix.image-name }}:${{ needs.determine-tag.outputs.cache_tag }},mode=max
+    secrets: inherit
