@@ -32,9 +32,7 @@ COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 
 # Install ONLY @theia/cli (needed for download:plugins command)
-ARG NPM_REGISTRY
-RUN if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi \
-    && yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
+RUN yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
 # Download language-specific plugins
 RUN yarn download:plugins
@@ -42,14 +40,6 @@ RUN yarn download:plugins
 # Parallel stage: Prepare Swift Application (runs concurrently with plugin-image)
 # Adapted from https://github.com/ls1intum/artemis-swift-swiftlint-docker/blob/main/Dockerfile
 FROM ${BUILDER_IMAGE} AS builder
-
-# Configure APT proxy if provided
-ARG APT_HTTP_PROXY
-RUN if [ -n "$APT_HTTP_PROXY" ]; then \
-      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
-    fi
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -78,14 +68,6 @@ WORKDIR /home/theia
 # Copy node from plugin-image as it is required for Theia
 COPY --from=plugin-image /usr/local/bin/node /usr/local/bin/
 
-# Configure APT proxy if provided
-ARG APT_HTTP_PROXY
-RUN if [ -n "$APT_HTTP_PROXY" ]; then \
-      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
-    fi
-
 # Required by Swift with BuildKit cache
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -95,9 +77,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     libxml2 \
     bash \
     ca-certificates
-
-# Clean up APT proxy config if it was set
-RUN rm -f /etc/apt/apt.conf.d/01proxy
 
 # Create theia user and directories
 # Application will be copied to /home/theia

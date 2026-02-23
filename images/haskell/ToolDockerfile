@@ -16,14 +16,6 @@ RUN useradd --system --create-home --user-group --uid 101 theia && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
-# Configure APT proxy if provided
-ARG APT_HTTP_PROXY
-RUN if [ -n "$APT_HTTP_PROXY" ]; then \
-      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
-    fi
-
 # Install all system dependencies with BuildKit cache mounts
 # Note: GHC 9.6 (LTS 22) supports LLVM 14-15
 # Ubuntu 24.04 provides LLVM 14-20, we use LLVM 14 for compatibility
@@ -34,9 +26,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     wget apt-transport-https bash ca-certificates curl gcc g++ make xz-utils \
     zlib1g-dev git gnupg netbase libffi-dev libgmp-dev libgmp10 \
     libncurses-dev libncurses6 libtinfo6 perl tar llvm-14 llvm-14-dev llvm-14-runtime libnuma-dev
-
-# Clean up APT proxy config if it was set
-RUN rm -f /etc/apt/apt.conf.d/01proxy
 
 # Install Haskell Stack with pinned version and SHA256 verification
 # Automatically selects the correct architecture (x86_64 or aarch64)
@@ -92,9 +81,7 @@ COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 
 # Install ONLY @theia/cli (needed for download:plugins command)
-ARG NPM_REGISTRY
-RUN if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi \
-    && yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
+RUN yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
 # Download language-specific plugins
 RUN yarn download:plugins
