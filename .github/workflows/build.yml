@@ -22,10 +22,9 @@ concurrency:
 
 jobs:
   # ARC self-hosted runners (fast, with Verdaccio/registry/proxy caching)
-  # Disabled while ARC infra or Verdaccio is unavailable — re-enable by uncommenting.
-  # arc:
-  #   uses: ./.github/workflows/arc-runner.yml
-  #   secrets: inherit
+  arc:
+    uses: ./.github/workflows/arc-runner.yml
+    secrets: inherit
 
   # GitHub-hosted runners (slower, no cluster dependencies, reliable fallback)
   github-hosted:
