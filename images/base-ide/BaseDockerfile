@@ -78,7 +78,7 @@ COPY --from=build-stage /home/theia/applications/browser/package.json applicatio
 COPY --from=build-stage /home/theia/theia-extensions/product/package.json theia-extensions/product/
 
 # Install ONLY production dependencies
-RUN yarn install --production --frozen-lockfile --ignore-scripts --network-timeout 600000
+RUN yarn install --production --ignore-scripts --network-timeout 600000
 
 # Final runtime stage
 FROM node:22-bullseye-slim AS base-ide
