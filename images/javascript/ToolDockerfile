@@ -16,22 +16,11 @@ RUN useradd --system --create-home --user-group --uid 101 theia && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
-# Configure APT proxy if provided
-ARG APT_HTTP_PROXY
-RUN if [ -n "$APT_HTTP_PROXY" ]; then \
-      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
-      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
-    fi
-
 # Install all system dependencies with BuildKit cache mounts
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && \
     apt-get install -y --no-install-recommends bash git curl ca-certificates
-
-# Clean up APT proxy config if it was set
-RUN rm -f /etc/apt/apt.conf.d/01proxy
 
 # Parallel stage: Plugin download (runs concurrently with apt-deps)
 FROM node:22-bullseye AS plugin-image
@@ -57,9 +46,7 @@ COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 
 # Install ONLY @theia/cli (needed for download:plugins command)
-ARG NPM_REGISTRY
-RUN if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi \
-    && yarn add -W @theia/cli@1.62.2 --network-timeout 1000000
+RUN yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
 # Download language-specific plugins
 RUN yarn download:plugins
