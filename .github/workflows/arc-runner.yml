@@ -1,11 +1,10 @@
 name: Build and Push Theia Images (ARC runners)
 
 # Builds using stateless ARC self-hosted runners with cluster-internal caching:
-#   - Verdaccio NPM registry mirror
-#   - APT cacher-ng proxy
-#   - Squid HTTPS proxy
-#   - Docker Hub and GHCR registry mirrors
-#   - BuildKit layer cache stored in GHCR
+#   - Harbor pull-through proxy cache for Docker Hub and GHCR images
+#   - BuildKit layer cache via GitHub Actions cache server (type=gha)
+#     backed by cluster-local cache-server pods (ACTIONS_CACHE_URL)
+#   - GHCR registry cache as read-only fallback (type=registry)
 #
 # Faster than the GitHub-hosted variant but requires the ARC infrastructure
 # and all cluster-internal services to be healthy.
@@ -68,8 +67,11 @@ jobs:
       runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
       runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
       registry-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && '131.159.88.30:30080' || '' }}
-      cache-from: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/ls1intum/theia/base:{0}{1}type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache{1}', needs.determine-tag.outputs.cache_tag, '\n') || '' }}
-      cache-to: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/ls1intum/theia/base:{0},mode=max', needs.determine-tag.outputs.cache_tag) || '' }}
+      cache-from: |
+        type=gha,scope=base
+        type=registry,ref=ghcr.io/ls1intum/theia/base:${{ needs.determine-tag.outputs.cache_tag }}
+        type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache
+      cache-to: type=gha,scope=base,mode=max
     secrets: inherit
 
   build-and-push:
@@ -118,6 +120,9 @@ jobs:
       runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
       runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
       registry-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && '131.159.88.30:30080' || '' }}
-      cache-from: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/{0}:{1}{2}type=registry,ref=ghcr.io/{0}:build-cache{2}', matrix.image-name, needs.determine-tag.outputs.cache_tag, '\n') || '' }}
-      cache-to: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && format('type=registry,ref=ghcr.io/{0}:{1},mode=max', matrix.image-name, needs.determine-tag.outputs.cache_tag) || '' }}
+      cache-from: |
+        type=gha,scope=${{ matrix.image-name }}
+        type=registry,ref=ghcr.io/${{ matrix.image-name }}:${{ needs.determine-tag.outputs.cache_tag }}
+        type=registry,ref=ghcr.io/${{ matrix.image-name }}:build-cache
+      cache-to: type=gha,scope=${{ matrix.image-name }},mode=max
     secrets: inherit
