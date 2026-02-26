@@ -72,6 +72,7 @@ jobs:
         type=registry,ref=ghcr.io/ls1intum/theia/base:${{ needs.determine-tag.outputs.cache_tag }}
         type=registry,ref=ghcr.io/ls1intum/theia/base:build-cache
       cache-to: type=gha,scope=base,mode=max
+      cache-dance: true
     secrets: inherit
 
   build-and-push:
@@ -125,4 +126,5 @@ jobs:
         type=registry,ref=ghcr.io/${{ matrix.image-name }}:${{ needs.determine-tag.outputs.cache_tag }}
         type=registry,ref=ghcr.io/${{ matrix.image-name }}:build-cache
       cache-to: type=gha,scope=${{ matrix.image-name }},mode=max
+      cache-dance: true
     secrets: inherit
