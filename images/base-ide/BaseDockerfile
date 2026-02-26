@@ -35,7 +35,15 @@ RUN --mount=type=cache,id=yarn-cache,target=/usr/local/share/.cache/yarn,sharing
 
 # Download plugins early to leverage caching
 # This step relies on package.json and scripts/, so it can be cached before source code changes
-RUN yarn download:plugins
+# Cache mount keeps previously-downloaded .vsix files across builds so only changed plugins
+# are re-fetched when the layer is invalidated.  The mount is at a staging path because
+# --mount=type=cache contents are NOT persisted into the layer — we seed from cache, run the
+# download (which skips existing files), then sync back.
+RUN --mount=type=cache,id=plugins-base,target=/tmp/plugin-cache,sharing=locked \
+    mkdir -p /home/theia/plugins \
+    && (cp -a /tmp/plugin-cache/. /home/theia/plugins/ 2>/dev/null || true) \
+    && yarn download:plugins \
+    && cp -a /home/theia/plugins/. /tmp/plugin-cache/
 
 # Build the browser application (plugins already downloaded in install-deps)
 FROM install-deps AS build-stage
