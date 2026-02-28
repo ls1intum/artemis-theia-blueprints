@@ -1,10 +1,12 @@
+# syntax=docker/dockerfile:1
 # Dependency installation stage to maximise caching
 FROM node:22-bullseye AS install-deps
 
-# Install build prerequisites only once and clean up afterwards
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends libxkbfile-dev libsecret-1-dev jq ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# Install build prerequisites only once; BuildKit cache mounts keep apt data across builds
+RUN --mount=type=cache,id=apt-cache-install-deps,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=apt-lib-install-deps,target=/var/lib/apt,sharing=locked \
+    apt-get update \
+    && apt-get install -y --no-install-recommends libxkbfile-dev libsecret-1-dev jq ca-certificates
 
 WORKDIR /home/theia
 
@@ -26,12 +28,22 @@ RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json.merg
 RUN cp package.json.merged package.json
 
 # Install all workspace dependencies needed for the build (using lockfile for speed + reproducibility)
-RUN yarn config set network-timeout 600000 -g \
+# Yarn cache mount allows incremental downloads when package.json changes
+RUN --mount=type=cache,id=yarn-cache,target=/usr/local/share/.cache/yarn,sharing=locked \
+    yarn config set network-timeout 600000 -g \
     && yarn install
 
 # Download plugins early to leverage caching
 # This step relies on package.json and scripts/, so it can be cached before source code changes
-RUN yarn download:plugins
+# Cache mount keeps previously-downloaded .vsix files across builds so only changed plugins
+# are re-fetched when the layer is invalidated.  The mount is at a staging path because
+# --mount=type=cache contents are NOT persisted into the layer — we seed from cache, run the
+# download (which skips existing files), then sync back.
+RUN --mount=type=cache,id=plugins-base,target=/tmp/plugin-cache,sharing=locked \
+    mkdir -p /home/theia/plugins \
+    && (cp -a /tmp/plugin-cache/. /home/theia/plugins/ 2>/dev/null || true) \
+    && yarn download:plugins \
+    && cp -a /home/theia/plugins/. /tmp/plugin-cache/
 
 # Build the browser application (plugins already downloaded in install-deps)
 FROM install-deps AS build-stage
@@ -68,9 +80,10 @@ FROM node:22-bullseye-slim AS prod-deps
 WORKDIR /home/theia
 
 # Yarn needs git for dependencies that reference git URLs.
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends git ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,id=apt-cache-prod-deps,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=apt-lib-prod-deps,target=/var/lib/apt,sharing=locked \
+    apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates
 
 # Copy package manifests (including yarn.lock for frozen-lockfile)
 COPY --from=build-stage /home/theia/package.json /home/theia/lerna.json /home/theia/yarn.lock ./
@@ -78,15 +91,17 @@ COPY --from=build-stage /home/theia/applications/browser/package.json applicatio
 COPY --from=build-stage /home/theia/theia-extensions/product/package.json theia-extensions/product/
 
 # Install ONLY production dependencies
-RUN yarn install --production --ignore-scripts --network-timeout 600000
+RUN --mount=type=cache,id=yarn-cache,target=/usr/local/share/.cache/yarn,sharing=locked \
+    yarn install --production --ignore-scripts --network-timeout 600000
 
 # Final runtime stage
 FROM node:22-bullseye-slim AS base-ide
 
 # Install only the libraries required at runtime
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends libsecret-1-0 libxkbfile1 \
-    && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,id=apt-cache-base-ide,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=apt-lib-base-ide,target=/var/lib/apt,sharing=locked \
+    apt-get update \
+    && apt-get install -y --no-install-recommends libsecret-1-0 libxkbfile1
 
 WORKDIR /home/theia
 
