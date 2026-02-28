@@ -1,7 +1,7 @@
 services:
   theia:
-    image: ghcr.io/ls1intum/theia/theia-no-ls:latest
-    container_name: theia-ide
+    image: ghcr.io/ls1intum/theia/rust-no-ls:latest
+    container_name: theia-rust-ide
     ports:
       - "3000:3000"
     volumes:
@@ -9,14 +9,14 @@ services:
     networks:
       - app-net
     environment:
-      - LS_JAVA_HOST=java-language-server
-      - LS_JAVA_PORT=5000
+      - LS_RUST_HOST=rust-language-server
+      - LS_RUST_PORT=5000
     depends_on:
-      - java-ls
+      - rust-ls
 
-  java-ls:
-    image: ghcr.io/ls1intum/theia/langserver-java:latest
-    container_name: java-language-server
+  rust-ls:
+    image: ghcr.io/ls1intum/theia/langserver-rust:latest
+    container_name: rust-language-server
     environment:
       - LS_PORT=5000
       - WORKSPACE_PATH=/home/project
