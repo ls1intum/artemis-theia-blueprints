@@ -27,7 +27,7 @@
     "npm-intellisense.importLinebreak": ";\r\n",
     "npm-intellisense.importDeclarationType": "const",
     /**
-     * The following line is for the specific configuration of the 
+     * The following line is for the specific configuration of the
      * Path-Intellisense extension over Javascript
      */
     "javascript.suggest.paths": false,

@@ -10,5 +10,5 @@
     "java.help.showReleaseNotes": false,
     "java.silentNotification": true,
     "redhat.telemetry.enabled": false,
-    "telemetry.telemetryLevel": false
+    "telemetry.telemetryLevel": "off"
 }
