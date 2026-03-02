@@ -26,12 +26,12 @@ RUN if [ -n "$APT_HTTP_PROXY" ]; then \
       sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
     fi
 
-# Install required tools for Java development (no Rust tooling)
+# Install required tools for Java development (no embedded language server)
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-    git openssh-client openssh-server bash libsecret-1-0 \
+    bash zsh curl git openssh-client openssh-server libsecret-1-0 \
     openjdk-17-jdk maven ca-certificates && \
     apt-get autoremove -y
 
@@ -65,7 +65,7 @@ COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 # This is much faster than full yarn install since we already have prod node_modules
 ARG NPM_REGISTRY
 RUN if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi \
-    && yarn add -W @theia/cli@1.62.2 --network-timeout 1000000
+    && yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
 # Download Java plugins and external LS connector
 RUN yarn download:plugins
@@ -88,13 +88,21 @@ COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 # Copy additional plugins (Java extensions + theia-lsp connector)
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
+# Install Oh My Zsh and plugins with pinned versions
+RUN git clone --depth 1 --branch master https://github.com/ohmyzsh/ohmyzsh.git ${HOME}/.oh-my-zsh && \
+    git clone --depth 1 --branch v0.7.1 https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+    git clone --depth 1 --branch 0.8.0 https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+# Copy centralized zsh configuration
+COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
+
 # Copy the project configuration files with Java-specific settings
 COPY --chown=theia:theia images/java-17-no-ls/project /home/project
 
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
-ENV SHELL=/bin/bash \
+ENV SHELL=/bin/zsh \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
