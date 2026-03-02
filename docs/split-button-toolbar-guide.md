@@ -59,7 +59,7 @@ interface TestConfiguration {
     command: string;
 }
 
-export const TEST_TOOLBAR_MENU: MenuPath = ['task-toolbar', 'test'];
+export const TEST_TOOLBAR_MENU: MenuPath = ['test-toolbar', 'test'];
 
 @injectable()
 export class TestToolbarContribution extends AbstractSplitButtonContribution<TestConfiguration> {
@@ -113,7 +113,7 @@ export class TestToolbarContribution extends AbstractSplitButtonContribution<Tes
         if (config) {
             return nls.localize('theia/test-toolbar/run', 'Test: {0}', config.name);
         }
-        return nls.localize('theia/test-toolbar/run', 'Run Tests');
+        return nls.localize('theia/test-toolbar/runDefault', 'Run Tests');
     }
 
     protected getMenuTooltip(): string {

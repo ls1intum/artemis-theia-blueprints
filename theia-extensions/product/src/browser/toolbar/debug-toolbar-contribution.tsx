@@ -6,7 +6,7 @@ import { DebugSessionOptions } from '@theia/debug/lib/browser/debug-session-opti
 import { DebugConfiguration } from '@theia/debug/lib/common/debug-configuration';
 import { AbstractSplitButtonContribution } from './abstract-split-button-contribution';
 
-export const DEBUG_TOOLBAR_MENU: MenuPath = ['task-toolbar', 'debug'];
+export const DEBUG_TOOLBAR_MENU: MenuPath = ['debug-toolbar', 'debug'];
 const DEBUG_REFRESH_DELAY_MS = 600;
 
 @injectable()
