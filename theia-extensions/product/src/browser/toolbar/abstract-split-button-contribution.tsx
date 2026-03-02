@@ -161,7 +161,12 @@ export abstract class AbstractSplitButtonContribution<TConfig> implements TabBar
         if (!config) {
             return;
         }
-        await this.executeConfiguration(config);
+        try {
+            await this.executeConfiguration(config);
+        } catch (error) {
+            console.error(`Failed to execute configuration for ${this.toolbarId}:`, error);
+            this.onDidChangeEmitter.fire();
+        }
     }
 
     protected handleShowMenu(e: React.MouseEvent<HTMLElement>, widget?: Widget): void {
@@ -192,18 +197,18 @@ export abstract class AbstractSplitButtonContribution<TConfig> implements TabBar
     protected buildMenu(): MenuNode[] {
         const menu: MenuNode[] = [];
         const menuGroup = this.menuNodeFactory.createGroup('default');
-        for (const config of this.cachedConfigs) {
-            menuGroup.addNode(this.createMenuNode(config));
+        for (let i = 0; i < this.cachedConfigs.length; i++) {
+            menuGroup.addNode(this.createMenuNode(this.cachedConfigs[i], i));
         }
         menu.push(menuGroup);
         return menu;
     }
 
-    protected createMenuNode(config: TConfig): MenuNode {
+    protected createMenuNode(config: TConfig, index: number): MenuNode {
         const label = this.getConfigurationLabel(config);
 
         const customNode: CommandMenu = {
-            id: `${this.toolbarId}-execute-${label}`,
+            id: `${this.toolbarId}-execute-${index}-${label}`,
             sortString: label,
             label: label,
             icon: undefined,
@@ -211,7 +216,12 @@ export abstract class AbstractSplitButtonContribution<TConfig> implements TabBar
             isEnabled: () => true,
             isToggled: () => false,
             run: async () => {
-                await this.executeConfiguration(config);
+                try {
+                    await this.executeConfiguration(config);
+                } catch (error) {
+                    console.error(`Failed to execute configuration for ${this.toolbarId}:`, error);
+                    this.onDidChangeEmitter.fire();
+                }
             }
         };
         return customNode;

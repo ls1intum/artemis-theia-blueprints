@@ -220,4 +220,4 @@ Common icons for toolbar buttons (see [Codicon reference](https://microsoft.gith
 - **Always call `this.initialize()`** at the end of your `@postConstruct` method
 - **Wire up change listeners before `initialize()`** so the first refresh captures initial state
 - **The button auto-hides** when `fetchConfigurations()` returns an empty array
-- **The dropdown chevron auto-hides** when there's only zero configurations (and shows when >= 1)
+- **The dropdown chevron auto-hides** when there are zero configurations (and shows when >= 1)
