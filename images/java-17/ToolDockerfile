@@ -4,7 +4,7 @@ ARG BASE_IDE_TAG=latest
 ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
 FROM ${BASE_IMAGE} AS base-ide
 
-# Parallel stage: Install system dependencies (runs concurrently with plugin-image) 
+# Parallel stage: Install system dependencies (runs concurrently with plugin-image)
 FROM ubuntu:24.04 AS apt-deps
 
 # Create theia user and directories first (doesn't need apt)
@@ -67,7 +67,11 @@ WORKDIR /home/theia
 # Copy application from the base image (includes prod node_modules)
 COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 
-# Copy additional plugins (language-specific extensions)
+# Gradle Remote Cache Setup
+RUN mkdir -p /home/theia/.gradle/init.d
+COPY --chown=theia:theia images/java-17/gradle/remote-cache.gradle /home/theia/.gradle/init.d/
+
+# Copy additional plugins
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
 # Copy the project configuration files
