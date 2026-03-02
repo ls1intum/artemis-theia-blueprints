@@ -20,6 +20,7 @@ import { TheiaIDEAboutDialog } from './theia-ide-about-dialog';
 import { TheiaIDEContribution, ViewsFilter, DisabledFeaturesContribution } from './theia-ide-contribution';
 import { TheiaIDEGettingStartedWidget } from './theia-ide-getting-started-widget';
 import { TaskToolbarContribution } from './toolbar/task-toolbar-contribution';
+import { DebugToolbarContribution } from './toolbar/debug-toolbar-contribution';
 import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 
 export default new ContainerModule((bind, _unbind, isBound, rebind) => {
@@ -50,4 +51,8 @@ export default new ContainerModule((bind, _unbind, isBound, rebind) => {
     // Task run toolbar button
     bind(TaskToolbarContribution).toSelf().inSingletonScope();
     bind(TabBarToolbarContribution).toService(TaskToolbarContribution);
+
+    // Debug toolbar button
+    bind(DebugToolbarContribution).toSelf().inSingletonScope();
+    bind(TabBarToolbarContribution).toService(DebugToolbarContribution);
 });
