@@ -24,6 +24,8 @@ export class DebugToolbarContribution extends AbstractSplitButtonContribution<De
     protected readonly priority = 1; // Right after the run button
     protected readonly refreshDelayMs = DEBUG_REFRESH_DELAY_MS;
 
+    protected lastUsedConfig: DebugConfiguration | undefined;
+
     @postConstruct()
     protected init(): void {
         this.debugConfigManager.onDidChange(() => {
@@ -47,6 +49,7 @@ export class DebugToolbarContribution extends AbstractSplitButtonContribution<De
     }
 
     protected async executeConfiguration(config: DebugConfiguration): Promise<void> {
+        this.lastUsedConfig = config;
         await this.debugSessionManager.start({
             name: config.name,
             configuration: config
@@ -76,6 +79,6 @@ export class DebugToolbarContribution extends AbstractSplitButtonContribution<De
         if (current?.configuration) {
             return current.configuration;
         }
-        return undefined;
+        return this.lastUsedConfig;
     }
 }
