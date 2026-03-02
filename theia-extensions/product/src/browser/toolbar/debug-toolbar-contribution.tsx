@@ -64,7 +64,7 @@ export class DebugToolbarContribution extends AbstractSplitButtonContribution<De
         if (config) {
             return nls.localize('theia/debug-toolbar/startDebug', 'Debug: {0}', config.name);
         }
-        return nls.localize('theia/debug-toolbar/startDebug', 'Start Debugging');
+        return nls.localize('theia/debug-toolbar/startDebugDefault', 'Start Debugging');
     }
 
     protected getMenuTooltip(): string {

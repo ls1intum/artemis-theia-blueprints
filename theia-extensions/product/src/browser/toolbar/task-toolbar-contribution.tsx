@@ -67,7 +67,7 @@ export class TaskToolbarContribution extends AbstractSplitButtonContribution<Tas
         if (config) {
             return nls.localize('theia/task-toolbar/runTask', 'Run Task: {0}', config.label);
         }
-        return nls.localize('theia/task-toolbar/runTask', 'Run Task');
+        return nls.localize('theia/task-toolbar/runTaskDefault', 'Run Task');
     }
 
     protected getMenuTooltip(): string {
