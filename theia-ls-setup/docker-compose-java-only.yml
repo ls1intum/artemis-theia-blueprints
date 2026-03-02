@@ -1,29 +1,30 @@
 # =============================================================================
-# theia-ls-setup/docker-compose-java.yml
+# theia-ls-setup/docker-compose-java-only.yml
 # =============================================================================
 # Purpose:
-#   Runs the minimal Theia IDE (no Java tooling) together with an external
-#   Java language server. Use this when you want the smallest possible IDE
-#   image and supply Java LSP support entirely through the external server.
+#   Runs a Java IDE environment with a SEPARATE external Java language server.
+#   Use this when you want the Java-specific IDE image (java-17-no-ls) that
+#   ships Java tooling (JDK, Maven) but delegates LSP requests to an external
+#   process over TCP.
 #
 # Images used:
-#   - theia:     ghcr.io/ls1intum/theia/theia-no-ls  — bare Theia IDE, no language tools
+#   - theia:     ghcr.io/ls1intum/theia/java-17-no-ls  — Java IDE without embedded LS
 #   - java-ls:   ghcr.io/ls1intum/theia/langserver-java — Standalone Java language server
 #
 # How to run:
-#   docker compose -f theia-ls-setup/docker-compose-java.yml up
+#   docker compose -f theia-ls-setup/docker-compose-java-only.yml up
 #
 # Then open http://localhost:3000 in your browser.
 #
-# Difference to docker-compose-java-only.yml:
-#   This file uses the minimal theia-no-ls image (no JDK/Maven inside the IDE).
-#   docker-compose-java-only.yml uses java-17-no-ls which bundles Java tooling.
+# Difference to docker-compose-java.yml:
+#   This file uses the java-17-no-ls image which includes Java tooling (JDK/Maven).
+#   docker-compose-java.yml uses the minimal theia-no-ls base image without Java tools.
 # =============================================================================
 
 services:
   theia:
-    image: ghcr.io/ls1intum/theia/theia-no-ls:latest
-    container_name: theia-ide
+    image: ghcr.io/ls1intum/theia/java-17-no-ls:latest
+    container_name: theia-java-ide
     ports:
       - "3000:3000"
     volumes:

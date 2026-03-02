@@ -25,7 +25,7 @@ exec java \
   --add-opens=java.base/java.lang=ALL-UNNAMED \
   -jar "${LAUNCHER_JAR}" \
   -configuration /opt/jdt-ls/config_linux \
-  -data ${WORKSPACE}
+  -data "${WORKSPACE}"
 EOF
 
 chmod +x /tmp/run-jdt.sh
