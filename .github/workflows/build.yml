@@ -21,12 +21,23 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ARC self-hosted runners (fast, with Verdaccio/registry/proxy caching)
+  # ARC self-hosted runners (fast, with Harbor proxy cache and GHA layer cache)
   arc:
     uses: ./.github/workflows/arc-runner.yml
     secrets: inherit
 
-  # GitHub-hosted runners (slower, no cluster dependencies, reliable fallback)
+  # Probe job: propagates ARC result so github-hosted can conditionally run
+  arc-status:
+    needs: arc
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report ARC result
+        run: echo "ARC result=${{ needs.arc.result }}"
+
+  # GitHub-hosted runners (fallback: only runs when ARC did not succeed)
   github-hosted:
+    needs: arc-status
+    if: needs.arc.result != 'success'
     uses: ./.github/workflows/github-runner.yml
     secrets: inherit
