@@ -1,10 +1,14 @@
 # syntax=docker/dockerfile:1
+# Theia IDE for Java with External Language Server
+# This image contains Java tooling (JDK, Maven) but connects to an external
+# language server via TCP instead of using an embedded one.
+
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
 ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
 FROM ${BASE_IMAGE} AS base-ide
 
-# Parallel stage: Install system dependencies (runs concurrently with plugin-image)
+# Parallel stage: Install system dependencies (runs concurrently with plugin-image) 
 FROM ubuntu:24.04 AS apt-deps
 
 # Create theia user and directories first (doesn't need apt)
@@ -14,13 +18,25 @@ RUN useradd --system --create-home --user-group --uid 101 theia && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
-# Install required tools with BuildKit cache mounts
+# Configure APT proxy if provided
+ARG APT_HTTP_PROXY
+RUN if [ -n "$APT_HTTP_PROXY" ]; then \
+      echo "Acquire::http::Proxy \"$APT_HTTP_PROXY\";" > /etc/apt/apt.conf.d/01proxy; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list.d/*.sources 2>/dev/null || true; \
+      sed -i 's|https://|http://|g' /etc/apt/sources.list 2>/dev/null || true; \
+    fi
+
+# Install required tools for Java development (no embedded language server)
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-    git openssh-client openssh-server bash libsecret-1-0 openjdk-17-jdk maven ca-certificates && \
+    bash zsh curl git openssh-client openssh-server libsecret-1-0 \
+    openjdk-17-jdk maven ca-certificates && \
     apt-get autoremove -y
+
+# Clean up APT proxy config if it was set
+RUN rm -f /etc/apt/apt.conf.d/01proxy
 
 # Parallel stage: Plugin download (runs concurrently with apt-deps)
 FROM node:22-bullseye AS plugin-image
@@ -32,9 +48,9 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Copy required configuration files
 COPY --from=base-ide /home/theia/package.json ./package.json.base
-COPY images/java-17/package.json.patch ./package.json.patch
+COPY images/java-17-no-ls/package.json.patch ./package.json.patch
 
-# Merge the base package.json with the java-17-specific patch using Node.js
+# Merge the base package.json with the patch using Node.js
 RUN node -e "const fs=require('fs'); const deepMerge=(t,s)=>{const o={...t}; for(const k in s){o[k]=s[k]!==null&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]?deepMerge(t[k],s[k]):s[k]} return o}; const base=JSON.parse(fs.readFileSync('package.json.base')); const patch=JSON.parse(fs.readFileSync('package.json.patch')); fs.writeFileSync('package.json', JSON.stringify(deepMerge(base,patch), null, 2));" && \
     rm package.json.base package.json.patch
 
@@ -47,9 +63,11 @@ COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 
 # Install ONLY @theia/cli (needed for download:plugins command)
 # This is much faster than full yarn install since we already have prod node_modules
-RUN yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
+ARG NPM_REGISTRY
+RUN if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi \
+    && yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
-# Download language-specific plugins
+# Download Java plugins and external LS connector
 RUN yarn download:plugins
 
 # Final stage: Assemble the application
@@ -67,20 +85,24 @@ WORKDIR /home/theia
 # Copy application from the base image (includes prod node_modules)
 COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 
-# Gradle Remote Cache Setup
-RUN mkdir -p /home/theia/.gradle/init.d
-COPY --chown=theia:theia images/java-17/gradle/remote-cache.gradle /home/theia/.gradle/init.d/
-
-# Copy additional plugins
+# Copy additional plugins (Java extensions + theia-lsp connector)
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
-# Copy the project configuration files
-COPY --chown=theia:theia images/java-17/project /home/project
+# Install Oh My Zsh and plugins with pinned versions
+RUN git clone --depth 1 --branch master https://github.com/ohmyzsh/ohmyzsh.git ${HOME}/.oh-my-zsh && \
+    git clone --depth 1 --branch v0.7.1 https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+    git clone --depth 1 --branch 0.8.0 https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+# Copy centralized zsh configuration
+COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
+
+# Copy the project configuration files with Java-specific settings
+COPY --chown=theia:theia images/java-17-no-ls/project /home/project
 
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
-ENV SHELL=/bin/bash \
+ENV SHELL=/bin/zsh \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite

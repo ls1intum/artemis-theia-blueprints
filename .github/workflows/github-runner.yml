@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-github-hosted
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -76,6 +76,21 @@ jobs:
           - docker-file: images/rust/ToolDockerfile
             docker-context: "."
             image-name: ls1intum/theia/rust
+          - docker-file: images/languageserver/java/Dockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/langserver-java
+          - docker-file: images/languageserver/rust/Dockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/langserver-rust
+          - docker-file: images/theia-no-ls/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/theia-no-ls
+          - docker-file: images/java-17-no-ls/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/java-17-no-ls
+          - docker-file: images/rust-no-ls/ToolDockerfile
+            docker-context: "."
+            image-name: ls1intum/theia/rust-no-ls
 
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.0.0
     with:
