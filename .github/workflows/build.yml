@@ -26,9 +26,9 @@ jobs:
     uses: ./.github/workflows/arc-runner.yml
     secrets: inherit
 
-  # GitHub-hosted runners (fallback: only runs when ARC did not succeed)
+  # GitHub-hosted runners (fallback: only runs when ARC failed)
   github-hosted:
     needs: arc
-    if: always() && needs.arc.result != 'success'
+    if: failure()
     uses: ./.github/workflows/github-runner.yml
     secrets: inherit
