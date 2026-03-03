@@ -26,18 +26,9 @@ jobs:
     uses: ./.github/workflows/arc-runner.yml
     secrets: inherit
 
-  # Probe job: propagates ARC result so github-hosted can conditionally run
-  arc-status:
-    needs: arc
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Report ARC result
-        run: echo "ARC result=${{ needs.arc.result }}"
-
   # GitHub-hosted runners (fallback: only runs when ARC did not succeed)
   github-hosted:
-    needs: arc-status
-    if: needs.arc.result != 'success'
+    needs: arc
+    if: always() && needs.arc.result != 'success'
     uses: ./.github/workflows/github-runner.yml
     secrets: inherit
