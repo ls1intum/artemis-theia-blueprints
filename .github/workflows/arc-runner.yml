@@ -11,7 +11,16 @@ name: Build and Push Theia Images (ARC runners)
 
 on:
   workflow_call:
+    inputs:
+      no-layer-cache:
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      no-layer-cache:
+        description: 'Disable GHA layer cache (cache-from/cache-to). Dance cache still active.'
+        type: boolean
+        default: false
 
 jobs:
   determine-tag:
@@ -61,8 +70,8 @@ jobs:
       runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
       runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
       registry-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://theia-arc-systems-zot.arc-systems.svc.cluster.local:5000' || '' }}
-      cache-from: type=gha,scope=base
-      cache-to: type=gha,scope=base,mode=max
+      cache-from: ${{ inputs.no-layer-cache && '' || 'type=gha,scope=base' }}
+      cache-to: ${{ inputs.no-layer-cache && '' || 'type=gha,scope=base,mode=max' }}
       cache-dance: true
     secrets: inherit
 
@@ -127,7 +136,7 @@ jobs:
       runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
       runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
       registry-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://theia-arc-systems-zot.arc-systems.svc.cluster.local:5000' || '' }}
-      cache-from: type=gha,scope=${{ matrix.image-name }}
-      cache-to: type=gha,scope=${{ matrix.image-name }},mode=max
+      cache-from: ${{ inputs.no-layer-cache && '' || format('type=gha,scope={0}', matrix.image-name) }}
+      cache-to: ${{ inputs.no-layer-cache && '' || format('type=gha,scope={0},mode=max', matrix.image-name) }}
       cache-dance: true
     secrets: inherit
