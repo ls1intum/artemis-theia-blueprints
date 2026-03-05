@@ -1,7 +1,7 @@
 name: Build and Push Theia Images (ARC runners)
 
 # Builds using stateless ARC self-hosted runners with cluster-internal caching:
-#   - Harbor pull-through proxy cache for Docker Hub and GHCR images
+#   - Zot pull-through proxy cache for Docker Hub and GHCR images
 #   - BuildKit layer cache via GitHub Actions cache server (type=gha)
 #     backed by cluster-local cache-server pods (ACTIONS_CACHE_URL)
 #   - buildkit-cache-dance for persistent RUN --mount=type=cache data (apt, yarn, plugins)
@@ -60,7 +60,7 @@ jobs:
       build-arm64: ${{ github.event_name != 'pull_request' }}
       runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
       runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
-      registry-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://theia-arc-systems-zot.arc-systems.svc.cluster.local:5000' || '' }}
+      registry-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://131.159.88.30:30081' || '' }}
       cache-from: type=gha,scope=base
       cache-to: type=gha,scope=base,mode=max
       cache-dance: true
@@ -126,7 +126,7 @@ jobs:
       build-arm64: ${{ github.event_name != 'pull_request' }}
       runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
       runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
-      registry-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://theia-arc-systems-zot.arc-systems.svc.cluster.local:5000' || '' }}
+      registry-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://131.159.88.30:30081' || '' }}
       cache-from: type=gha,scope=${{ matrix.image-name }}
       cache-to: type=gha,scope=${{ matrix.image-name }},mode=max
       cache-dance: true
