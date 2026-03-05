@@ -163,7 +163,8 @@ To exclude unnecessary built-ins (reducing image size), add their IDs to `theiaP
 ```
 
 See `images/base-ide/package.json` for the default exclusion list.
-# Artemis Theia IDE Images
+
+## EduIDE Images
 
 We use Theia to provide students with programming environments tailored to their course`s needs. Instructors can choose a fitting Theia Blueprint (=Theia IDE Image) in Artemis. This repository contains the build tooling for creating those images.
 

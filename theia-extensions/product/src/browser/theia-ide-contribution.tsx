@@ -123,7 +123,7 @@ export class TheiaIDEContribution implements CommandContribution, MenuContributi
     protected readonly tabBarToolbarRegistry: TabBarToolbarRegistry;
 
 
-    static REPORT_ISSUE_URL = 'https://github.com/ls1intum/artemis-theia-blueprints/issues';
+    static REPORT_ISSUE_URL = 'https://github.com/EduIDE/EduIDE/issues';
 
     @postConstruct()
     protected init(): void {

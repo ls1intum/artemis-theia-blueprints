@@ -1,4 +1,4 @@
-# AGENTS.md — Artemis Theia Blueprints
+# AGENTS.md — EduIDE
 
 Guide for AI agents working in this repository. Read this before making changes.
 
@@ -116,7 +116,7 @@ Workflow: [.github/workflows/build.yml](.github/workflows/build.yml)
 | Trigger | Tags applied |
 |---------|-------------|
 | Pull request | `pr-<number>`, `pr-<number>-<sha>` |
-| Push to master | `latest`, `latest-<sha>` |
+| Push to main | `latest`, `latest-<sha>` |
 | Release published | `<version>`, `<version>-<sha>` |
 
 **Job order:**
