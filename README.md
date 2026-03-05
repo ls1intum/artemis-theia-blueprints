@@ -26,14 +26,14 @@ Instructors select a matching image in [Artemis](https://github.com/ls1intum/Art
 
 | Language | Image | Language server & autocomplete |
 | --- | --- | :---: |
-| Java 17 | `ghcr.io/EduIDE/EduIDE/java-17` | ✔️ |
-| Python | `ghcr.io/EduIDE/EduIDE/python` | ✔️ |
-| C | `ghcr.io/EduIDE/EduIDE/c` | ✔️ |
-| JavaScript | `ghcr.io/EduIDE/EduIDE/javascript` | ✔️ |
-| Rust | `ghcr.io/EduIDE/EduIDE/rust` | ✔️ |
-| Swift | `ghcr.io/EduIDE/EduIDE/swift` | ✔️ |
-| OCaml | `ghcr.io/EduIDE/EduIDE/ocaml` | ✔️ |
-| Haskell | `ghcr.io/EduIDE/EduIDE/haskell` | ❌ |
+| Java 17 | `ghcr.io/eduide/eduide/java-17` | ✔️ |
+| Python | `ghcr.io/eduide/eduide/python` | ✔️ |
+| C | `ghcr.io/eduide/eduide/c` | ✔️ |
+| JavaScript | `ghcr.io/eduide/eduide/javascript` | ✔️ |
+| Rust | `ghcr.io/eduide/eduide/rust` | ✔️ |
+| Swift | `ghcr.io/eduide/eduide/swift` | ✔️ |
+| OCaml | `ghcr.io/eduide/eduide/ocaml` | ✔️ |
+| Haskell | `ghcr.io/eduide/eduide/haskell` | ❌ |
 
 ### Architecture overview
 
@@ -56,7 +56,7 @@ This means Theia is only built once. Adding or updating a language image does no
 Pull and run any language image directly:
 
 ```sh
-docker run --rm -p 3000:3000 ghcr.io/EduIDE/EduIDE/java-17:latest
+docker run --rm -p 3000:3000 ghcr.io/eduide/eduide/java-17:latest
 ```
 
 Then open <http://localhost:3000/> in your browser.

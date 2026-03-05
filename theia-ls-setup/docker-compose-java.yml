@@ -7,8 +7,8 @@
 #   image and supply Java LSP support entirely through the external server.
 #
 # Images used:
-#   - theia:     ghcr.io/EduIDE/EduIDE/theia-no-ls  — bare Theia IDE, no language tools
-#   - java-ls:   ghcr.io/EduIDE/EduIDE/langserver-java — Standalone Java language server
+#   - theia:     ghcr.io/eduide/eduide/theia-no-ls  — bare Theia IDE, no language tools
+#   - java-ls:   ghcr.io/eduide/eduide/langserver-java — Standalone Java language server
 #
 # How to run:
 #   docker compose -f theia-ls-setup/docker-compose-java.yml up
@@ -22,7 +22,7 @@
 
 services:
   theia:
-    image: ghcr.io/EduIDE/EduIDE/theia-no-ls:latest
+    image: ghcr.io/eduide/eduide/theia-no-ls:latest
     container_name: theia-ide
     ports:
       - "3000:3000"
@@ -38,7 +38,7 @@ services:
       - java-ls
 
   java-ls:
-    image: ghcr.io/EduIDE/EduIDE/langserver-java:latest
+    image: ghcr.io/eduide/eduide/langserver-java:latest
     container_name: java-language-server
     environment:
       - LS_PORT=5000

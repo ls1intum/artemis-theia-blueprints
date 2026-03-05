@@ -8,8 +8,8 @@
 #   process over TCP.
 #
 # Images used:
-#   - theia:    ghcr.io/EduIDE/EduIDE/rust-no-ls       — Rust IDE without embedded LS
-#   - rust-ls:  ghcr.io/EduIDE/EduIDE/langserver-rust  — Standalone Rust language server
+#   - theia:    ghcr.io/eduide/eduide/rust-no-ls       — Rust IDE without embedded LS
+#   - rust-ls:  ghcr.io/eduide/eduide/langserver-rust  — Standalone Rust language server
 #
 # How to run:
 #   docker compose -f theia-ls-setup/docker-compose-rust-only.yml up
@@ -23,7 +23,7 @@
 
 services:
   theia:
-    image: ghcr.io/EduIDE/EduIDE/rust-no-ls:latest
+    image: ghcr.io/eduide/eduide/rust-no-ls:latest
     container_name: theia-rust-ide
     ports:
       - "3000:3000"
@@ -39,7 +39,7 @@ services:
       - rust-ls
 
   rust-ls:
-    image: ghcr.io/EduIDE/EduIDE/langserver-rust:latest
+    image: ghcr.io/eduide/eduide/langserver-rust:latest
     container_name: rust-language-server
     environment:
       - LS_PORT=5000

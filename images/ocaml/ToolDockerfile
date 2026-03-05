@@ -9,7 +9,7 @@
 
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
-ARG BASE_IMAGE=ghcr.io/EduIDE/EduIDE/base:${BASE_IDE_TAG}
+ARG BASE_IMAGE=ghcr.io/eduide/eduide/base:${BASE_IDE_TAG}
 FROM ${BASE_IMAGE} AS base-ide
 
 # Parallel stage: Install system dependencies (runs concurrently with plugin-image)

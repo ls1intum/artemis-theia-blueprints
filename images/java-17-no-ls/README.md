@@ -123,7 +123,7 @@ docker run -d \
   -e LS_PORT=5000 \
   -v project-data:/home/project \
   --network theia-net \
-  ghcr.io/EduIDE/EduIDE/langserver-java:latest
+  ghcr.io/eduide/eduide/langserver-java:latest
 
 # Start IDE
 docker run -d \
@@ -134,7 +134,7 @@ docker run -d \
   -e SYNTAXLS_CLIENT_PORT=0 \
   -v project-data:/home/project \
   --network theia-net \
-  ghcr.io/EduIDE/EduIDE/java-17-no-ls:latest
+  ghcr.io/eduide/eduide/java-17-no-ls:latest
 ```
 
 ## 🔄 Swapping Language Servers
@@ -145,7 +145,7 @@ This architecture allows you to test different Java language servers:
 
 ```bash
 docker run -d --name java-ls \
-  ghcr.io/EduIDE/EduIDE/langserver-java:latest
+  ghcr.io/eduide/eduide/langserver-java:latest
 ```
 
 ### Option 2: Custom/Alternative Java Server
@@ -190,16 +190,16 @@ docker run -d --name java-ls \
 
 ```bash
 # Build base image first (if not already built)
-docker build -t ghcr.io/EduIDE/EduIDE/base \
+docker build -t ghcr.io/eduide/eduide/base \
   -f images/base-ide/BaseDockerfile .
 
 # Build this image
-docker build -t ghcr.io/EduIDE/EduIDE/java-17-no-ls \
+docker build -t ghcr.io/eduide/eduide/java-17-no-ls \
   --build-arg BASE_IDE_TAG=latest \
   -f images/java-17-no-ls/ToolDockerfile .
 
 # Build language server (JDT-LS)
-docker build -t ghcr.io/EduIDE/EduIDE/langserver-java \
+docker build -t ghcr.io/eduide/eduide/langserver-java \
   -f images/languageserver/java/Dockerfile .
 ```
 

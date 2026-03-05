@@ -224,13 +224,13 @@ Theia offers a large built-in plugin bundling all those (82) functions and langu
 To test images locally, they need to be pulled from ghcr.io. You can also built them yourself by starting with the BaseImage and follow with the respective ToolImage afterwards.
 
 ```
-docker build -t ghcr.io/EduIDE/EduIDE/base -f images/base-ide/BaseDockerfile .
+docker build -t ghcr.io/eduide/eduide/base -f images/base-ide/BaseDockerfile .
 
-docker build -t ghcr.io/EduIDE/EduIDE/java-17 -f images/java-17/ToolDockerfile .
+docker build -t ghcr.io/eduide/eduide/java-17 -f images/java-17/ToolDockerfile .
 ```
 
 When finally starting the container, remember that Theia utilizes port 3000. You may use the following command to start the Java17 image.
 
 ```
-docker run --rm --name theia -p 3000:3000 ghcr.io/EduIDE/EduIDE/java-17
+docker run --rm --name theia -p 3000:3000 ghcr.io/eduide/eduide/java-17
 ```

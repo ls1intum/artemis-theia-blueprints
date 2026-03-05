@@ -75,7 +75,7 @@ docker run -d \
   -e LS_PORT=5000 \
   -v project-data:/home/project \
   --network rust-net \
-  ghcr.io/EduIDE/EduIDE/langserver-rust:latest
+  ghcr.io/eduide/eduide/langserver-rust:latest
 
 # Start IDE
 docker run -d \
@@ -85,7 +85,7 @@ docker run -d \
   -e LS_RUST_PORT=5000 \
   -v project-data:/home/project \
   --network rust-net \
-  ghcr.io/EduIDE/EduIDE/rust-no-ls:latest
+  ghcr.io/eduide/eduide/rust-no-ls:latest
 ```
 
 ## 🔄 Swapping Language Servers
@@ -96,7 +96,7 @@ This architecture allows you to test different Rust language servers:
 
 ```bash
 docker run -d --name rust-ls \
-  ghcr.io/EduIDE/EduIDE/langserver-rust:latest
+  ghcr.io/eduide/eduide/langserver-rust:latest
 ```
 
 ### Option 2: Custom/Alternative Rust Server
@@ -139,16 +139,16 @@ docker run -d --name rust-ls \
 
 ```bash
 # Build base image first (if not already built)
-docker build -t ghcr.io/EduIDE/EduIDE/base \
+docker build -t ghcr.io/eduide/eduide/base \
   -f images/base-ide/BaseDockerfile .
 
 # Build this image
-docker build -t ghcr.io/EduIDE/EduIDE/rust-no-ls \
+docker build -t ghcr.io/eduide/eduide/rust-no-ls \
   --build-arg BASE_IDE_TAG=latest \
   -f images/rust-no-ls/ToolDockerfile .
 
 # Build language server (rust-analyzer)
-docker build -t ghcr.io/EduIDE/EduIDE/langserver-rust \
+docker build -t ghcr.io/eduide/eduide/langserver-rust \
   -f images/languageserver/rust/Dockerfile .
 ```
 

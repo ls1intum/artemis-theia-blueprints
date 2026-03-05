@@ -8,7 +8,7 @@ Guide for AI agents working in this repository. Read this before making changes.
 
 Builds and publishes language-specific [Eclipse Theia](https://theia-ide.org/) IDE Docker images for the [Artemis](https://github.com/ls1intum/Artemis) online learning platform. Students open a browser-based IDE pre-configured for their course's programming language (Java, Python, C, Haskell, OCaml, Rust, Swift, JavaScript).
 
-Images are published to `ghcr.io/EduIDE/EduIDE/<language>` (e.g. `ghcr.io/EduIDE/EduIDE/java-17`).
+Images are published to `ghcr.io/eduide/eduide/<language>` (e.g. `ghcr.io/eduide/eduide/java-17`).
 
 ---
 
@@ -128,7 +128,7 @@ Workflow: [.github/workflows/build.yml](.github/workflows/build.yml)
 **Job order:**
 
 1. `determine-tag` — computes Docker tags
-2. `build-and-push-base` — builds `EduIDE/EduIDE/base` (amd64 always, arm64 on non-PR)
+2. `build-and-push-base` — builds `eduide/eduide/base` (amd64 always, arm64 on non-PR)
 3. `build-and-push` — builds all 8 language images in parallel, passing `BASE_IDE_TAG`
 
 Note: `swift` is defined in `docker-compose.images.yml` but **not** in the CI matrix — it is not automatically published.

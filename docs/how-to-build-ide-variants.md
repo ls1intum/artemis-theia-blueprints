@@ -24,7 +24,7 @@ In your variant's `ToolDockerfile`, you'll reference this base image:
 
 ```dockerfile
 ARG BASE_IDE_TAG=latest
-ARG BASE_IMAGE=ghcr.io/EduIDE/EduIDE/base:${BASE_IDE_TAG}
+ARG BASE_IMAGE=ghcr.io/eduide/eduide/base:${BASE_IDE_TAG}
 FROM ${BASE_IMAGE} AS base-ide
 ```
 
@@ -216,13 +216,13 @@ Once you've created all the necessary files:
 1. **Build the base image first** (if not already built):
 
    ```bash
-   docker build -f images/base-ide/BaseDockerfile -t ghcr.io/EduIDE/EduIDE/base:latest .
+   docker build -f images/base-ide/BaseDockerfile -t ghcr.io/eduide/eduide/base:latest .
    ```
 
 2. **Build your language variant**:
 
    ```bash
-   docker build -f images/c/ToolDockerfile -t ghcr.io/EduIDE/EduIDE/c:latest .
+   docker build -f images/c/ToolDockerfile -t ghcr.io/eduide/eduide/c:latest .
    ```
 
 ## Integrating into the Build Process
@@ -245,25 +245,25 @@ build-and-push:
         # ... existing variants ...
         - docker-file: images/c/ToolDockerfile
           docker-context: "."
-          image-name: ghcr.io/EduIDE/EduIDE/c
+          image-name: ghcr.io/eduide/eduide/c
         # Add your new variant here:
         - docker-file: images/your-language/ToolDockerfile
           docker-context: "."
-          image-name: ghcr.io/EduIDE/EduIDE/your-language
+          image-name: ghcr.io/eduide/eduide/your-language
 ```
 
 **Important fields:**
 
 - `docker-file`: Path to your variant's `ToolDockerfile` relative to the repo root
 - `docker-context`: Usually `"."` (repo root) to provide full context
-- `image-name`: Docker image name following the pattern `ghcr.io/EduIDE/EduIDE/{variant-name}`
+- `image-name`: Docker image name following the pattern `ghcr.io/eduide/eduide/{variant-name}`
 
 **Example for a new "go" variant:**
 
 ```yaml
 - docker-file: images/go/ToolDockerfile
   docker-context: "."
-  image-name: ghcr.io/EduIDE/EduIDE/go
+  image-name: ghcr.io/eduide/eduide/go
 ```
 
 ### Build Process Flow
