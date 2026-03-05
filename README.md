@@ -192,10 +192,10 @@ Then rebuild and test locally before pushing.
 
 ### CI / CD
 
-The GitHub Actions workflow (`.github/workflows/build.yml`) runs on every pull request, push to `master`, and release:
+The GitHub Actions workflow (`.github/workflows/build.yml`) runs on every pull request, push to `main`, and release:
 
 - **PRs** produce images tagged `pr-<number>` and `pr-<number>-<sha>` — useful for review testing.
-- **`master`** produces `latest` and `latest-<sha>`.
+- **`main`** produces `latest` and `latest-<sha>`.
 - **Releases** produce a semver tag and a SHA-tagged variant.
 
 The `base-ide` image is always built first. All language images are built in parallel afterwards, receiving `BASE_IDE_TAG` as a build argument so they pull the matching base.

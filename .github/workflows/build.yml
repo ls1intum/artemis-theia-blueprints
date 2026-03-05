@@ -3,11 +3,11 @@ name: Build and Push Theia Images
 on:
   pull_request:
     branches:
-      - master
+      - main
 
   push:
     branches:
-      - master
+      - main
 
   release:
     types:
@@ -22,9 +22,10 @@ concurrency:
 
 jobs:
   # ARC self-hosted runners (fast, with Verdaccio/registry/proxy caching)
-  arc:
-    uses: ./.github/workflows/arc-runner.yml
-    secrets: inherit
+  # Disabled until ARC is available in the new repo
+  # arc:
+  #   uses: ./.github/workflows/arc-runner.yml
+  #   secrets: inherit
 
   # GitHub-hosted runners (slower, no cluster dependencies, reliable fallback)
   github-hosted:
