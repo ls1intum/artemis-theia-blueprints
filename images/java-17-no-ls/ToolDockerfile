@@ -68,7 +68,7 @@ RUN if [ -n "$NPM_REGISTRY" ]; then yarn config set registry "$NPM_REGISTRY"; fi
     && yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
 # Download Java plugins and external LS connector
-RUN yarn download:plugins
+RUN for i in 1 2 3; do yarn download:plugins && break || (echo "Plugin download attempt $i failed, retrying in 15s..." && sleep 15); done
 
 # Final stage: Assemble the application
 FROM apt-deps AS final-ide

@@ -49,8 +49,8 @@ COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 # This is much faster than full yarn install since we already have prod node_modules
 RUN yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
-# Download language-specific plugins
-RUN yarn download:plugins
+# Download language-specific plugins (retry up to 3 times on transient network failures)
+RUN for i in 1 2 3; do yarn download:plugins && break || (echo "Plugin download attempt $i failed, retrying in 15s..." && sleep 15); done
 
 # Final stage: Assemble the application
 FROM apt-deps AS final-ide
