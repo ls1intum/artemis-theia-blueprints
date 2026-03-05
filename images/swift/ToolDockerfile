@@ -5,7 +5,7 @@ ARG RUNTIME_IMAGE=swift:focal
 
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
-ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
+ARG BASE_IMAGE=ghcr.io/EduIDE/EduIDE/base:${BASE_IDE_TAG}
 FROM ${BASE_IMAGE} AS base-ide
 
 # Parallel stage: Plugin download (runs concurrently with builder)

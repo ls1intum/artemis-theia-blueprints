@@ -8,7 +8,7 @@ Guide for AI agents working in this repository. Read this before making changes.
 
 Builds and publishes language-specific [Eclipse Theia](https://theia-ide.org/) IDE Docker images for the [Artemis](https://github.com/ls1intum/Artemis) online learning platform. Students open a browser-based IDE pre-configured for their course's programming language (Java, Python, C, Haskell, OCaml, Rust, Swift, JavaScript).
 
-Images are published to `ghcr.io/ls1intum/theia/<language>` (e.g. `ghcr.io/ls1intum/theia/java-17`).
+Images are published to `ghcr.io/EduIDE/EduIDE/<language>` (e.g. `ghcr.io/EduIDE/EduIDE/java-17`).
 
 ---
 
@@ -54,12 +54,14 @@ base-ide (BaseDockerfile)
 ```
 
 ### ToolDockerfile internal stages (run in parallel)
+
 - `base-ide` — imports the pre-built Theia layer
 - `apt-deps` — installs system packages (gcc, JDK, Python, etc.)
 - `plugin-image` — downloads language-specific plugins via `yarn download:plugins`
 - `final-ide` — assembles everything, sets up user `theia` (uid 101)
 
 ### Plugin configuration
+
 Plugins are declared in `package.json` (`theiaPlugins` / `theiaPluginsExcludeIds`). Each language image has a `package.json.patch` that is deep-merged on top of the root `package.json` using a Node.js merge script inside the Dockerfile. Only override what changes — do not duplicate the full file.
 
 ---
@@ -69,6 +71,7 @@ Plugins are declared in `package.json` (`theiaPlugins` / `theiaPluginsExcludeIds
 Each `images/<lang>/project/.vscode/settings.json` is copied to `/home/project/.vscode/settings.json` inside the container and loaded by Theia on startup. Theia reads project settings from `.vscode/settings.json` (not `.theia/settings.json`).
 
 All images share a base set:
+
 ```json
 {
   "extensions.ignoreRecommendations": true,
@@ -76,6 +79,7 @@ All images share a base set:
   "telemetry.telemetryLevel": false
 }
 ```
+
 Language images may add language-specific keys on top of this.
 
 ---
@@ -83,6 +87,7 @@ Language images may add language-specific keys on top of this.
 ## Local development
 
 ### Build a single image pair
+
 ```sh
 # 1. Build the base (required first)
 docker build -t theia-base:local -f images/base-ide/BaseDockerfile .
@@ -98,6 +103,7 @@ docker run --rm -p 3000:3000 theia-java-17:local
 ```
 
 ### Build everything with Compose
+
 ```sh
 docker compose -f docker-compose.images.yml build
 docker compose -f docker-compose.images.yml up java-17   # port 3003
@@ -120,8 +126,9 @@ Workflow: [.github/workflows/build.yml](.github/workflows/build.yml)
 | Release published | `<version>`, `<version>-<sha>` |
 
 **Job order:**
+
 1. `determine-tag` — computes Docker tags
-2. `build-and-push-base` — builds `ls1intum/theia/base` (amd64 always, arm64 on non-PR)
+2. `build-and-push-base` — builds `EduIDE/EduIDE/base` (amd64 always, arm64 on non-PR)
 3. `build-and-push` — builds all 8 language images in parallel, passing `BASE_IDE_TAG`
 
 Note: `swift` is defined in `docker-compose.images.yml` but **not** in the CI matrix — it is not automatically published.

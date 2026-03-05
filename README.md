@@ -26,14 +26,14 @@ Instructors select a matching image in [Artemis](https://github.com/ls1intum/Art
 
 | Language | Image | Language server & autocomplete |
 | --- | --- | :---: |
-| Java 17 | `ghcr.io/ls1intum/theia/java-17` | ✔️ |
-| Python | `ghcr.io/ls1intum/theia/python` | ✔️ |
-| C | `ghcr.io/ls1intum/theia/c` | ✔️ |
-| JavaScript | `ghcr.io/ls1intum/theia/javascript` | ✔️ |
-| Rust | `ghcr.io/ls1intum/theia/rust` | ✔️ |
-| Swift | `ghcr.io/ls1intum/theia/swift` | ✔️ |
-| OCaml | `ghcr.io/ls1intum/theia/ocaml` | ✔️ |
-| Haskell | `ghcr.io/ls1intum/theia/haskell` | ❌ |
+| Java 17 | `ghcr.io/EduIDE/EduIDE/java-17` | ✔️ |
+| Python | `ghcr.io/EduIDE/EduIDE/python` | ✔️ |
+| C | `ghcr.io/EduIDE/EduIDE/c` | ✔️ |
+| JavaScript | `ghcr.io/EduIDE/EduIDE/javascript` | ✔️ |
+| Rust | `ghcr.io/EduIDE/EduIDE/rust` | ✔️ |
+| Swift | `ghcr.io/EduIDE/EduIDE/swift` | ✔️ |
+| OCaml | `ghcr.io/EduIDE/EduIDE/ocaml` | ✔️ |
+| Haskell | `ghcr.io/EduIDE/EduIDE/haskell` | ❌ |
 
 ### Architecture overview
 
@@ -43,7 +43,6 @@ All images share a common **two-tier build**:
 2. **Language images** — Each starts from the `base-ide` layer, adds a language compiler/runtime (via apt), and downloads language-specific VS Code extensions from [Open VSX](https://open-vsx.org/).
 
 This means Theia is only built once. Adding or updating a language image does not require rebuilding the IDE.
-
 
 ## Running locally
 
@@ -57,7 +56,7 @@ This means Theia is only built once. Adding or updating a language image does no
 Pull and run any language image directly:
 
 ```sh
-docker run --rm -p 3000:3000 ghcr.io/ls1intum/theia/java-17:latest
+docker run --rm -p 3000:3000 ghcr.io/EduIDE/EduIDE/java-17:latest
 ```
 
 Then open <http://localhost:3000/> in your browser.

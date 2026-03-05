@@ -1,6 +1,6 @@
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
-FROM ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG} AS base-ide
+FROM ghcr.io/EduIDE/EduIDE/base:${BASE_IDE_TAG} AS base-ide
 
 # Load the plugin image, only copy from here
 FROM node:22-bullseye AS plugin-image

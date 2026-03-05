@@ -34,6 +34,7 @@ This image provides a **swappable language server architecture** for Rust develo
 ## 📦 What's Included
 
 ### IDE Container (`rust-no-ls`)
+
 - Theia IDE (browser-based)
 - Rust toolchain (rustc, cargo, rustup)
 - Git, SSH, Bash
@@ -41,6 +42,7 @@ This image provides a **swappable language server architecture** for Rust develo
 - **NO Rust-specific extensions** (clean, minimal setup)
 
 ### Language Server Container (Default: rust-analyzer)
+
 - rust-analyzer (official Rust language server)
 - **Full Rust toolchain** (rustc, cargo) - required by rust-analyzer
 - Exposed via TCP on port 5000
@@ -56,7 +58,7 @@ cd theia-ls-setup
 docker-compose -f docker-compose-rust-only.yml up
 ```
 
-Then open: http://localhost:3000
+Then open: <http://localhost:3000>
 
 ### Manual Container Setup
 
@@ -73,7 +75,7 @@ docker run -d \
   -e LS_PORT=5000 \
   -v project-data:/home/project \
   --network rust-net \
-  ghcr.io/ls1intum/theia/langserver-rust:latest
+  ghcr.io/EduIDE/EduIDE/langserver-rust:latest
 
 # Start IDE
 docker run -d \
@@ -83,7 +85,7 @@ docker run -d \
   -e LS_RUST_PORT=5000 \
   -v project-data:/home/project \
   --network rust-net \
-  ghcr.io/ls1intum/theia/rust-no-ls:latest
+  ghcr.io/EduIDE/EduIDE/rust-no-ls:latest
 ```
 
 ## 🔄 Swapping Language Servers
@@ -91,12 +93,14 @@ docker run -d \
 This architecture allows you to test different Rust language servers:
 
 ### Option 1: rust-analyzer (Default - Full Features)
+
 ```bash
 docker run -d --name rust-ls \
-  ghcr.io/ls1intum/theia/langserver-rust:latest
+  ghcr.io/EduIDE/EduIDE/langserver-rust:latest
 ```
 
 ### Option 2: Custom/Alternative Rust Server
+
 ```bash
 # Example: Your custom Rust LSP server
 docker run -d --name rust-ls \
@@ -105,6 +109,7 @@ docker run -d --name rust-ls \
 ```
 
 ### Option 3: Lightweight Rust Server
+
 ```bash
 # Example: A minimal Rust server for testing
 docker run -d --name rust-ls \
@@ -134,16 +139,16 @@ docker run -d --name rust-ls \
 
 ```bash
 # Build base image first (if not already built)
-docker build -t ghcr.io/ls1intum/theia/base \
+docker build -t ghcr.io/EduIDE/EduIDE/base \
   -f images/base-ide/BaseDockerfile .
 
 # Build this image
-docker build -t ghcr.io/ls1intum/theia/rust-no-ls \
+docker build -t ghcr.io/EduIDE/EduIDE/rust-no-ls \
   --build-arg BASE_IDE_TAG=latest \
   -f images/rust-no-ls/ToolDockerfile .
 
 # Build language server (rust-analyzer)
-docker build -t ghcr.io/ls1intum/theia/langserver-rust \
+docker build -t ghcr.io/EduIDE/EduIDE/langserver-rust \
   -f images/languageserver/rust/Dockerfile .
 ```
 
@@ -152,6 +157,7 @@ docker build -t ghcr.io/ls1intum/theia/langserver-rust \
 ### No autocomplete or diagnostics
 
 **Check theia-lsp connection:**
+
 ```bash
 # View IDE browser console (F12 in browser)
 # Expected output:
@@ -160,12 +166,14 @@ docker build -t ghcr.io/ls1intum/theia/langserver-rust \
 ```
 
 **Check language server is running:**
+
 ```bash
 docker ps | grep language-server
 docker logs rust-language-server
 ```
 
 **Test connectivity:**
+
 ```bash
 docker exec theia-rust-ide nc -zv rust-language-server 5000
 # Should output: Connection to rust-language-server 5000 port [tcp/*] succeeded!
@@ -174,6 +182,7 @@ docker exec theia-rust-ide nc -zv rust-language-server 5000
 ### Files not visible in language server
 
 **Verify shared volume:**
+
 ```bash
 # Check IDE can see files
 docker exec theia-rust-ide ls -la /home/project
@@ -187,6 +196,7 @@ docker exec rust-language-server ls -la /home/project
 ### Cargo.toml not recognized
 
 **Ensure Cargo.toml is in workspace root:**
+
 ```bash
 # Check workspace structure
 docker exec theia-rust-ide ls -la /home/project
@@ -202,6 +212,7 @@ docker exec theia-rust-ide ls -la /home/project
 **Cause**: UID mismatch between IDE and LS containers
 
 **Solution**: Both containers must run as the same UID (101). Verify:
+
 ```bash
 # Check IDE container user
 docker exec theia-rust-ide id
@@ -219,13 +230,16 @@ If UIDs don't match, the language server won't be able to create `Cargo.lock` or
 **Symptom**: rust-analyzer shows "Failed to load workspaces" in logs
 
 **Possible causes:**
+
 1. **Missing cargo**: rust-analyzer needs `cargo` to run `cargo metadata`
+
    ```bash
    docker exec rust-language-server cargo --version
    # Should output: cargo 1.87.0 or similar
    ```
 
 2. **Invalid Cargo.toml**: Check your Cargo.toml syntax
+
    ```bash
    docker exec rust-language-server cargo metadata --manifest-path /home/project/Cargo.toml
    # Should output valid JSON, not errors
@@ -236,6 +250,7 @@ If UIDs don't match, the language server won't be able to create `Cargo.lock` or
 ## 🎯 When to Use This Image
 
 **Use `rust-no-ls` when:**
+
 - ✅ **Experimenting with different Rust language servers**
 - ✅ Research comparing rust-analyzer vs alternatives
 - ✅ Testing custom/minimal language server implementations
@@ -245,6 +260,7 @@ If UIDs don't match, the language server won't be able to create `Cargo.lock` or
 - ✅ Security/isolation requirements (process separation)
 
 **Use standard Rust image when:**
+
 - ✅ Simple single-user development
 - ✅ Production-stable, well-tested setup
 - ✅ Lower operational complexity preferred
@@ -253,6 +269,7 @@ If UIDs don't match, the language server won't be able to create `Cargo.lock` or
 ## 🧪 Experimental Status
 
 This image is designed for **research and experimentation**. The swappable architecture is ideal for:
+
 - Testing different language server implementations
 - Comparing performance and features
 - Educational purposes
@@ -262,13 +279,15 @@ This image is designed for **research and experimentation**. The swappable archi
 
 ## ⚠️ Important Requirements
 
-### Language Server Must Include:
+### Language Server Must Include
+
 1. **Full Rust toolchain**: rust-analyzer requires `cargo` and `rustc` to analyze projects
 2. **Matching UID**: Language server must run as UID 101 to access shared workspace volume
 3. **LSP-compliant protocol**: Must implement Language Server Protocol correctly
 4. **TCP socket**: Must listen on configured port (default 5000) and handle stdin/stdout over socket
 
-### Example Dockerfile for Custom Rust LS:
+### Example Dockerfile for Custom Rust LS
+
 ```dockerfile
 FROM alpine:3.22
 
@@ -287,5 +306,5 @@ CMD socat TCP-LISTEN:5000,reuseaddr,fork EXEC:rust-analyzer
 ## 📚 Technical References
 
 - **theia-lsp extension**: [nikolashack.theia-lsp](https://open-vsx.org/extension/nikolashack/theia-lsp)
-- **rust-analyzer**: https://rust-analyzer.github.io/
-- **LSP Specification**: https://microsoft.github.io/language-server-protocol/
+- **rust-analyzer**: <https://rust-analyzer.github.io/>
+- **LSP Specification**: <https://microsoft.github.io/language-server-protocol/>

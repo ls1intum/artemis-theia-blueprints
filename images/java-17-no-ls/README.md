@@ -57,6 +57,7 @@ This image **disables BOTH** servers in `redhat.java` using the "Debug Mismatch"
 The `redhat.java` extension has logic to skip server startup when environment variables create a specific mismatch:
 
 **From `redhat.java` source code (`extension.ts`):**
+
 ```typescript
 const isDebugModeByClientPort = !!process.env['SYNTAXLS_CLIENT_PORT'] || !!process.env['JDTLS_CLIENT_PORT'];
 const requireSyntaxServer = (serverMode !== ServerMode.standard) && 
@@ -66,11 +67,13 @@ const requireStandardServer = (serverMode !== ServerMode.lightWeight) &&
 ```
 
 **Our Configuration:**
+
 - Setting: `java.server.launchMode: "Standard"`
 - Environment: `SYNTAXLS_CLIENT_PORT=0` (dummy value)
 - Environment: `JDTLS_CLIENT_PORT` is **UNSET**
 
 **Result:**
+
 - `requireSyntaxServer = false` (because mode is Standard)
 - `requireStandardServer = false` (because JDTLS_CLIENT_PORT is unset despite debug mode)
 - `javaLSReady` context stays `false` → All UI commands hidden
@@ -80,6 +83,7 @@ const requireStandardServer = (serverMode !== ServerMode.lightWeight) &&
 ## 📦 What's Included
 
 ### IDE Container (`java-17-no-ls`)
+
 - Theia IDE (browser-based)
 - Java 17 JDK (for compilation and execution)
 - Maven (for dependency management)
@@ -88,6 +92,7 @@ const requireStandardServer = (serverMode !== ServerMode.lightWeight) &&
 - **redhat.java extension** (installed but dormant, no server started)
 
 ### Language Server Container (Default: JDT-LS)
+
 - Eclipse JDT-LS v1.50.0
 - Exposed via TCP on port 5000
 - **Swappable**: Replace with any LSP-compliant Java server
@@ -101,7 +106,7 @@ cd theia-ls-setup
 docker-compose -f docker-compose-java-only.yml up
 ```
 
-Then open: http://localhost:3000
+Then open: <http://localhost:3000>
 
 ### Manual Container Setup
 
@@ -118,7 +123,7 @@ docker run -d \
   -e LS_PORT=5000 \
   -v project-data:/home/project \
   --network theia-net \
-  ghcr.io/ls1intum/theia/langserver-java:latest
+  ghcr.io/EduIDE/EduIDE/langserver-java:latest
 
 # Start IDE
 docker run -d \
@@ -129,7 +134,7 @@ docker run -d \
   -e SYNTAXLS_CLIENT_PORT=0 \
   -v project-data:/home/project \
   --network theia-net \
-  ghcr.io/ls1intum/theia/java-17-no-ls:latest
+  ghcr.io/EduIDE/EduIDE/java-17-no-ls:latest
 ```
 
 ## 🔄 Swapping Language Servers
@@ -137,12 +142,14 @@ docker run -d \
 This architecture allows you to test different Java language servers:
 
 ### Option 1: JDT-LS (Default - Full Features)
+
 ```bash
 docker run -d --name java-ls \
-  ghcr.io/ls1intum/theia/langserver-java:latest
+  ghcr.io/EduIDE/EduIDE/langserver-java:latest
 ```
 
 ### Option 2: Custom/Alternative Java Server
+
 ```bash
 # Example: Your custom Java LSP server
 docker run -d --name java-ls \
@@ -151,6 +158,7 @@ docker run -d --name java-ls \
 ```
 
 ### Option 3: Lightweight Java Server
+
 ```bash
 # Example: A minimal Java server for testing
 docker run -d --name java-ls \
@@ -182,16 +190,16 @@ docker run -d --name java-ls \
 
 ```bash
 # Build base image first (if not already built)
-docker build -t ghcr.io/ls1intum/theia/base \
+docker build -t ghcr.io/EduIDE/EduIDE/base \
   -f images/base-ide/BaseDockerfile .
 
 # Build this image
-docker build -t ghcr.io/ls1intum/theia/java-17-no-ls \
+docker build -t ghcr.io/EduIDE/EduIDE/java-17-no-ls \
   --build-arg BASE_IDE_TAG=latest \
   -f images/java-17-no-ls/ToolDockerfile .
 
 # Build language server (JDT-LS)
-docker build -t ghcr.io/ls1intum/theia/langserver-java \
+docker build -t ghcr.io/EduIDE/EduIDE/langserver-java \
   -f images/languageserver/java/Dockerfile .
 ```
 
@@ -200,6 +208,7 @@ docker build -t ghcr.io/ls1intum/theia/langserver-java \
 ### No autocomplete or diagnostics
 
 **Check theia-lsp connection:**
+
 ```bash
 # View IDE browser console (F12 in browser)
 # Expected output:
@@ -208,12 +217,14 @@ docker build -t ghcr.io/ls1intum/theia/langserver-java \
 ```
 
 **Check language server is running:**
+
 ```bash
 docker ps | grep language-server
 docker logs java-language-server
 ```
 
 **Test connectivity:**
+
 ```bash
 docker exec theia-java-ide nc -zv java-language-server 5000
 # Should output: Connection to java-language-server 5000 port [tcp/*] succeeded!
@@ -222,6 +233,7 @@ docker exec theia-java-ide nc -zv java-language-server 5000
 ### redhat.java showing errors or UI elements
 
 **Verify dormant mode is active:**
+
 ```bash
 # Check environment variables
 docker exec theia-java-ide env | grep CLIENT_PORT
@@ -232,6 +244,7 @@ docker exec theia-java-ide env | grep CLIENT_PORT
 ```
 
 **Check settings.json:**
+
 ```bash
 docker exec theia-java-ide cat /home/project/.theia/settings.json
 # Should contain: "java.server.launchMode": "Standard"
@@ -240,6 +253,7 @@ docker exec theia-java-ide cat /home/project/.theia/settings.json
 ### Files not visible in language server
 
 **Verify shared volume:**
+
 ```bash
 # Check IDE can see files
 docker exec theia-java-ide ls -la /home/project
@@ -253,6 +267,7 @@ docker exec java-language-server ls -la /home/project
 ## 🎯 When to Use This Image
 
 **Use `java-17-no-ls` when:**
+
 - ✅ **Experimenting with different Java language servers**
 - ✅ Research comparing JDT-LS vs alternatives
 - ✅ Testing custom/minimal language server implementations
@@ -262,6 +277,7 @@ docker exec java-language-server ls -la /home/project
 - ✅ Security/isolation requirements (process separation)
 
 **Use standard `java-17` when:**
+
 - ✅ Simple single-user development
 - ✅ Production-stable, well-tested setup
 - ✅ Lower operational complexity preferred
@@ -272,12 +288,13 @@ docker exec java-language-server ls -la /home/project
 This image is designed for **research and experimentation**. The "Debug Mismatch" technique exploits internal logic in `redhat.java` and may break in future versions of the extension.
 
 **For production use**, consider:
+
 - Removing `redhat.java` entirely (use only `theia-lsp`)
 - OR using `redhat.java` with `JDTLS_CLIENT_PORT` to connect to external JDT-LS (official support)
 
 ## 📚 Technical References
 
 - **theia-lsp extension**: [nikolashack.theia-lsp](https://open-vsx.org/extension/nikolashack/theia-lsp)
-- **redhat.java source**: https://github.com/redhat-developer/vscode-java
-- **JDT-LS documentation**: https://github.com/eclipse-jdtls/eclipse.jdt.ls
-- **LSP Specification**: https://microsoft.github.io/language-server-protocol/
+- **redhat.java source**: <https://github.com/redhat-developer/vscode-java>
+- **JDT-LS documentation**: <https://github.com/eclipse-jdtls/eclipse.jdt.ls>
+- **LSP Specification**: <https://microsoft.github.io/language-server-protocol/>
