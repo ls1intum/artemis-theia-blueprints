@@ -61,8 +61,8 @@ jobs:
       runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
       runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
       registry-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://theia-arc-systems-zot.arc-systems.svc.cluster.local:5000' || '' }}
-      cache-from: type=registry,ref=ghcr.io/ls1intum/theia/base:buildcache
-      cache-to: type=registry,ref=ghcr.io/ls1intum/theia/base:buildcache,mode=max
+      cache-from: type=gha,scope=base
+      cache-to: type=gha,scope=base,mode=min
       cache-dance: true
     secrets: inherit
 
@@ -127,7 +127,7 @@ jobs:
       runner-amd64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-stateless' || 'ubuntu-24.04' }}
       runner-arm64: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'arc-runner-set-arm64' || 'ubuntu-24.04-arm' }}
       registry-mirror: ${{ github.repository == 'ls1intum/artemis-theia-blueprints' && 'http://theia-arc-systems-zot.arc-systems.svc.cluster.local:5000' || '' }}
-      cache-from: type=registry,ref=ghcr.io/${{ matrix.image-name }}:buildcache
-      cache-to: type=registry,ref=ghcr.io/${{ matrix.image-name }}:buildcache,mode=max
+      cache-from: type=gha,scope=${{ matrix.image-name }}
+      cache-to: type=gha,scope=${{ matrix.image-name }},mode=max
       cache-dance: true
     secrets: inherit
