@@ -21,12 +21,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ARC self-hosted runners (fast, with Verdaccio/registry/proxy caching)
+  # ARC self-hosted runners (fast, with Harbor proxy cache and GHA layer cache)
   arc:
     uses: ./.github/workflows/arc-runner.yml
     secrets: inherit
 
-  # GitHub-hosted runners (slower, no cluster dependencies, reliable fallback)
+  # GitHub-hosted runners (fallback: only runs when ARC failed)
   github-hosted:
+    needs: arc
+    if: failure()
     uses: ./.github/workflows/github-runner.yml
     secrets: inherit
