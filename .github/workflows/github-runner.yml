@@ -34,7 +34,7 @@ jobs:
 
   build-and-push-base:
     needs: determine-tag
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@bf40d2a38030ef701b677687010517f778c67065
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.2.0
     with:
       docker-file: images/base-ide/BaseDockerfile
       image-name: eduide/eduide/base
@@ -88,7 +88,7 @@ jobs:
             docker-context: "."
             image-name: eduide/eduide/rust-no-ls
 
-    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@bf40d2a38030ef701b677687010517f778c67065
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@v1.2.0
     with:
       docker-file: ${{ matrix.docker-file }}
       image-name: ${{ matrix.image-name }}
