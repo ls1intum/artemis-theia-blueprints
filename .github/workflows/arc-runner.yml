@@ -63,6 +63,7 @@ jobs:
       runner-amd64: "arc-runner-set-eduidec"
       runner-arm64: "arc-runner-set-eduidec-arm64"
       registry-mirror: "http://131.159.88.30:30081"
+      setup-qemu: false
       cache-from: |
         type=registry,ref=ghcr.io/eduide/eduide/base:${{ needs.determine-tag.outputs.cache_tag }}
         type=registry,ref=ghcr.io/eduide/eduide/base:build-cache
@@ -130,6 +131,7 @@ jobs:
       runner-amd64: "arc-runner-set-eduidec"
       runner-arm64: "arc-runner-set-eduidec-arm64"
       registry-mirror: "http://131.159.88.30:30081"
+      setup-qemu: false
       cache-from: |
         type=registry,ref=ghcr.io/${{ matrix.image-name }}:${{ needs.determine-tag.outputs.cache_tag }}
         type=registry,ref=ghcr.io/${{ matrix.image-name }}:build-cache
