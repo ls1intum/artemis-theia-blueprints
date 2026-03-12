@@ -210,3 +210,5 @@ Arm64 builds are included for all events except PRs (to keep PR feedback fast).
 ## Trademark
 
 "Theia" is a trademark of the Eclipse Foundation — <https://www.eclipse.org/theia>
+
+<!-- Cache test: 2026-03-12 14:30:00 -->
