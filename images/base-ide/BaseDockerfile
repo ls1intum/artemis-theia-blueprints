@@ -50,20 +50,15 @@ RUN rm package.json.merged package.json.base package.json.patch
 # Increase Node.js heap size for build process
 ENV NODE_OPTIONS=--max-old-space-size=8192
 
-# Build extensions, download plugins, and produce the browser bundle (browser-only target)
+# Build extensions and produce the browser bundle (browser-only target).
+# No autoclean/cache-clean needed — the final base-ide stage cherry-picks
+# specific directories via COPY --from=build-stage, so nothing else leaks out.
 RUN rm -rf applications/electron \
         theia-extensions/launcher \
         theia-extensions/updater \
         theia-extensions/product/src/electron-main \
     && yarn build:extensions \
-    && yarn browser build \
-    && yarn autoclean --init \
-    && echo *.ts >> .yarnclean \
-    && echo *.ts.map >> .yarnclean \
-    && echo *.spec.* >> .yarnclean \
-    && yarn autoclean --force \
-    && yarn cache clean \
-    && rm -rf .git applications/electron theia-extensions/launcher theia-extensions/updater
+    && yarn browser build
 
 # Production dependencies stage - install only runtime dependencies
 FROM node:22-bullseye-slim AS prod-deps
