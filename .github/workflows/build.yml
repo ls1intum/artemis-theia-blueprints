@@ -27,6 +27,11 @@ jobs:
   #   uses: ./.github/workflows/arc-runner.yml
   #   secrets: inherit
 
+  # Stateful BuildKit runners (experimental, AMD64 only)
+  buildkit-exp:
+    uses: ./.github/workflows/buildkit-runner.yml
+    secrets: inherit
+
   # GitHub-hosted runners (slower, no cluster dependencies, reliable fallback)
   github-hosted:
     uses: ./.github/workflows/github-runner.yml
