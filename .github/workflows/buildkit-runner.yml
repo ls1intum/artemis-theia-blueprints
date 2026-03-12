@@ -56,6 +56,7 @@ jobs:
       build-amd64: true
       build-arm64: false
       runner-amd64: arc-runner-set-buildkit-exp
+      runner-merge: arc-runner-set-buildkit-exp
       setup-qemu: false
       buildkit-remote: true
     secrets: inherit
@@ -119,6 +120,7 @@ jobs:
       build-amd64: true
       build-arm64: false
       runner-amd64: arc-runner-set-buildkit-exp
+      runner-merge: arc-runner-set-buildkit-exp
       setup-qemu: false
       buildkit-remote: true
     secrets: inherit
