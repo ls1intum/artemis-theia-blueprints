@@ -10,6 +10,12 @@ name: Build and Push Theia Images (GitHub-hosted runners)
 
 on:
   workflow_call:
+    inputs:
+      image_tag:
+        description: "Optional image tag override"
+        required: false
+        default: ""
+        type: string
   workflow_dispatch:
 
 jobs:
@@ -21,7 +27,10 @@ jobs:
       - name: Set BASE_IDE_TAG
         id: set-tag
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          OVERRIDE="${{ inputs.image_tag }}"
+          if [[ -n "$OVERRIDE" ]]; then
+            echo "base_tag=$OVERRIDE" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "base_tag=latest" >> "$GITHUB_OUTPUT"
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "base_tag=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"

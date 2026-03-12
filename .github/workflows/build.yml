@@ -15,25 +15,38 @@ on:
       - prereleased
 
   workflow_dispatch:
+    inputs:
+      runner:
+        description: "Runner type to use for this build"
+        required: false
+        default: buildkit
+        type: choice
+        options:
+          - buildkit
+          - github-hosted
+      image_tag:
+        description: "Optional image tag override (e.g. 'my-test-tag'). Defaults to the tag derived from branch/event when left empty."
+        required: false
+        default: ""
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  # ARC self-hosted runners (fast, with Verdaccio/registry/proxy caching)
-  # Disabled until ARC is available in the new repo
-  # arc:
-  #   uses: ./.github/workflows/arc-runner.yml
-  #   secrets: inherit
-
-  # Stateful BuildKit runners (experimental, AMD64 only)
+  # Stateful BuildKit runners (default — fast, persistent cache)
   buildkit-exp:
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.runner == 'buildkit' }}
     uses: ./.github/workflows/buildkit-runner.yml
+    with:
+      image_tag: ${{ inputs.image_tag || '' }}
     secrets: inherit
 
-  # GitHub-hosted runners (slower, no cluster dependencies, reliable fallback)
-  # Disabled on feat/buildkit-exp — running only buildkit-exp runners for testing
-  # github-hosted:
-  #   uses: ./.github/workflows/github-runner.yml
-  #   secrets: inherit
+  # GitHub-hosted runners (manual fallback — slower, no cluster dependencies)
+  github-hosted:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.runner == 'github-hosted' }}
+    uses: ./.github/workflows/github-runner.yml
+    with:
+      image_tag: ${{ inputs.image_tag || '' }}
+    secrets: inherit

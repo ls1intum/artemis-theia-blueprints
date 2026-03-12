@@ -33,8 +33,10 @@ RUN --mount=type=cache,target=/usr/local/share/.cache/yarn,sharing=locked \
 
 # Download plugins early to leverage caching
 # This step relies on package.json and scripts/, so it can be cached before source code changes
+# Retry loop (3 attempts, 15s backoff) guards against transient network failures
+# (e.g. GitHub redirect timeouts on vscode-builtin-extensions tarball)
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn,sharing=locked \
-    yarn download:plugins
+    for i in 1 2 3; do yarn download:plugins && break || { echo "Plugin download attempt $i failed, retrying in 15s..." && sleep 15; }; done
 
 # Build the browser application (plugins already downloaded in install-deps)
 FROM install-deps AS build-stage

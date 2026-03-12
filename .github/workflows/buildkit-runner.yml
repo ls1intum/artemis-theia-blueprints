@@ -10,6 +10,12 @@ name: Build and Push Theia Images (Stateful BuildKit)
 
 on:
   workflow_call:
+    inputs:
+      image_tag:
+        description: "Optional image tag override"
+        required: false
+        default: ""
+        type: string
   workflow_dispatch:
 
 jobs:
@@ -29,7 +35,10 @@ jobs:
           REF_NAME="${{ github.ref_name }}"
           SAFE_REF_NAME=$(echo "$REF_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
 
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          OVERRIDE="${{ inputs.image_tag }}"
+          if [[ -n "$OVERRIDE" ]]; then
+            BASE_TAG="$OVERRIDE"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
             BASE_TAG="pr-${{ github.event.pull_request.number }}"
           elif [[ "${{ github.event_name }}" == "release" ]]; then
             BASE_TAG="${SAFE_REF_NAME}"
