@@ -26,6 +26,9 @@
         "preferences": {
           "toolbar.showToolbar": true,
           "files.enableTrash": false,
+          "files.exclude": {
+            "**/.vscode": true
+          },
           "security.workspace.trust.enabled": false
         },
         "reloadOnReconnect": true
