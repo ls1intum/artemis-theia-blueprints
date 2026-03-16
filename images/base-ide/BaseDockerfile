@@ -80,6 +80,15 @@ COPY --from=build-stage /home/theia/theia-extensions/product/package.json theia-
 # Install ONLY production dependencies
 RUN yarn install --production --ignore-scripts --network-timeout 600000
 
+# Stage: Clone Oh My Zsh and plugins (cached independently)
+FROM alpine/git AS zsh-setup
+RUN git init /oh-my-zsh && \
+    git -C /oh-my-zsh remote add origin https://github.com/ohmyzsh/ohmyzsh.git && \
+    git -C /oh-my-zsh fetch --depth 1 origin 5c4f27b7166360bd23709f24642b247eac30a147 && \
+    git -C /oh-my-zsh checkout FETCH_HEAD && \
+    git clone --depth 1 --branch v0.7.1 https://github.com/zsh-users/zsh-autosuggestions /oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+    git clone --depth 1 --branch 0.8.0 https://github.com/zsh-users/zsh-syntax-highlighting.git /oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
 # Final runtime stage
 FROM node:22-bullseye-slim AS base-ide
 
@@ -102,3 +111,7 @@ COPY --from=build-stage /home/theia/project /home/theia/project
 
 # Copy production-only node_modules
 COPY --from=prod-deps /home/theia/node_modules /home/theia/node_modules
+
+# Copy Oh My Zsh and zsh configuration (available to all variants via base-ide)
+COPY --from=zsh-setup /oh-my-zsh /home/theia/.oh-my-zsh
+COPY configs/zshrc /home/theia/.zshrc
