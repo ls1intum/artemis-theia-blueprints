@@ -1,7 +1,8 @@
-# Artemis Theia Base-IDE
+# EduIDE Base-IDE
+
 The Basis IDE serves as the foundational image within our Theia-based IDE ecosystem. It is designed to provide a minimal and lightweight development environment, forming the core upon which more specialized IDE images are built. The Basis IDE includes the essential features and plugins necessary for basic development tasks, allowing users to extend its functionality with additional plugins as needed. Simplicity and being lightweight is key here.
 
-For more information on the overall structure, including details on the available Theia IDE images, please refer to the main [Artemis Theia IDE Images README](../README.md).
+For more information on the overall structure, including details on the available Theia IDE images, please refer to the main [EduIDE Images README](../README.md).
 
 ## Plugins shipped with the Base-IDE
 The Basis IDE includes a limited set of plugins to maintain its lightweight nature. As recommended by the creators of Theia, the plugins are sourced from their `builtin-extension-pack` available [here](https://open-vsx.org/extension/eclipse-theia/builtin-extension-pack). 

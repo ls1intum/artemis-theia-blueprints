@@ -7,14 +7,18 @@ This directory provides an extensible base image for creating language-specific 
 The image structure uses a two-stage pattern optimized for creating multiple language-specific IDE variants:
 
 ### Stage 1: Base IDE Image (`base-ide/`)
+
 The **base-ide** multi-stage build (install → build → runtime) produces the reusable foundation layer that downstream images consume. It:
+
 - Installs build prerequisites and caches workspace dependencies for faster rebuilds
 - Compiles the browser-only Theia application from source and downloads core plugins (Git, Markdown, JSON, etc.)
 - Removes Electron launchers and packaging code along with other development artefacts
 - Emits a slim runtime layer based on `node:20-bullseye-slim`, ready to be copied into language-specific images
 
 ### Stage 2: Language-Specific Images
+
 Language-specific images extend the base by copying the built Theia application and adding tooling:
+
 - Copy the complete Theia application from the `base-ide` runtime layer
 - Install language compilers, runtimes, and tools (e.g., Java JDK, Python, gcc)
 - Add language-specific VS Code extensions
@@ -124,6 +128,7 @@ RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json
 ```
 
 The `jq -s '.[0] + .[1]'` command performs a merge where:
+
 - `.[0]` is the root `package.json`
 - `.[1]` is your patch file
 - Fields in the patch override those in the base
@@ -144,7 +149,7 @@ Plugins extend the base IDE with language-specific features like syntax highligh
 
 ### Finding Plugins
 
-Browse available VS Code extensions at [Open VSX Registry](https://open-vsx.org/). 
+Browse available VS Code extensions at [Open VSX Registry](https://open-vsx.org/).
 
 ### Configuring VS Code Built-in Extensions
 
@@ -163,7 +168,8 @@ To exclude unnecessary built-ins (reducing image size), add their IDs to `theiaP
 ```
 
 See `images/base-ide/package.json` for the default exclusion list.
-# Artemis Theia IDE Images
+
+## EduIDE Images
 
 We use Theia to provide students with programming environments tailored to their course`s needs. Instructors can choose a fitting Theia Blueprint (=Theia IDE Image) in Artemis. This repository contains the build tooling for creating those images.
 
@@ -182,7 +188,6 @@ Matching Artemis' programming environments, the following images are available:
 | Ocaml     | ✔️         |        ✔️         |
 | Javascript| ✔️         |        ✔️         |
 | Rust      | ✔️         |        ✔️         |
-
 
 ## Structure of Images
 
@@ -212,20 +217,20 @@ Plugins are an easy way to add functionality to the basic features of VSC or the
 
 ### Configuring Theia's VSC built-ins
 
-Theia offers a large built-in plugin bundling all those (82) functions and languages that VSC offers out of the box (https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix). As your image most likely will not require all those features, you can remove sub-plugins by adding their `id` to the list of `theiaPluginsExcludeIds` of the `package.json`. You can find the list of all excluded plugins in the `/images/base-ide/package.json`.
+Theia offers a large built-in plugin bundling all those (82) functions and languages that VSC offers out of the box (<https://open-vsx.org/api/eclipse-theia/builtin-extension-pack/1.88.1/file/eclipse-theia.builtin-extension-pack-1.88.1.vsix>). As your image most likely will not require all those features, you can remove sub-plugins by adding their `id` to the list of `theiaPluginsExcludeIds` of the `package.json`. You can find the list of all excluded plugins in the `/images/base-ide/package.json`.
 
 ## Testing blueprints locally
 
 To test images locally, they need to be pulled from ghcr.io. You can also built them yourself by starting with the BaseImage and follow with the respective ToolImage afterwards.
 
 ```
-docker build -t ghcr.io/ls1intum/theia/base -f images/base-ide/BaseDockerfile .
+docker build -t ghcr.io/eduide/eduide/base -f images/base-ide/BaseDockerfile .
 
-docker build -t ghcr.io/ls1intum/theia/java-17 -f images/java-17/ToolDockerfile .
+docker build -t ghcr.io/eduide/eduide/java-17 -f images/java-17/ToolDockerfile .
 ```
 
 When finally starting the container, remember that Theia utilizes port 3000. You may use the following command to start the Java17 image.
 
 ```
-docker run --rm --name theia -p 3000:3000 ghcr.io/ls1intum/theia/java-17
+docker run --rm --name theia -p 3000:3000 ghcr.io/eduide/eduide/java-17
 ```

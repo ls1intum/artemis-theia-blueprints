@@ -1,29 +1,30 @@
 # =============================================================================
-# theia-ls-setup/docker-compose-rust.yml
+# theia-ls-setup/docker-compose-rust-only.yml
 # =============================================================================
 # Purpose:
-#   Runs the minimal Theia IDE (no Rust tooling) together with an external
-#   Rust language server. Use this when you want the smallest possible IDE
-#   image and supply Rust LSP support entirely through the external server.
+#   Runs a Rust IDE environment with a SEPARATE external Rust language server.
+#   Use this when you want the Rust-specific IDE image (rust-no-ls) that
+#   ships Rust tooling (rustc, cargo) but delegates LSP requests to an external
+#   process over TCP.
 #
 # Images used:
-#   - theia:    ghcr.io/eduide/eduide/theia-no-ls      — bare Theia IDE, no language tools
+#   - theia:    ghcr.io/eduide/eduide/rust-no-ls       — Rust IDE without embedded LS
 #   - rust-ls:  ghcr.io/eduide/eduide/langserver-rust  — Standalone Rust language server
 #
 # How to run:
-#   docker compose -f theia-ls-setup/docker-compose-rust.yml up
+#   docker compose -f theia-ls-setup/docker-compose-rust-only.yml up
 #
 # Then open http://localhost:3000 in your browser.
 #
-# Difference to docker-compose-rust-only.yml:
-#   This file uses the minimal theia-no-ls image (no rustc/cargo inside the IDE).
-#   docker-compose-rust-only.yml uses rust-no-ls which bundles Rust tooling.
+# Difference to docker-compose-rust.yml:
+#   This file uses the rust-no-ls image which includes Rust tooling (rustc/cargo).
+#   docker-compose-rust.yml uses the minimal theia-no-ls base image without Rust tools.
 # =============================================================================
 
 services:
   theia:
-    image: ghcr.io/eduide/eduide/theia-no-ls:latest
-    container_name: theia-ide
+    image: ghcr.io/eduide/eduide/rust-no-ls:latest
+    container_name: theia-rust-ide
     ports:
       - "3000:3000"
     volumes:
