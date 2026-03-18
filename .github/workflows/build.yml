@@ -29,6 +29,11 @@ on:
         required: false
         default: ""
         type: string
+      arc_registry_cache:
+        description: "Enable ARC registry cache import/export (slower on stateful BuildKit; default off)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -39,52 +44,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  determine-tag:
-    runs-on: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_mode == 'github-runners' && 'ubuntu-latest' || 'arc-buildkit-eduide-amd64' }}
-    outputs:
-      base_tag: ${{ steps.set-tag.outputs.base_tag }}
-      sha_tag: ${{ steps.set-tag.outputs.sha_tag }}
-    steps:
-      - name: Checkout for SHA access
-        uses: actions/checkout@v4
-
-      - name: Set tags
-        id: set-tag
-        shell: bash
-        run: |
-          set -euo pipefail
-          SHORT_SHA=$(git rev-parse --short=7 HEAD)
-          REF_NAME="${{ github.ref_name }}"
-          SAFE_REF_NAME=$(echo "$REF_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
-          OVERRIDE="${{ inputs.image_tag || '' }}"
-
-          if [[ -n "$OVERRIDE" ]]; then
-            BASE_TAG="$OVERRIDE"
-          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BASE_TAG="pr-${{ github.event.pull_request.number }}"
-          elif [[ "${{ github.event_name }}" == "release" ]]; then
-            BASE_TAG="$SAFE_REF_NAME"
-          elif [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            BASE_TAG="latest"
-          else
-            BASE_TAG="$SAFE_REF_NAME"
-          fi
-
-          echo "base_tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
-          echo "sha_tag=${BASE_TAG}-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
-
   build-and-push-base:
-    needs: determine-tag
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/split-build-workflow-modes
     with:
       docker-file: images/base-ide/BaseDockerfile
       image-name: eduide/eduide/base
       docker-context: .
-      tags: |
-        ${{ needs.determine-tag.outputs.base_tag }}
-        ${{ needs.determine-tag.outputs.sha_tag }}
       image-tag: ${{ inputs.image_tag || '' }}
       execution-mode: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_mode || 'self-hosted-buildkit' }}
+      arc-registry-cache: ${{ github.event_name == 'workflow_dispatch' && inputs.arc_registry_cache || false }}
       network: host
       registry-mirror: http://131.159.88.117:30081
       build-amd64: true
@@ -93,7 +61,6 @@ jobs:
 
   build-and-push:
     needs:
-      - determine-tag
       - build-and-push-base
     strategy:
       fail-fast: false
@@ -142,12 +109,10 @@ jobs:
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
       build-args: |
-        BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
-      tags: |
-        ${{ needs.determine-tag.outputs.base_tag }}
-        ${{ needs.determine-tag.outputs.sha_tag }}
+        BASE_IDE_TAG=${{ needs.build-and-push-base.outputs.base_tag }}
       image-tag: ${{ inputs.image_tag || '' }}
       execution-mode: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_mode || 'self-hosted-buildkit' }}
+      arc-registry-cache: ${{ github.event_name == 'workflow_dispatch' && inputs.arc_registry_cache || false }}
       network: host
       registry-mirror: http://131.159.88.117:30081
       build-amd64: true
