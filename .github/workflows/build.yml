@@ -34,11 +34,6 @@ on:
         required: false
         default: false
         type: boolean
-      github_registry_cache:
-        description: "Enable github-runners registry cache import/export (default off)"
-        required: false
-        default: false
-        type: boolean
       disable_layer_cache:
         description: "Disable Docker layer cache (--no-cache) for stress testing while keeping BuildKit mount caches"
         required: false
@@ -63,7 +58,7 @@ jobs:
       image-tag: ${{ inputs.image_tag || '' }}
       execution-mode: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_mode || 'self-hosted-buildkit' }}
       arc-registry-cache: ${{ github.event_name == 'workflow_dispatch' && inputs.arc_registry_cache || false }}
-      github-registry-cache: ${{ github.event_name == 'workflow_dispatch' && inputs.github_registry_cache || false }}
+      github-registry-cache: true
       no-cache: ${{ github.event_name == 'workflow_dispatch' && inputs.disable_layer_cache || false }}
       network: host
       build-amd64: true
@@ -124,7 +119,7 @@ jobs:
       image-tag: ${{ inputs.image_tag || '' }}
       execution-mode: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_mode || 'self-hosted-buildkit' }}
       arc-registry-cache: ${{ github.event_name == 'workflow_dispatch' && inputs.arc_registry_cache || false }}
-      github-registry-cache: ${{ github.event_name == 'workflow_dispatch' && inputs.github_registry_cache || false }}
+      github-registry-cache: true
       no-cache: ${{ github.event_name == 'workflow_dispatch' && inputs.disable_layer_cache || false }}
       network: host
       build-amd64: true
