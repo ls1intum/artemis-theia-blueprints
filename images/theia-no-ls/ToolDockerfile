@@ -34,8 +34,18 @@ COPY scripts/ /home/theia/scripts/
 # Download plugins and build application production mode
 # Use yarn autoclean to remove unnecessary files from package dependencies
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn,sharing=locked \
-    yarn --pure-lockfile --network-timeout 1000000 && \
-    for i in 1 2 3; do yarn download:plugins && break || { echo "Plugin download attempt $i failed, retrying in 15s..." && sleep 15; }; done
+    yarn --frozen-lockfile --network-timeout 1000000 && \
+    attempt=1; \
+    until [ "$attempt" -gt 3 ]; do \
+      yarn download:plugins && break; \
+      if [ "$attempt" -eq 3 ]; then \
+        echo "Plugin download failed after ${attempt} attempts"; \
+        exit 1; \
+      fi; \
+      echo "Plugin download attempt $attempt failed, retrying in 15s..."; \
+      attempt=$((attempt + 1)); \
+      sleep 15; \
+    done
 
 # Assemble the application
 FROM node:22-bullseye-slim AS final-ide
