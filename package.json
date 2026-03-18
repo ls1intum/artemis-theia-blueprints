@@ -45,6 +45,7 @@
     "build:extensions": "lerna run --scope=\"theia-ide*ext\" build",
     "download:plugins": "theia download:plugins --rate-limit=15 --parallel=false && yarn permissions:writeable",
     "download:plugins:retry": "ts-node scripts/download-plugins-with-retry.ts",
+    "plugins:prune-and-sync-cache": "ts-node scripts/prune-and-sync-plugin-cache.ts",
     "package:applications": "lerna run --scope=\"theia-ide*app\" --ignore=\"theia-ide-next*\" package --concurrency 1",
     "package:applications:preview": "lerna run --scope=\"theia-ide*app\" --ignore=\"theia-ide-next*\" package:preview --concurrency 1",
     "package:applications:prod": "lerna run --scope=\"theia-ide*app\" --ignore=\"theia-ide-next*\" package:prod --concurrency 1",

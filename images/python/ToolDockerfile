@@ -53,10 +53,10 @@ COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 RUN yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
 # Download language-specific plugins
-RUN --mount=type=cache,target=/home/theia/.plugin-cache,sharing=locked \
+RUN --mount=type=cache,id=theia-plugin-cache-python,target=/home/theia/.plugin-cache,sharing=locked \
     cp -a /home/theia/.plugin-cache/. /home/theia/plugins/ 2>/dev/null || true && \
     yarn download:plugins:retry && \
-    cp -a /home/theia/plugins/. /home/theia/.plugin-cache/
+    yarn plugins:prune-and-sync-cache
 
 # Final stage: Assemble the application
 FROM apt-deps AS final-ide

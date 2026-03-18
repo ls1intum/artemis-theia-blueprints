@@ -35,10 +35,10 @@ RUN --mount=type=cache,target=/usr/local/share/.cache/yarn,sharing=locked \
 # This step relies on package.json and scripts/, so it can be cached before source code changes
 # Plugin download uses centralized retry script + persisted plugin cache
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn,sharing=locked \
-    --mount=type=cache,target=/home/theia/.plugin-cache,sharing=locked \
+    --mount=type=cache,id=theia-plugin-cache-base,target=/home/theia/.plugin-cache,sharing=locked \
     cp -a /home/theia/.plugin-cache/. /home/theia/plugins/ 2>/dev/null || true && \
     yarn download:plugins:retry && \
-    cp -a /home/theia/plugins/. /home/theia/.plugin-cache/
+    yarn plugins:prune-and-sync-cache
 
 # Build the browser application (plugins already downloaded in install-deps)
 FROM install-deps AS build-stage
