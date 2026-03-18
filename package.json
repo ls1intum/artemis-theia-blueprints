@@ -44,7 +44,7 @@
     "build:applications:next": "lerna run --scope=\"theia-ide-next*\" build:prod --concurrency 1",
     "build:extensions": "lerna run --scope=\"theia-ide*ext\" build",
     "download:plugins": "theia download:plugins --rate-limit=15 --parallel=false && yarn permissions:writeable",
-    "download:plugins:retry": "sh -ceu 'attempt=1; while [ \"$attempt\" -le 3 ]; do if yarn download:plugins; then exit 0; fi; if [ \"$attempt\" -eq 3 ]; then echo \"Plugin download failed after ${attempt} attempts\"; exit 1; fi; echo \"Plugin download attempt $attempt failed, retrying in 15s...\"; attempt=$((attempt + 1)); sleep 15; done'",
+    "download:plugins:retry": "ts-node scripts/download-plugins-with-retry.ts",
     "package:applications": "lerna run --scope=\"theia-ide*app\" --ignore=\"theia-ide-next*\" package --concurrency 1",
     "package:applications:preview": "lerna run --scope=\"theia-ide*app\" --ignore=\"theia-ide-next*\" package:preview --concurrency 1",
     "package:applications:prod": "lerna run --scope=\"theia-ide*app\" --ignore=\"theia-ide-next*\" package:prod --concurrency 1",
