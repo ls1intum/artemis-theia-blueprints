@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && \
     apt-get upgrade -y --autoremove && \
     apt-get install -y --no-install-recommends \
-    adduser findutils bzip2 e2fsprogs sudo bash gcc clang clangd git gdb make ca-certificates
+    adduser findutils bzip2 e2fsprogs sudo bash zsh gcc clang clangd git gdb make ca-certificates
 
 # Create theia user and directories (after adduser is installed)
 RUN useradd --system --create-home --user-group --uid 101 theia && \
@@ -81,7 +81,7 @@ COPY --chown=theia:theia images/c/project /home/project
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
-ENV SHELL=/bin/bash \
+ENV SHELL=/bin/zsh \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 
 # Use installed git instead of dugite
