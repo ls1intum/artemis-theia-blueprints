@@ -33,20 +33,12 @@ RUN --mount=type=cache,target=/usr/local/share/.cache/yarn,sharing=locked \
 
 # Download plugins early to leverage caching
 # This step relies on package.json and scripts/, so it can be cached before source code changes
-# Retry loop (3 attempts, 15s backoff) guards against transient network failures
-# (e.g. GitHub redirect timeouts on vscode-builtin-extensions tarball)
+# Plugin download uses centralized retry script + persisted plugin cache
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn,sharing=locked \
-    attempt=1; \
-    until [ "$attempt" -gt 3 ]; do \
-      yarn download:plugins && break; \
-      if [ "$attempt" -eq 3 ]; then \
-        echo "Plugin download failed after ${attempt} attempts"; \
-        exit 1; \
-      fi; \
-      echo "Plugin download attempt $attempt failed, retrying in 15s..."; \
-      attempt=$((attempt + 1)); \
-      sleep 15; \
-    done
+    --mount=type=cache,target=/home/theia/.plugin-cache,sharing=locked \
+    cp -a /home/theia/.plugin-cache/. /home/theia/plugins/ 2>/dev/null || true && \
+    yarn download:plugins:retry && \
+    cp -a /home/theia/plugins/. /home/theia/.plugin-cache/
 
 # Build the browser application (plugins already downloaded in install-deps)
 FROM install-deps AS build-stage

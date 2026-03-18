@@ -49,17 +49,10 @@ COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 RUN yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
 # Download language-specific plugins
-RUN attempt=1; \
-    until [ "$attempt" -gt 3 ]; do \
-      yarn download:plugins && break; \
-      if [ "$attempt" -eq 3 ]; then \
-        echo "Plugin download failed after ${attempt} attempts"; \
-        exit 1; \
-      fi; \
-      echo "Plugin download attempt $attempt failed, retrying in 15s..."; \
-      attempt=$((attempt + 1)); \
-      sleep 15; \
-    done
+RUN --mount=type=cache,target=/home/theia/.plugin-cache,sharing=locked \
+    cp -a /home/theia/.plugin-cache/. /home/theia/plugins/ 2>/dev/null || true && \
+    yarn download:plugins:retry && \
+    cp -a /home/theia/plugins/. /home/theia/.plugin-cache/
 
 # Final stage: Assemble the application
 FROM apt-deps AS final-ide
