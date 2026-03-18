@@ -15,7 +15,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && \
     apt-get upgrade -y --autoremove && \
     apt-get install -y --no-install-recommends \
-    adduser python3 python3-pip bash git python-is-python3 ca-certificates && \
+    adduser python3 python3-pip bash git python-is-python3 ca-certificates
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     pip3 install -U pytest
 
 # Create theia user and directories (after adduser is installed)
@@ -52,7 +53,7 @@ COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 RUN yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
 # Download language-specific plugins
-RUN yarn download:plugins
+RUN for i in 1 2 3; do yarn download:plugins && break || { echo "Plugin download attempt $i failed, retrying in 15s..." && sleep 15; }; done
 
 # Final stage: Assemble the application
 FROM apt-deps AS final-ide

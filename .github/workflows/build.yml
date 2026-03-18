@@ -15,19 +15,141 @@ on:
       - prereleased
 
   workflow_dispatch:
+    inputs:
+      execution_mode:
+        description: "Build backend to use"
+        required: false
+        default: self-hosted-buildkit
+        type: choice
+        options:
+          - self-hosted-buildkit
+          - github-runners
+      image_tag:
+        description: "Optional image tag override (e.g. my-test-tag)"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+  packages: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  # ARC self-hosted runners (fast, with Verdaccio/registry/proxy caching)
-  # Disabled until ARC is available in the new repo
-  # arc:
-  #   uses: ./.github/workflows/arc-runner.yml
-  #   secrets: inherit
+  determine-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      base_tag: ${{ steps.set-tag.outputs.base_tag }}
+      sha_tag: ${{ steps.set-tag.outputs.sha_tag }}
+    steps:
+      - name: Checkout for SHA access
+        uses: actions/checkout@v4
 
-  # GitHub-hosted runners (slower, no cluster dependencies, reliable fallback)
-  github-hosted:
-    uses: ./.github/workflows/github-runner.yml
+      - name: Set tags
+        id: set-tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHORT_SHA=$(git rev-parse --short=7 HEAD)
+          REF_NAME="${{ github.ref_name }}"
+          SAFE_REF_NAME=$(echo "$REF_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
+          OVERRIDE="${{ inputs.image_tag || '' }}"
+
+          if [[ -n "$OVERRIDE" ]]; then
+            BASE_TAG="$OVERRIDE"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_TAG="pr-${{ github.event.pull_request.number }}"
+          elif [[ "${{ github.event_name }}" == "release" ]]; then
+            BASE_TAG="$SAFE_REF_NAME"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            BASE_TAG="latest"
+          else
+            BASE_TAG="$SAFE_REF_NAME"
+          fi
+
+          echo "base_tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "sha_tag=${BASE_TAG}-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+
+  build-and-push-base:
+    needs: determine-tag
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/split-build-workflow-modes
+    with:
+      docker-file: images/base-ide/BaseDockerfile
+      image-name: eduide/eduide/base
+      docker-context: .
+      tags: |
+        ${{ needs.determine-tag.outputs.base_tag }}
+        ${{ needs.determine-tag.outputs.sha_tag }}
+      image-tag: ${{ inputs.image_tag || '' }}
+      execution-mode: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_mode || 'self-hosted-buildkit' }}
+      network: host
+      registry-mirror: http://131.159.88.117:30081
+      build-amd64: true
+      build-arm64: ${{ github.event_name != 'pull_request' }}
+    secrets: inherit
+
+  build-and-push:
+    needs:
+      - determine-tag
+      - build-and-push-base
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - docker-file: images/c/ToolDockerfile
+            docker-context: "."
+            image-name: eduide/eduide/c
+          - docker-file: images/haskell/ToolDockerfile
+            docker-context: "."
+            image-name: eduide/eduide/haskell
+          - docker-file: images/java-17/ToolDockerfile
+            docker-context: "."
+            image-name: eduide/eduide/java-17
+          - docker-file: images/javascript/ToolDockerfile
+            docker-context: "."
+            image-name: eduide/eduide/javascript
+          - docker-file: images/ocaml/ToolDockerfile
+            docker-context: "."
+            image-name: eduide/eduide/ocaml
+          - docker-file: images/python/ToolDockerfile
+            docker-context: "."
+            image-name: eduide/eduide/python
+          - docker-file: images/rust/ToolDockerfile
+            docker-context: "."
+            image-name: eduide/eduide/rust
+          - docker-file: images/languageserver/java/Dockerfile
+            docker-context: "."
+            image-name: eduide/eduide/langserver-java
+          - docker-file: images/languageserver/rust/Dockerfile
+            docker-context: "."
+            image-name: eduide/eduide/langserver-rust
+          - docker-file: images/theia-no-ls/ToolDockerfile
+            docker-context: "."
+            image-name: eduide/eduide/theia-no-ls
+          - docker-file: images/java-17-no-ls/ToolDockerfile
+            docker-context: "."
+            image-name: eduide/eduide/java-17-no-ls
+          - docker-file: images/rust-no-ls/ToolDockerfile
+            docker-context: "."
+            image-name: eduide/eduide/rust-no-ls
+
+    uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@feature/split-build-workflow-modes
+    with:
+      docker-file: ${{ matrix.docker-file }}
+      image-name: ${{ matrix.image-name }}
+      docker-context: ${{ matrix.docker-context }}
+      build-args: |
+        BASE_IDE_TAG=${{ needs.determine-tag.outputs.base_tag }}
+      tags: |
+        ${{ needs.determine-tag.outputs.base_tag }}
+        ${{ needs.determine-tag.outputs.sha_tag }}
+      image-tag: ${{ inputs.image_tag || '' }}
+      execution-mode: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_mode || 'self-hosted-buildkit' }}
+      network: host
+      registry-mirror: http://131.159.88.117:30081
+      build-amd64: true
+      build-arm64: ${{ github.event_name != 'pull_request' }}
     secrets: inherit
