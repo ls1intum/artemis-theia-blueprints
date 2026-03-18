@@ -54,7 +54,6 @@ jobs:
       execution-mode: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_mode || 'self-hosted-buildkit' }}
       arc-registry-cache: ${{ github.event_name == 'workflow_dispatch' && inputs.arc_registry_cache || false }}
       network: host
-      registry-mirror: http://131.159.88.117:30081
       build-amd64: true
       build-arm64: ${{ github.event_name != 'pull_request' }}
     secrets: inherit
@@ -114,7 +113,6 @@ jobs:
       execution-mode: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_mode || 'self-hosted-buildkit' }}
       arc-registry-cache: ${{ github.event_name == 'workflow_dispatch' && inputs.arc_registry_cache || false }}
       network: host
-      registry-mirror: http://131.159.88.117:30081
       build-amd64: true
       build-arm64: ${{ github.event_name != 'pull_request' }}
     secrets: inherit
