@@ -14,7 +14,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 # Install jq for JSON merging
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends jq
+    apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update && apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends jq
 
 # Copy required configuration files
 COPY yarn.lock yarn.lock
@@ -64,7 +64,7 @@ RUN chown -R theia:theia /home/theia/applications/browser/resources/user
 # ADDED: curl and build-essential for Rust support
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update && apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends \
     git openssh-client openssh-server bash libsecret-1-0 openjdk-17-jdk maven curl build-essential
 
 ENV HOME=/home/theia

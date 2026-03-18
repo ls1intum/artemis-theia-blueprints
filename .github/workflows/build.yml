@@ -116,7 +116,7 @@ jobs:
       image-name: ${{ matrix.image-name }}
       docker-context: ${{ matrix.docker-context }}
       build-args: |
-        BASE_IDE_TAG=${{ needs.build-and-push-base.outputs.base_tag }}
+        BASE_IDE_TAG=${{ needs.build-and-push-base.outputs.sha_tag }}
       image-tag: ${{ inputs.image_tag || '' }}
       execution-mode: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_mode || 'self-hosted-buildkit' }}
       arc-registry-cache: ${{ github.event_name == 'workflow_dispatch' && inputs.arc_registry_cache || false }}
