@@ -36,9 +36,7 @@ COPY scripts/ /home/theia/scripts/
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn,sharing=locked \
     --mount=type=cache,id=theia-plugin-cache-theia-no-ls,target=/home/theia/.plugin-cache,sharing=locked \
     yarn --frozen-lockfile --network-timeout 1000000 && \
-    cp -a /home/theia/.plugin-cache/. /home/theia/plugins/ 2>/dev/null || true && \
-    yarn download:plugins:retry && \
-    yarn plugins:prune-and-sync-cache
+    yarn download:plugins:smart
 
 # Assemble the application
 FROM node:22-bullseye-slim AS final-ide
