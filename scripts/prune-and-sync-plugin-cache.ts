@@ -50,7 +50,7 @@ async function run(): Promise<void> {
     }
 
     const keep = unresolvedRoots.length > 0
-        ? new Set(pluginIndex.keys())
+        ? new Set(Array.from(pluginIndex.keys()).filter(id => !excluded.has(id)))
         : await resolveDependencyClosure(configuredRoots, pluginIndex, excluded);
 
     // Safety net: if closure resolution failed for some reason, do not prune everything.
@@ -214,6 +214,8 @@ async function prunePlugins(pluginIndex: Map<string, PluginInfo>, keep: Set<stri
 }
 
 async function syncPluginsToCache(pluginIndex: Map<string, PluginInfo>, keep: Set<string>): Promise<void> {
+    const pluginIdByDirName = new Map(Array.from(pluginIndex.values()).map(plugin => [plugin.dirName, plugin.id]));
+
     // Purge cache entries not in keep set
     const cacheEntries = await fs.readdir(CACHE_DIR, { withFileTypes: true });
     for (const entry of cacheEntries) {
@@ -221,16 +223,8 @@ async function syncPluginsToCache(pluginIndex: Map<string, PluginInfo>, keep: Se
             continue;
         }
         const cachePath = path.join(CACHE_DIR, entry.name);
-        const packageJsonPath = await findPackageJson(cachePath);
-        if (!packageJsonPath) {
-            await fs.rm(cachePath, { recursive: true, force: true });
-            continue;
-        }
-
-        const packageRaw = await fs.readFile(packageJsonPath, 'utf8');
-        const packageJson = JSON.parse(packageRaw) as PluginPackageJson;
-        const pluginId = packageJson.name ?? entry.name;
-        if (!keep.has(pluginId)) {
+        const pluginId = pluginIdByDirName.get(entry.name);
+        if (!pluginId || !keep.has(pluginId)) {
             await fs.rm(cachePath, { recursive: true, force: true });
         }
     }
