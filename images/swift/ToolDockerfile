@@ -48,14 +48,24 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     libcurl4-openssl-dev \
     libxml2-dev
 
-RUN git clone https://github.com/realm/SwiftLint.git
+RUN n=0; until git clone https://github.com/realm/SwiftLint.git; do \
+        n=$((n+1)); \
+        if [ "$n" -ge 5 ]; then echo "git clone SwiftLint failed after $n attempts" >&2; exit 1; fi; \
+        echo "git clone SwiftLint failed (attempt $n), retrying..."; \
+        sleep $((n*2)); \
+    done
 WORKDIR /SwiftLint
 
 # Default SwiftLint version - will be overwritten by the GH action
 ARG SWIFTLINT_VERSION=0.53.0
 RUN git checkout ${SWIFTLINT_VERSION}
 
-RUN swift package update
+RUN n=0; until swift package update; do \
+        n=$((n+1)); \
+        if [ "$n" -ge 5 ]; then echo "swift package update failed after $n attempts" >&2; exit 1; fi; \
+        echo "swift package update failed (attempt $n), retrying..."; \
+        sleep $((n*2)); \
+    done
 ARG SWIFT_FLAGS="-c release -Xswiftc -static-stdlib -Xlinker -lcurl -Xlinker -lxml2 -Xswiftc -I. -Xlinker -fuse-ld=lld -Xlinker -L/usr/lib/swift/linux"
 RUN swift build ${SWIFT_FLAGS} --product swiftlint
 RUN mkdir -p /executables
