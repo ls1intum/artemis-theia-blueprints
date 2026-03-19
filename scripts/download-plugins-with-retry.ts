@@ -10,6 +10,7 @@
 import { execSync } from 'child_process';
 
 const RETRY_SCHEDULE_SECONDS = [60, randomIntInclusive(300, 600), randomIntInclusive(600, 1800)];
+const MAX_ATTEMPTS = RETRY_SCHEDULE_SECONDS.length + 1;
 
 run().catch(error => {
     const message = error instanceof Error ? error.message : String(error);
@@ -18,14 +19,14 @@ run().catch(error => {
 });
 
 async function run(): Promise<void> {
-    for (let attempt = 1; attempt <= RETRY_SCHEDULE_SECONDS.length; attempt++) {
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
         try {
-            console.log(`[download:plugins:retry] Attempt ${attempt}/${RETRY_SCHEDULE_SECONDS.length}`);
+            console.log(`[download:plugins:retry] Attempt ${attempt}/${MAX_ATTEMPTS}`);
             execSync('yarn download:plugins', { stdio: 'inherit' });
             console.log('[download:plugins:retry] Success');
             return;
         } catch (error) {
-            if (attempt === RETRY_SCHEDULE_SECONDS.length) {
+            if (attempt === MAX_ATTEMPTS) {
                 throw new Error(`Plugin download failed after ${attempt} attempts`);
             }
 
