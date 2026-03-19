@@ -48,7 +48,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     libcurl4-openssl-dev \
     libxml2-dev
 
-RUN n=0; until git clone https://github.com/realm/SwiftLint.git; do \
+RUN n=0; until rm -rf /SwiftLint && git clone https://github.com/realm/SwiftLint.git; do \
         n=$((n+1)); \
         if [ "$n" -ge 5 ]; then echo "git clone SwiftLint failed after $n attempts" >&2; exit 1; fi; \
         echo "git clone SwiftLint failed (attempt $n), retrying..."; \

@@ -95,6 +95,11 @@ async function indexPlugins(rootDir: string): Promise<Map<string, PluginInfo>> {
         const packageJson = JSON.parse(packageRaw) as PluginPackageJson;
         const pluginId = packageJson.name ?? dirName;
 
+        if (map.has(pluginId)) {
+            console.warn(`[plugins:prune-and-sync-cache] Duplicate pluginId '${pluginId}' found at '${dirName}', keeping first indexed directory.`);
+            continue;
+        }
+
         map.set(pluginId, {
             id: pluginId,
             dirName,
