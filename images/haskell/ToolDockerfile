@@ -46,7 +46,7 @@ RUN set -eux; \
             exit 1; \
             ;; \
     esac; \
-    curl -sSL "https://github.com/commercialhaskell/stack/releases/download/v${STACK_VERSION}/stack-${STACK_VERSION}-linux-${STACK_ARCH}.tar.gz" -o stack.tar.gz && \
+    curl --retry 5 --retry-all-errors --retry-delay 2 --connect-timeout 30 --max-time 300 -fsSL "https://github.com/commercialhaskell/stack/releases/download/v${STACK_VERSION}/stack-${STACK_VERSION}-linux-${STACK_ARCH}.tar.gz" -o stack.tar.gz && \
     echo "${STACK_SHA256}  stack.tar.gz" | sha256sum -c && \
     tar xzf stack.tar.gz && \
     cp stack-${STACK_VERSION}-linux-${STACK_ARCH}/stack /usr/local/bin/stack && \

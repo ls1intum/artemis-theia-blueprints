@@ -86,7 +86,7 @@ USER theia
 # Install Rust with minimal profile and cleanup
 # Replace bundled rust-analyzer server with rustup version to ensure
 # proc-macro API version compatibility with the Rust toolchain
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs --output rust.sh \
+RUN curl --retry 5 --retry-all-errors --retry-delay 2 --connect-timeout 30 --max-time 300 --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs --output rust.sh \
     && chmod +x rust.sh \
     && ./rust.sh -y --profile minimal \
     && rm rust.sh \

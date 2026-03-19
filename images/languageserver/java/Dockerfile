@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 WORKDIR /opt/jdt-ls
 
-RUN wget -q "${JDTLS_URL}" -O jdt-ls.tar.gz && \
+RUN wget --tries=5 --waitretry=2 --timeout=30 -q "${JDTLS_URL}" -O jdt-ls.tar.gz && \
     tar -xzf jdt-ls.tar.gz && \
     rm jdt-ls.tar.gz && \
     rm -rf config_win config_mac config_ss_win config_ss_mac config_ss_linux bin *.md LICENSE
