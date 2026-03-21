@@ -102,7 +102,7 @@ COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
 # Install Oh My Zsh and plugins with pinned versions
-RUN n=0; until rm -rf ${HOME}/.oh-my-zsh && git clone --depth 1 --branch master https://github.com/ohmyzsh/ohmyzsh.git ${HOME}/.oh-my-zsh; do \
+RUN n=0; until rm -rf ${HOME}/.oh-my-zsh && git clone --depth 1 --branch ohmyzsh-v1 https://github.com/ohmyzsh/ohmyzsh.git ${HOME}/.oh-my-zsh; do \
         n=$((n+1)); \
         if [ "$n" -ge 5 ]; then echo "oh-my-zsh clone failed after $n attempts" >&2; exit 1; fi; \
         echo "oh-my-zsh clone failed (attempt $n), retrying..."; \
