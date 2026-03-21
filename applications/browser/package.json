@@ -27,7 +27,8 @@
           "toolbar.showToolbar": true,
           "files.enableTrash": false,
           "files.exclude": {
-            "**/.vscode": true
+            "**/.vscode": true,
+            "lost+found": true
           },
           "security.workspace.trust.enabled": false
         },

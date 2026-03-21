@@ -28,7 +28,8 @@
         "preferences": {
           "toolbar.showToolbar": true,
           "files.exclude": {
-            "**/.vscode": true
+            "**/.vscode": true,
+            "lost+found": true
           },
           "security.workspace.trust.enabled": false
         },
