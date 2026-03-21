@@ -16,9 +16,9 @@ RUN useradd --system --create-home --user-group --uid 101 theia && \
 
 # Install required tools with BuildKit cache mounts
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update && \
+    apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends \
     git openssh-client openssh-server bash libsecret-1-0 openjdk-17-jdk maven ca-certificates && \
     apt-get autoremove -y
 
@@ -47,10 +47,16 @@ COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 
 # Install ONLY @theia/cli (needed for download:plugins command)
 # This is much faster than full yarn install since we already have prod node_modules
-RUN yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
+RUN n=0; until yarn add -W @theia/cli@1.68.2 --network-timeout 1000000 --network-concurrency 3; do \
+        n=$((n+1)); \
+        if [ "$n" -ge 5 ]; then echo "yarn add @theia/cli failed after $n attempts" >&2; exit 1; fi; \
+        echo "yarn add @theia/cli failed (attempt $n), retrying..."; \
+        sleep $((n*3)); \
+    done
 
 # Download language-specific plugins
-RUN yarn download:plugins
+RUN --mount=type=cache,id=theia-plugin-cache-java-17,target=/home/theia/.plugin-cache,sharing=locked \
+    yarn download:plugins:smart
 
 # Final stage: Assemble the application
 FROM apt-deps AS final-ide

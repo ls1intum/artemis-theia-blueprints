@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM eclipse-temurin:21-jdk-jammy
 
 ARG JDTLS_VERSION=1.50.0
@@ -7,13 +8,14 @@ ARG JDTLS_URL=https://www.eclipse.org/downloads/download.php?file=/jdtls/milesto
 ENV LS_PORT=5000
 ENV WORKSPACE_PATH=/home/project
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget tar socat && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update && apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends \
+    wget tar socat
 
 WORKDIR /opt/jdt-ls
 
-RUN wget -q "${JDTLS_URL}" -O jdt-ls.tar.gz && \
+RUN wget --tries=5 --waitretry=2 --timeout=30 -q "${JDTLS_URL}" -O jdt-ls.tar.gz && \
     tar -xzf jdt-ls.tar.gz && \
     rm jdt-ls.tar.gz && \
     rm -rf config_win config_mac config_ss_win config_ss_mac config_ss_linux bin *.md LICENSE
