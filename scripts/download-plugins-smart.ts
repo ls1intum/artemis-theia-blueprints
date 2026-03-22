@@ -33,6 +33,9 @@ async function run(): Promise<void> {
     console.log('[download:plugins:smart] Pruning and syncing cache');
     execSync('yarn plugins:prune-and-sync-cache', { stdio: 'inherit' });
 
+    console.log('[download:plugins:smart] Running second download pass after prune');
+    execSync('yarn download:plugins:retry', { stdio: 'inherit' });
+
     console.log('[download:plugins:smart] Success');
 }
 
