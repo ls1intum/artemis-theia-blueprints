@@ -2,7 +2,7 @@
 FROM eclipse-temurin:21-jdk-jammy
 
 ARG JDTLS_VERSION=1.58.0
-ARG JDTLS_URL=https://www.eclipse.org/downloads/download.php?file=/jdtls/milestones/${JDTLS_VERSION}/jdt-language-server-${JDTLS_VERSION}-202602271546.tar.gz
+ARG JDTLS_URL=https://www.eclipse.org/downloads/download.php?file=/jdtls/snapshots/jdt-language-server-${JDTLS_VERSION}-202603121450.tar.gz
 
 # Standard LS port and workspace path - configurable via env
 ENV LS_PORT=5000
