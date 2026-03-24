@@ -5,7 +5,7 @@ FROM node:22-bullseye AS install-deps
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update \
-    && apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends libxkbfile-dev libsecret-1-dev jq ca-certificates
+    && apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends libxkbfile-dev libsecret-1-dev ca-certificates
 
 WORKDIR /home/theia
 
@@ -22,8 +22,8 @@ COPY theia-extensions/product/package.json theia-extensions/product/
 # Copy scripts needed for plugin download hooks
 COPY scripts/ ./scripts/
 
-# Merge the base package.json with the patch using jq
-RUN jq -s '.[0] + .[1]' package.json.base package.json.patch > package.json.merged
+# Merge the base package.json with the patch and preserve additive exclusion lists.
+RUN node scripts/merge-package-json.js package.json.base package.json.patch package.json.merged
 RUN cp package.json.merged package.json
 
 # Install all workspace dependencies needed for the build (using lockfile for speed + reproducibility)
@@ -60,7 +60,8 @@ RUN rm -rf applications/electron \
         theia-extensions/updater \
         theia-extensions/product/src/electron-main \
     && yarn build:extensions \
-    && yarn browser build
+    && yarn browser build \
+    && find applications/browser/lib -type f \( -name '*.map' -o -name '*.map.gz' \) -delete
 
 # Production dependencies stage - install only runtime dependencies
 FROM node:22-bullseye-slim AS prod-deps
