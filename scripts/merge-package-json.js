@@ -13,6 +13,7 @@ const base = JSON.parse(fs.readFileSync(basePath, 'utf8'));
 const patch = JSON.parse(fs.readFileSync(patchPath, 'utf8'));
 
 const merged = merge(base, patch);
+applyExcludeRemovals(merged, patch);
 fs.writeFileSync(outputPath, `${JSON.stringify(merged, null, 2)}\n`);
 
 function merge(baseValue, patchValue, key = '') {
@@ -42,4 +43,25 @@ function merge(baseValue, patchValue, key = '') {
 
 function isObject(value) {
     return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function applyExcludeRemovals(mergedValue, patchValue) {
+    if (!isObject(mergedValue) || !isObject(patchValue)) {
+        return;
+    }
+
+    if (Array.isArray(patchValue.theiaPluginsExcludeIdsRemove) && Array.isArray(mergedValue.theiaPluginsExcludeIds)) {
+        const removals = new Set(patchValue.theiaPluginsExcludeIdsRemove);
+        mergedValue.theiaPluginsExcludeIds = mergedValue.theiaPluginsExcludeIds.filter(id => !removals.has(id));
+    }
+    delete mergedValue.theiaPluginsExcludeIdsRemove;
+
+    for (const [childKey, childValue] of Object.entries(patchValue)) {
+        if (childKey === 'theiaPluginsExcludeIdsRemove') {
+            continue;
+        }
+        if (childKey in mergedValue) {
+            applyExcludeRemovals(mergedValue[childKey], childValue);
+        }
+    }
 }
