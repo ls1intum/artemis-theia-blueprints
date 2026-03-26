@@ -2,10 +2,25 @@
 
 const fs = require('fs');
 
-const [, , basePath, patchPath, outputPath] = process.argv;
+const args = process.argv.slice(2);
+const replaceKeys = new Set();
+let positionalArgs = args;
+
+if (args[0] === '--replace-keys') {
+    if (!args[1]) {
+        console.error('Usage: node scripts/merge-package-json.js [--replace-keys key1,key2] <base> <patch> <output>');
+        process.exit(1);
+    }
+    positionalArgs = args.slice(2);
+    for (const key of args[1].split(',').map(part => part.trim()).filter(Boolean)) {
+        replaceKeys.add(key);
+    }
+}
+
+const [basePath, patchPath, outputPath] = positionalArgs;
 
 if (!basePath || !patchPath || !outputPath) {
-    console.error('Usage: node scripts/merge-package-json.js <base> <patch> <output>');
+    console.error('Usage: node scripts/merge-package-json.js [--replace-keys key1,key2] <base> <patch> <output>');
     process.exit(1);
 }
 
@@ -17,6 +32,10 @@ applyExcludeRemovals(merged, patch);
 fs.writeFileSync(outputPath, `${JSON.stringify(merged, null, 2)}\n`);
 
 function merge(baseValue, patchValue, key = '') {
+    if (replaceKeys.has(key)) {
+        return isObject(patchValue) ? removeNullEntries(patchValue) : patchValue;
+    }
+
     if (Array.isArray(baseValue) && Array.isArray(patchValue)) {
         if (key === 'theiaPluginsExcludeIds') {
             return Array.from(new Set([...baseValue, ...patchValue]));
@@ -43,6 +62,24 @@ function merge(baseValue, patchValue, key = '') {
 
 function isObject(value) {
     return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function removeNullEntries(value) {
+    if (Array.isArray(value)) {
+        return value.map(removeNullEntries);
+    }
+    if (!isObject(value)) {
+        return value;
+    }
+
+    const result = {};
+    for (const [childKey, childValue] of Object.entries(value)) {
+        if (childValue === null) {
+            continue;
+        }
+        result[childKey] = removeNullEntries(childValue);
+    }
+    return result;
 }
 
 function applyExcludeRemovals(mergedValue, patchValue) {

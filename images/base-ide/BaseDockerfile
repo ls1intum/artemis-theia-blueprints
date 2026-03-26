@@ -22,8 +22,9 @@ COPY theia-extensions/product/package.json theia-extensions/product/
 # Copy scripts needed for plugin download hooks
 COPY scripts/ ./scripts/
 
-# Merge the base package.json with the patch and preserve additive exclusion lists.
-RUN node scripts/merge-package-json.js package.json.base package.json.patch package.json.merged
+# Merge the base package.json with the patch, but replace `theiaPlugins`
+# so the patch fully controls the runtime plugin set.
+RUN node scripts/merge-package-json.js --replace-keys theiaPlugins package.json.base package.json.patch package.json.merged
 RUN cp package.json.merged package.json
 
 # Install all workspace dependencies needed for the build (using lockfile for speed + reproducibility)
