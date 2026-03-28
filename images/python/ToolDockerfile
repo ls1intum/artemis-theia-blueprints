@@ -36,9 +36,10 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 # Copy required configuration files
 COPY --from=base-ide /home/theia/package.json ./package.json.base
 COPY images/python/package.json.patch ./package.json.patch
+COPY scripts/merge-package-json.js /usr/local/bin/merge-package-json.js
 
-# Merge the base package.json with the python-specific patch using Node.js
-RUN node -e "const fs=require('fs'); const deepMerge=(t,s)=>{const o={...t}; for(const k in s){o[k]=s[k]!==null&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]?deepMerge(t[k],s[k]):s[k]} return o}; const base=JSON.parse(fs.readFileSync('package.json.base')); const patch=JSON.parse(fs.readFileSync('package.json.patch')); fs.writeFileSync('package.json', JSON.stringify(deepMerge(base,patch), null, 2));" && \
+# Merge the base package.json with the python-specific patch without dropping base exclusions.
+RUN node /usr/local/bin/merge-package-json.js package.json.base package.json.patch package.json && \
     rm package.json.base package.json.patch
 
 # Copy from base-ide: scripts, configs, existing plugins, and production node_modules
@@ -49,7 +50,7 @@ COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 
 # Install ONLY @theia/cli (needed for download:plugins command)
-RUN n=0; until yarn add -W @theia/cli@1.68.2 --network-timeout 1000000 --network-concurrency 3; do \
+RUN n=0; until yarn add -W @theia/cli@1.70.0 --network-timeout 1000000 --network-concurrency 3; do \
         n=$((n+1)); \
         if [ "$n" -ge 5 ]; then echo "yarn add @theia/cli failed after $n attempts" >&2; exit 1; fi; \
         echo "yarn add @theia/cli failed (attempt $n), retrying..."; \
