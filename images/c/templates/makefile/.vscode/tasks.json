@@ -6,6 +6,7 @@
             "type": "shell",
             "command": "make && ./main",
             "group": { "kind": "build", "isDefault": true },
+            "options": { "cwd": "${workspaceFolder}" },
             "presentation": { "reveal": "always", "panel": "shared" }
         },
         {
@@ -13,6 +14,7 @@
             "type": "shell",
             "command": "make",
             "group": "build",
+            "options": { "cwd": "${workspaceFolder}" },
             "presentation": { "reveal": "always", "panel": "shared" }
         },
         {
@@ -20,6 +22,7 @@
             "type": "shell",
             "command": "make clean",
             "group": "build",
+            "options": { "cwd": "${workspaceFolder}" },
             "presentation": { "reveal": "always", "panel": "shared" }
         }
     ]

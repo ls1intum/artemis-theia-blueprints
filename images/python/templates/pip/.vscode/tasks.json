@@ -6,6 +6,7 @@
             "type": "shell",
             "command": "python3 main.py",
             "group": { "kind": "build", "isDefault": true },
+            "options": { "cwd": "${workspaceFolder}" },
             "presentation": { "reveal": "always", "panel": "shared" }
         },
         {
@@ -13,6 +14,7 @@
             "type": "shell",
             "command": "python3 -m pytest",
             "group": "test",
+            "options": { "cwd": "${workspaceFolder}" },
             "presentation": { "reveal": "always", "panel": "shared" }
         }
     ]
