@@ -76,6 +76,8 @@ COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plu
 # Copy project settings (includes .vscode/settings.json with file exclusions)
 COPY --chown=theia:theia images/rust/project /home/project
 
+# Copy entrypoint script for standalone mode (explicit — does not depend on base image being rebuilt)
+COPY --chown=theia:theia images/base-ide/entrypoint.sh /home/theia/entrypoint.sh
 # Copy project templates for standalone mode
 COPY --chown=theia:theia images/rust/templates /home/theia/templates
 

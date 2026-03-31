@@ -80,6 +80,8 @@ COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plu
 COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
 COPY --chown=theia:theia images/javascript/project /home/project
 
+# Copy entrypoint script for standalone mode (explicit — does not depend on base image being rebuilt)
+COPY --chown=theia:theia images/base-ide/entrypoint.sh /home/theia/entrypoint.sh
 # Copy project templates for standalone mode
 COPY --chown=theia:theia images/javascript/templates /home/theia/templates
 
