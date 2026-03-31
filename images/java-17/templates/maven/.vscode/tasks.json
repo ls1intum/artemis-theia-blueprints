@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run",
+            "type": "shell",
+            "command": "mvn compile exec:java -Dexec.mainClass=com.example.App",
+            "group": { "kind": "build", "isDefault": true },
+            "presentation": { "reveal": "always", "panel": "shared" }
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "mvn compile",
+            "group": "build",
+            "presentation": { "reveal": "always", "panel": "shared" }
+        },
+        {
+            "label": "Test",
+            "type": "shell",
+            "command": "mvn test",
+            "group": "test",
+            "presentation": { "reveal": "always", "panel": "shared" }
+        }
+    ]
+}

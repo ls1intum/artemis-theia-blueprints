@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run",
+            "type": "shell",
+            "command": "./gradlew run",
+            "group": { "kind": "build", "isDefault": true },
+            "presentation": { "reveal": "always", "panel": "shared" }
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "./gradlew build",
+            "group": "build",
+            "presentation": { "reveal": "always", "panel": "shared" }
+        },
+        {
+            "label": "Test",
+            "type": "shell",
+            "command": "./gradlew test",
+            "group": "test",
+            "presentation": { "reveal": "always", "panel": "shared" }
+        }
+    ]
+}

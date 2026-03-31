@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run",
+            "type": "shell",
+            "command": "python3 main.py",
+            "group": { "kind": "build", "isDefault": true },
+            "presentation": { "reveal": "always", "panel": "shared" }
+        },
+        {
+            "label": "Test",
+            "type": "shell",
+            "command": "python3 -m pytest",
+            "group": "test",
+            "presentation": { "reveal": "always", "panel": "shared" }
+        }
+    ]
+}
