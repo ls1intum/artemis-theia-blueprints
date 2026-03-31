@@ -34,6 +34,11 @@ async function run(): Promise<void> {
             continue;
         }
 
+        if (typeof downloadUrl !== 'string' || downloadUrl.length === 0) {
+            unresolvedRoots.push(configuredId);
+            continue;
+        }
+
         const resolved = resolvePluginRootId(configuredId, downloadUrl, pluginIndex);
         if (resolved) {
             configuredRoots.push(resolved);
