@@ -78,6 +78,9 @@ COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plu
 # Copy project settings (includes .vscode/settings.json with file exclusions)
 COPY --chown=theia:theia images/python/project /home/project
 
+# Copy project templates for standalone mode
+COPY --chown=theia:theia images/python/templates /home/theia/templates
+
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
@@ -92,7 +95,7 @@ USER theia
 WORKDIR /home/theia/applications/browser
 
 # Launch the backend application via node
-ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
+ENTRYPOINT [ "/bin/bash", "/home/theia/entrypoint.sh" ]
 
 # Arguments passed to the application
 CMD [ "/home/project", "--hostname=0.0.0.0" ]
