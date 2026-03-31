@@ -6,6 +6,7 @@
             "type": "shell",
             "command": "./gradlew run",
             "group": { "kind": "build", "isDefault": true },
+            "options": { "cwd": "${workspaceFolder}" },
             "presentation": { "reveal": "always", "panel": "shared" }
         },
         {
@@ -13,6 +14,7 @@
             "type": "shell",
             "command": "./gradlew build",
             "group": "build",
+            "options": { "cwd": "${workspaceFolder}" },
             "presentation": { "reveal": "always", "panel": "shared" }
         },
         {
@@ -20,6 +22,7 @@
             "type": "shell",
             "command": "./gradlew test",
             "group": "test",
+            "options": { "cwd": "${workspaceFolder}" },
             "presentation": { "reveal": "always", "panel": "shared" }
         }
     ]

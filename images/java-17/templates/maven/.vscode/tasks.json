@@ -6,6 +6,7 @@
             "type": "shell",
             "command": "mvn compile exec:java -Dexec.mainClass=com.example.App",
             "group": { "kind": "build", "isDefault": true },
+            "options": { "cwd": "${workspaceFolder}" },
             "presentation": { "reveal": "always", "panel": "shared" }
         },
         {
@@ -13,6 +14,7 @@
             "type": "shell",
             "command": "mvn compile",
             "group": "build",
+            "options": { "cwd": "${workspaceFolder}" },
             "presentation": { "reveal": "always", "panel": "shared" }
         },
         {
@@ -20,6 +22,7 @@
             "type": "shell",
             "command": "mvn test",
             "group": "test",
+            "options": { "cwd": "${workspaceFolder}" },
             "presentation": { "reveal": "always", "panel": "shared" }
         }
     ]
