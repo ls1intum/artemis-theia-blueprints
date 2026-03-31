@@ -112,9 +112,6 @@ if "$cygwin" || "$msys" ; then
     JAVACMD=$( cygpath --unix "$JAVACMD" )
 fi
 
-# The java command might have spaces in the path; protect them.
-JAVACMD=$(printf '%s' "$JAVACMD" | sed 's/ /\\ /g')
-
 exec "$JAVACMD" \
      "-Dorg.gradle.appname=$APP_BASE_NAME" \
      -classpath "$CLASSPATH" \
