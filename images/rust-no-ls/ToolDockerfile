@@ -132,6 +132,11 @@ COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
 # Copy the project configuration files with Rust-specific settings
 COPY --chown=theia:theia images/rust-no-ls/project /home/project
 
+# Copy entrypoint script for template loading
+COPY --chown=theia:theia images/base-ide/entrypoint.sh /home/theia/entrypoint.sh
+# Copy project templates for standalone mode (reuse rust templates)
+COPY --chown=theia:theia images/rust/templates /home/theia/templates
+
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
@@ -146,8 +151,8 @@ RUN echo 'source $HOME/.cargo/env' >> /home/theia/.zshrc
 
 WORKDIR /home/theia/applications/browser
 
-# Launch the backend application via node
-ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
+# Launch via entrypoint script (handles template loading)
+ENTRYPOINT [ "/bin/bash", "/home/theia/entrypoint.sh" ]
 
 # Arguments passed to the application
 CMD [ "/home/project", "--hostname=0.0.0.0" ]

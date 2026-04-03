@@ -77,6 +77,9 @@ COPY --from=plugin-image /home/theia/plugins /home/theia/plugins
 # Copy the project configuration files
 COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
 
+# Copy entrypoint script for template loading
+COPY --chown=theia:theia images/base-ide/entrypoint.sh /home/theia/entrypoint.sh
+
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
@@ -105,8 +108,8 @@ RUN echo 'source $HOME/.cargo/env' >> /home/theia/.bashrc
 
 WORKDIR /home/theia/applications/browser
 
-# Launch the backend application via node
-ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
+# Launch via entrypoint script (handles template loading)
+ENTRYPOINT [ "/bin/bash", "/home/theia/entrypoint.sh" ]
 
 # Arguments passed to the application
 CMD [ "/home/project", "--hostname=0.0.0.0" ]
