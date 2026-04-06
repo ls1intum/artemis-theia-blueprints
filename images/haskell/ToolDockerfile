@@ -111,6 +111,9 @@ COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plu
 # Copy project settings (includes .vscode/settings.json with file exclusions)
 COPY --chown=theia:theia images/haskell/project /home/project
 
+# Copy entrypoint script for standalone mode (explicit — does not depend on base image being rebuilt)
+COPY --chown=theia:theia images/base-ide/entrypoint.sh /home/theia/entrypoint.sh
+
 # Install and configure Haskell Stack
 ENV STACK_ROOT=/stack_cache
 # Point GHC to LLVM 14 tools (compatible with GHC 9.6.6)
@@ -147,8 +150,8 @@ ENV USE_LOCAL_GIT=true
 USER theia
 WORKDIR /home/theia/applications/browser
 
-# Launch the backend application via node
-ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
+# Launch via entrypoint script (handles template loading)
+ENTRYPOINT [ "/bin/bash", "/home/theia/entrypoint.sh" ]
 
 # Arguments passed to the application
 CMD [ "/home/project", "--hostname=0.0.0.0" ]
