@@ -115,6 +115,9 @@ COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plu
 # Copy the project configuration files
 COPY --chown=theia:theia images/swift/project /home/project
 
+# Copy entrypoint script for standalone mode (explicit — does not depend on base image being rebuilt)
+COPY --chown=theia:theia images/base-ide/entrypoint.sh /home/theia/entrypoint.sh
+
 # Copy dependencies from builder image
 COPY --from=builder /usr/lib/libsourcekitdInProc.so /usr/lib
 COPY --from=builder /usr/lib/swift/linux/libBlocksRuntime.so /usr/lib
@@ -142,8 +145,8 @@ ENV USE_LOCAL_GIT=true
 USER theia
 WORKDIR /home/theia/applications/browser
 
-# Launch the backend application via node
-ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
+# Launch via entrypoint script (handles template loading)
+ENTRYPOINT [ "/bin/bash", "/home/theia/entrypoint.sh" ]
 
 # Arguments passed to the application
 CMD [ "/home/project", "--hostname=0.0.0.0" ]
