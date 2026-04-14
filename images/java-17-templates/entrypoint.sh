@@ -4,7 +4,12 @@ set -e
 TEMPLATES_DIR="/home/theia/templates"
 
 if [ -n "$TEMPLATE" ]; then
-    TEMPLATE_PATH="${TEMPLATES_DIR}/${TEMPLATE}"
+    # Validate against path traversal (e.g. TEMPLATE="../../etc")
+    TEMPLATE_PATH="$(realpath -m "${TEMPLATES_DIR}/${TEMPLATE}")"
+    case "$TEMPLATE_PATH" in
+        "${TEMPLATES_DIR}/"*) ;; # path is under TEMPLATES_DIR — OK
+        *) echo "ERROR: Invalid template name '${TEMPLATE}'" >&2; exit 1 ;;
+    esac
     if [ ! -d "$TEMPLATE_PATH" ]; then
         echo "ERROR: No template found for '${TEMPLATE}'" >&2
         if [ -d "$TEMPLATES_DIR" ]; then
