@@ -6,7 +6,6 @@
             "name": "Debug App",
             "request": "launch",
             "mainClass": "com.example.App",
-            "projectName": "project"
         }
     ]
 }
