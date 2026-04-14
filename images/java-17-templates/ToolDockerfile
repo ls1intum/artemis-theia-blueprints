@@ -1,4 +1,7 @@
 # syntax=docker/dockerfile:1
+# Java 17 image WITH project templates (gradle/maven)
+# Identical to java-17 but includes templates and entrypoint for standalone mode.
+
 # Load the base-ide image, only copy from here
 ARG BASE_IDE_TAG=latest
 ARG BASE_IMAGE=ghcr.io/ls1intum/theia/base:${BASE_IDE_TAG}
@@ -7,20 +10,20 @@ FROM ${BASE_IMAGE} AS base-ide
 # Parallel stage: Install system dependencies (runs concurrently with plugin-image)
 FROM ubuntu:24.04 AS apt-deps
 
-WORKDIR /home/theia
-
-# Create theia user and directories
+# Create theia user and directories first (doesn't need apt)
 RUN useradd --system --create-home --user-group --uid 101 theia && \
     chmod g+rw /home && \
     mkdir -p /home/project && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project
 
-# Install all system dependencies with BuildKit cache mounts
+# Install required tools with BuildKit cache mounts
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && \
-    apt-get install -y --no-install-recommends bash git curl ca-certificates
+    apt-get install -y --no-install-recommends \
+    git openssh-client openssh-server bash curl libsecret-1-0 openjdk-17-jdk maven ca-certificates && \
+    apt-get autoremove -y
 
 # Parallel stage: Plugin download (runs concurrently with apt-deps)
 FROM node:22-bullseye AS plugin-image
@@ -32,9 +35,9 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Copy required configuration files
 COPY --from=base-ide /home/theia/package.json ./package.json.base
-COPY images/javascript/package.json.patch ./package.json.patch
+COPY images/java-17/package.json.patch ./package.json.patch
 
-# Merge the base package.json with the javascript-specific patch using Node.js
+# Merge the base package.json with the java-17-specific patch using Node.js
 RUN node -e "const fs=require('fs'); const deepMerge=(t,s)=>{const o={...t}; for(const k in s){o[k]=s[k]!==null&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]?deepMerge(t[k],s[k]):s[k]} return o}; const base=JSON.parse(fs.readFileSync('package.json.base')); const patch=JSON.parse(fs.readFileSync('package.json.patch')); fs.writeFileSync('package.json', JSON.stringify(deepMerge(base,patch), null, 2));" && \
     rm package.json.base package.json.patch
 
@@ -46,6 +49,7 @@ COPY --from=base-ide /home/theia/plugins /home/theia/plugins
 COPY --from=base-ide /home/theia/node_modules /home/theia/node_modules
 
 # Install ONLY @theia/cli (needed for download:plugins command)
+# This is much faster than full yarn install since we already have prod node_modules
 RUN yarn add -W @theia/cli@1.68.2 --network-timeout 1000000
 
 # Download language-specific plugins
@@ -63,15 +67,25 @@ USER theia
 ENV HOME=/home/theia
 WORKDIR /home/theia
 
-# Copy application from base-ide (includes prod node_modules)
+# Copy application from the base image (includes prod node_modules)
 COPY --from=base-ide --chown=theia:theia /home/theia /home/theia
 
 # Copy additional plugins (language-specific extensions)
 COPY --from=plugin-image --chown=theia:theia /home/theia/plugins /home/theia/plugins
 
 # Copy the project configuration files
-COPY --from=base-ide --chown=theia:theia /home/theia/project /home/project
-COPY --chown=theia:theia images/javascript/project /home/project
+COPY --chown=theia:theia images/java-17/project /home/project
+
+# Copy entrypoint script for standalone mode
+COPY --chown=theia:theia images/base-ide/entrypoint.sh /home/theia/entrypoint.sh
+# Copy project templates for standalone mode
+COPY --chown=theia:theia images/java-17/templates /home/theia/templates
+# Download the Gradle wrapper jar (binary — not checked into repo)
+RUN curl --retry 5 --retry-all-errors --connect-timeout 30 --max-time 60 -fsSL \
+    "https://github.com/gradle/gradle/raw/v9.4.1/gradle/wrapper/gradle-wrapper.jar" \
+    -o /home/theia/templates/gradle/gradle/wrapper/gradle-wrapper.jar && \
+    echo "55243ef57851f12b070ad14f7f5bb8302daceeebc5bce5ece5fa6edb23e1145c  /home/theia/templates/gradle/gradle/wrapper/gradle-wrapper.jar" \
+    | sha256sum -c -
 
 EXPOSE 3000
 
@@ -84,8 +98,8 @@ ENV USE_LOCAL_GIT=true
 
 WORKDIR /home/theia/applications/browser
 
-# Launch the backend application via node
-ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
+# Launch via entrypoint script (handles template loading)
+ENTRYPOINT [ "/bin/bash", "/home/theia/entrypoint.sh" ]
 
 # Arguments passed to the application
 CMD [ "/home/project", "--hostname=0.0.0.0" ]

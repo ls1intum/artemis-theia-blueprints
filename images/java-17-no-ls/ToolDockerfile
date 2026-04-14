@@ -125,11 +125,6 @@ COPY --chown=theia:theia configs/zshrc ${HOME}/.zshrc
 # Copy the project configuration files with Java-specific settings
 COPY --chown=theia:theia images/java-17-no-ls/project /home/project
 
-# Copy entrypoint script for template loading
-COPY --chown=theia:theia images/base-ide/entrypoint.sh /home/theia/entrypoint.sh
-# Copy project templates for standalone mode (reuse java-17 templates)
-COPY --chown=theia:theia images/java-17/templates /home/theia/templates
-
 EXPOSE 3000
 
 # Specify default shell for Theia and the Built-In plugins directory
@@ -141,8 +136,8 @@ ENV USE_LOCAL_GIT=true
 
 WORKDIR /home/theia/applications/browser
 
-# Launch via entrypoint script (handles template loading)
-ENTRYPOINT [ "/bin/bash", "/home/theia/entrypoint.sh" ]
+# Launch the backend application via node
+ENTRYPOINT [ "node", "/home/theia/applications/browser/lib/backend/main.js" ]
 
 # Arguments passed to the application
 CMD [ "/home/project", "--hostname=0.0.0.0" ]
